@@ -1,6 +1,6 @@
 <p style="text-indent: 1.5em">自nodeJS登上前端舞台，自动化构建变得越来越流行。目前最流行的当属grunt和gulp,这两个光看名字挺像，功能也差不多，不过gulp能在grunt这位大哥如日中天的境况下开辟出自己的一片天地，有着她独到的优点。
 </p>
-<ul>
+<ol>
     <li><strong>易用</strong> Gulp相比Grunt更简洁，而且遵循代码优于配置策略，维护Gulp更像是写代码。</li>
     <li><strong>高效</strong> Gulp相比Grunt更有设计感，核心设计基于Unix流的概念，通过管道连接，不需要写中间文件。</li>
     <li><strong>高质量</strong>
@@ -13,9 +13,9 @@
     使用Grunt的I/O过程中会产生一些中间态的临时文件，一些任务生成临时文件，其它任务可能会基于临时文件再做处理并生成最终的构建后文件。而使用Gulp的优势就是利用流的方式进行文件的处理，通过管道将多个任务和操作连接起来，因此只有一次I/O的过程，流程更清晰，更纯粹。
     </li>
     <li><strong>代码优于配置</strong> 维护Gulp更像是写代码，而且Gulp遵循CommonJS规范，因此跟写Node程序没有差别。</li>
-</ul>
+</ol>
 
-##一个简单的Gulpfile.js配置格式##
+###一个简单的Gulpfile.js配置格式###
 ```JavaScript
     var gulp = require('gulp');
     var jshint = require('gulp-jshint');
@@ -48,4 +48,19 @@
     // Default
     gulp.task('default', ['lint', 'minify', 'watch']);
 ```
+
+###gulp的核心API###
+<strong>gulp.src(globs[,options])</strong> 
+参数说明：src方法是指定需要处理的源文件的路径，gulp借鉴了Unix操作系统的管道（pipe）思想，前一级的输出，直接变成后一级的输入，gulp.src返回当前文件流至可用插件；
+
+
+
+
+
+
+
+
+
+
+
 
