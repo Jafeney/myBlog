@@ -15,7 +15,7 @@
     <li><strong>代码优于配置</strong> 维护Gulp更像是写代码，而且Gulp遵循CommonJS规范，因此跟写Node程序没有差别。</li>
 </ol>
 
-###一个简单的Gulpfile.js配置格式###
+<strong>一个简单的Gulpfile.js配置格式</strong>
 ```JavaScript
     var gulp = require('gulp');
     var jshint = require('gulp-jshint');
@@ -49,9 +49,6 @@
     gulp.task('default', ['lint', 'minify', 'watch']);
 ```
 
-###gulp的核心API###
-<strong>gulp.src(globs[,options])</strong> 
-参数说明：src方法是指定需要处理的源文件的路径，gulp借鉴了Unix操作系统的管道（pipe）思想，前一级的输出，直接变成后一级的输入，gulp.src返回当前文件流至可用插件；
 
 
 
