@@ -18,7 +18,11 @@
 ```JavaScript
     var data={
         name:'Jafeney',
-        like:['pingpeng','lol','programming','movie']
+        like:['pingpeng','lol','programming','movie'],
+        resource:{
+            name:'art',
+            like:'apple'
+        }
     }
     var art=template('art-main',data);
     document.getElementById('art-container').innerHtml=art;
@@ -28,6 +32,7 @@
 ```JavaScript
     {{varible}}
 ```
+
 -- 条件表达式
 ```JavaScript
     {{if true}}
@@ -38,8 +43,10 @@
             //do something
     {{/if}}
 ```
+
 -- 遍历表达式
 ```JavaScript
+    //既可以遍历对象，又可以遍历数组
     {{each like value index}}
         <li> 我的第{{index＋1}}个爱好：{{value}} </li>
     {{/each}}
@@ -48,7 +55,11 @@
         <li> 我的第{{$index＋1}}个爱好：{{$value}} </li>
     {{/each}}
 ```
+
 -- 包含表达式
 ```JavaScript
+    //子模板默认是共享当前的data对象内的所有数据
     {{include 'art-sub'}}
+    //也可以单独为它指定数据源
+    {{include 'art-sub' resource}}
 ```
