@@ -1,0 +1,235 @@
+title: 用路由为webApp提供多入口
+date: 2016-01-10 13:24:47
+tags: webApp 
+categories: 移动开发  
+---
+
+
+# 写在前言
+我1个月前开发的webApp是个单入口的单页应用，那个时候需求没有很复杂，仅仅是一个购物的站点，但后来不停地添加功能，而且近期还提出需要把webAPP的部分页面分享到 IOS webView、微信朋友圈，并且能完成完整的业务逻辑。
+
+# 我的策略 
+## **拆模块，分多页**
+这个需求下来，我第一反应是“拆”——把单页的webAPP根据模块拆分成多页，以一个新的html页面的形式提供给iOS和微信端。这么做的好处很明显：
+
+<!--more-->
+
+1. 思路简单，不需要很复杂的js架构
+2. 可以利用浏览器的历史记录来做`返回`跳转，避免了原先的靠判断`状态码`来实现 `返回` 更简便且易维护。
+3.  以模块拆分页面，方便团队开发和维护。
+
+此法虽好，但是不太适合眼前的情况：
+
+1. 放弃单页的思路，那么之前的架构就得重新整合，这会是一个大工程，因为现有的代码光js已经超过了4500行，公司追求速度，不太情愿花过多的时间在架构上。
+
+![这里写图片描述](http://img.blog.csdn.net/20151216100515372)
+
+2. 放弃单页的思路，那么对模块化的要求就变得更高，单页内资源共享的优势就荡然无存，需要花费不少时间去封装原有的模块，单一职责，充分解耦。这又是一个时间投入比较大的工作，公司又不情愿了。
+
+如何在有限的时间里 把这个问题解决呢？我 最后想来想去，觉得 可以参考 AngularJS里 `路由` 的思路。
+
+## **换路由，多入口**
+之前做项目架构的时候我还没来得及学习AngularJS，所以在设计上有不少的“笨思路”，没有很好地站在巨人的肩膀上去思考问题。唉，好在现在已经意识到这一点了，以后做每件事都不应该“闭门造车”，而且多参考一些成功的案例，借鉴别人成功的经验，少走弯路才好。
+
+路由的好处：
+
+1.  以url作为页面跳转的媒介，这样的思路可能和 原先的 `状态码` 类似，但是状态码是只能 通过JS内部调用，无法外部操作，而url则不然，不仅可以外部操作，多口入进入，而且对SEO友好性上 也提升了一些。
+
+2.  改用路由的方式，原先的很多模块不用做太多的改动，仅仅是 controller层的 `状态码` 写入需要做相应的改动。 这样就节省了 “大手术”的开发成本和风险。
+
+> 可能方法没有好坏之分，只有适合不适合当前的现状吧。伟人云“**黑猫白猫能抓到老鼠的就是好猫**”，这一理论在小公司特别明显。没办法，我们的项目需求变动地很快，老板要求的时间也很紧张，没有很多的时间让我去学习和思考技术的好坏，只要能快速地出成果就OK。这样的现状使得小公司出来的技术人才在技术理论层面或者深度上会不及大公司的同类人才，但是论项目经验和碰壁的次数也是没的比的。在这个公司，作为前端的我，不仅要把前端的工作 做好，PS、Linux、PHP、Java方面的问题都要接触不少。而我们的原则就是**“既然碰壁，那就努力把它碰穿”**，无论什么问题，解决就可以了！
+
+> 既然目前的趋势是“大前端”，那我并不觉得小公司出来的人才在能力上会比大公司出来的差，还是要看一个人的品质和他努力的程度的，我始终相信成功靠坚持，一个人肯在一个领域里不停地摸索滚爬，那么终有一天能成为该领域的领军人物的。
+
+# 具体实施
+## **get方式做路由**
+get方式的url参数传递是比较好理解的，而且取值操作也很容易，重要的是这样的参数方式不会对页面产生任何影响。
+```
+function queryString(){
+	var url = location.search;
+	var theRequest = new Object();
+	if (url.indexOf("?") != -1) {
+		var str = url.substr(1);
+		strs = str.split("&");
+		for(var i = 0; i < strs.length; i ++) {
+			theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+		}
+	}
+	return theRequest;
+}
+```
+当然，仅仅针多webAPP这种单页应用来说，没有所谓的get方式提交表单的问题，因为所有的数据都是通过ajax异步加载和渲染的。但是从长远的角度考虑，这样的方式有点“越界”的意思，get方式的初衷是数据请求，现在却用它做路由总感觉职责不明，是不是有很好的方式呢？
+
+## **哈希方式的路由**
+大家知道 html里有个 `锚点链接` 的概念吧，通过 `#锚点名`来实现页面内部的跳转。这个其实就是最原始的哈希方式的路由了，不过仅仅是用于页面内部，而单页应用也是一个页面，内部的其他页面是通过js控制显示和隐藏的，这使得 哈希方式的路由思路上十分自然。
+
+当然，借鉴ThinkPHP、springMVC、express等框架对路由的设计，我们可以把我们的路由搞得更高大上些：
+```
+var app= {};
+app.Router = function(){
+	function Router(){
+	}
+	Router.prototype.setup = function(routemap, defaultFunc){
+	    var that = this, rule, func;
+	    this.routemap = [];
+	    this.defaultFunc = defaultFunc;
+	    for (var rule in routemap) {
+	      if (!routemap.hasOwnProperty(rule)) continue;
+	      that.routemap.push({
+	        rule: new RegExp(rule, 'i'),
+	        func: routemap[rule]
+	      });       
+	    }
+	};
+	Router.prototype.start = function(){
+		console.log(window.location.hash);
+	    var hash = location.hash, route, matchResult;
+	    for (var routeIndex in this.routemap){
+		    route = this.routemap[routeIndex];
+		    matchResult = hash.match(route.rule);
+	        if (matchResult){
+				route.func.apply(window, matchResult.slice(1));
+				return; 
+		    }
+	    }
+	    this.defaultFunc();
+	};
+	return Router;
+}();
+var router = new app.Router();
+router.setup({
+	'#/list/(.*)/(.*)': function(cate, id){
+		console.log('list', cate, id);
+	},
+	'#/show/(.*)': function(id){
+	    console.log('show', id); 
+	}
+}, function(){
+	console.log('default router');
+});
+router.start();
+```
+
+
+# 在线实例 
+> @ 实例在线演示地址：http://webapp.baai.com/basic/router/index.html  
+
+html结构：
+
+```
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>js实现简单的路由</title>
+	<link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+<body>
+	<h1>开启路由功能</h1>
+	<ul>
+		<li><a href="javascript:void(0)" id="open-page1">打开第一个页面</a></li>
+		<li><a href="javascript:void(0)" id="open-page2">打开第二个页面</a></li>
+		<li><a href="javascript:void(0)" id="open-page3">打开第三个页面</a></li>
+	</ul>
+
+	<div id="page1" class="bg1">这里是页面一</div>
+	<div id="page2" class="bg2">这里是页面二</div>
+	<div id="page3" class="bg3">这里是页面三</div>
+
+	<script type="text/javascript" src="./jquery.min.js"></script>
+	<script type="text/javascript" src="./router.js"></script>
+</body>
+</html>
+```
+
+css结构：
+
+```
+body{
+	text-align: center;
+	font-size: 12px;
+	color: #555;
+	font-family: '微软雅黑';
+	padding-top: 30px;
+}
+li{
+	margin-top: 10px;
+}
+div{
+	width: 800px;
+	height: 600px;
+	display: none;
+	margin: 20px auto;
+	padding-top: 20px;
+}
+div.bg1{
+	background: rgba(238,34,102,0.5);
+}
+div.bg2{
+	background: #f0f0f0;
+}
+div.bg3{
+	background: rgba(0,145,230,0.5);
+}
+```
+js结构：
+
+```
+$(function(){
+  var app = {};
+  app.Router = function(){
+    function Router(){
+    }
+    Router.prototype.setup = function(routemap, defaultFunc){
+      var that = this, rule, func;
+      this.routemap = [];
+      this.defaultFunc = defaultFunc;
+      for (var rule in routemap) {
+        if (!routemap.hasOwnProperty(rule)) continue;
+        that.routemap.push({
+          rule: new RegExp(rule, 'i'),
+          func: routemap[rule]
+        });       
+      }
+    };
+    Router.prototype.start = function(){
+      var hash = location.hash, route, matchResult;
+      for (var routeIndex in this.routemap){
+        route = this.routemap[routeIndex];
+        matchResult = hash.match(route.rule);
+        if (matchResult){
+          route.func.apply(window, matchResult.slice(1));
+          return; 
+        }
+      }
+      this.defaultFunc();
+    };
+    return Router;
+  }();
+  var router = new app.Router();
+  router.setup({
+    '#/list/(.*)/(.*)': function(cate, id){
+        console.log('list', cate, id);
+      },
+    '#/show/(.*)': function(id){
+        console.log('show'+id);
+        $('div').hide();
+        $('#'+id).show();
+      }
+  }, function(){
+    console.log('default router');
+  });
+  app.operate=(function(){
+    var btns=[$('#open-page1'),$('#open-page2'),$('#open-page3')];
+    $.each(btns,function(idx,item){
+      var pageIdx=idx+1;
+      item.on('click',function(){
+        var oldUrl=location.href.split('#')[0];
+        location.replace(oldUrl+"#/show/page"+pageIdx);        
+        router.start();
+      });
+    });
+  })();
+});
+``` 
+
