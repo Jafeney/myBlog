@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <link rel="dns-prefetch" href="http://jafeney.com">
+  <title>基于Node的React图片上传组件实现 | Jafeney</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="写在前面红旗不倒，誓把JavaScript进行到底！今天介绍我的开源项目 Royal 里的图片上传组件的前后端实现原理（React + Node），花了一些时间，希望对你有所帮助。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Node的React图片上传组件实现">
+<meta property="og:url" content="http://jafeney.com/2016/08/11/2016-08-11-upload/index.html">
+<meta property="og:site_name" content="Jafeney">
+<meta property="og:description" content="写在前面红旗不倒，誓把JavaScript进行到底！今天介绍我的开源项目 Royal 里的图片上传组件的前后端实现原理（React + Node），花了一些时间，希望对你有所帮助。">
+<meta property="og:image" content="http://jafeney.com:9999/file/111.gif">
+<meta property="og:updated_time" content="2017-03-28T06:40:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于Node的React图片上传组件实现">
+<meta name="twitter:description" content="写在前面红旗不倒，誓把JavaScript进行到底！今天介绍我的开源项目 Royal 里的图片上传组件的前后端实现原理（React + Node），花了一些时间，希望对你有所帮助。">
+<meta name="twitter:image" content="http://jafeney.com:9999/file/111.gif">
+  
+    <link rel="alternative" href="/atom.xml" title="Jafeney" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" type="text/css" href="/./main.b07bcf.css">
+  <style type="text/css">
+  
+    #container.show {
+      background: linear-gradient(200deg,#a0cfe4,#e8c37e);
+    }
+  </style>
+  
+
+  
+<script>
+var _hmt = _hmt || [];
+(function() {
+	var hm = document.createElement("script");
+	hm.src = "https://hm.baidu.com/hm.js?4c0fe03f16c08a15b32cda310c30b262";
+	var s = document.getElementsByTagName("script")[0]; 
+	s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+</head>
+
+<body>
+  <div id="container" q-class="show:isCtnShow">
+    <canvas id="anm-canvas" class="anm-canvas"></canvas>
+    <div class="left-col" q-class="show:isShow">
+      
+<div class="overlay" style="background: #4d4d4d"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			<img src="http://avatar.csdn.net/F/8/E/1_u011413061.jpg" class="js-avatar">
+		</a>
+		<hgroup>
+		  <h1 class="header-author"><a href="/">Jafeney Lou</a></h1>
+		</hgroup>
+		
+		<p class="header-subtitle">like programming,like life</p>
+		
+
+		<nav class="header-menu">
+			<ul>
+			
+				<li><a href="/">主页</a></li>
+	        
+				<li><a href="/tags">标签</a></li>
+	        
+				<li><a href="/archives">归档</a></li>
+	        
+				<li><a href="/categories">分类</a></li>
+	        
+			</ul>
+		</nav>
+		<nav class="header-smart-menu">
+    		
+    			
+    			<a q-on="click: openSlider(e, 'innerArchive')" href="javascript:void(0)">所有文章</a>
+    			
+            
+    			
+    			<a q-on="click: openSlider(e, 'friends')" href="javascript:void(0)">友链</a>
+    			
+            
+    			
+    			<a q-on="click: openSlider(e, 'aboutme')" href="javascript:void(0)">关于我</a>
+    			
+            
+		</nav>
+		<nav class="header-nav">
+			<div class="social">
+				
+					<a class="github" target="_blank" href="https://github.com/Jafeney" title="github"><i class="icon-github"></i></a>
+		        
+					<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/jafeney-lou/activities" title="zhihu"><i class="icon-zhihu"></i></a>
+		        
+					<a class="segmentfault" target="_blank" href="https://segmentfault.com/u/jafeney" title="segmentfault"><i class="icon-segmentfault"></i></a>
+		        
+					<a class="mail" target="_blank" href="mailto:692270687@qq.com" title="mail"><i class="icon-mail"></i></a>
+		        
+			</div>
+		</nav>
+	</header>		
+</div>
+
+    </div>
+    <div class="mid-col" q-class="show:isShow,hide:isShow|isFalse">
+      
+<nav id="mobile-nav">
+  	<div class="overlay js-overlay" style="background: #4d4d4d"></div>
+	<div class="btnctn js-mobile-btnctn">
+  		<div class="slider-trigger list" q-on="click: openSlider(e)"><i class="icon icon-sort"></i></div>
+	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img src="http://avatar.csdn.net/F/8/E/1_u011413061.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author js-header-author">Jafeney Lou</h1>
+			</hgroup>
+			
+			<p class="header-subtitle"><i class="icon icon-quo-left"></i>like programming,like life<i class="icon icon-quo-right"></i></p>
+			
+			
+			
+				
+			
+				
+			
+				
+			
+				
+			
+			
+			
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/Jafeney" title="github"><i class="icon-github"></i></a>
+			        
+						<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/jafeney-lou/activities" title="zhihu"><i class="icon-zhihu"></i></a>
+			        
+						<a class="segmentfault" target="_blank" href="https://segmentfault.com/u/jafeney" title="segmentfault"><i class="icon-segmentfault"></i></a>
+			        
+						<a class="mail" target="_blank" href="mailto:692270687@qq.com" title="mail"><i class="icon-mail"></i></a>
+			        
+				</div>
+			</nav>
+
+			<nav class="header-menu js-header-menu">
+				<ul style="width: 70%">
+				
+				
+					<li style="width: 25%"><a href="/">主页</a></li>
+		        
+					<li style="width: 25%"><a href="/tags">标签</a></li>
+		        
+					<li style="width: 25%"><a href="/archives">归档</a></li>
+		        
+					<li style="width: 25%"><a href="/categories">分类</a></li>
+		        
+				</ul>
+			</nav>
+		</header>				
+	</div>
+	<div class="mobile-mask" style="display:none" q-show="isShow"></div>
+</nav>
+
+      <div id="wrapper" class="body-wrap">
+        <div class="menu-l">
+          <div class="canvas-wrap">
+            <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
+          </div>
+          <div id="js-content" class="content-ll">
+            <article id="post-2016-08-11-upload" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      基于Node的React图片上传组件实现
+    </h1>
+  
+
+        
+        <a href="/2016/08/11/2016-08-11-upload/" class="archive-article-date">
+  	<time datetime="2016-08-11T02:51:50.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-08-11</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>红旗不倒，誓把<code>JavaScript</code>进行到底！今天介绍我的开源项目 <a href="https://github.com/jafeney/royal" target="_blank" rel="external"><code>Royal</code></a> 里的图片上传组件的前后端实现原理（<code>React</code> + <code>Node</code>），花了一些时间，希望对你有所帮助。</p>
+<p><img src="http://jafeney.com:9999/file/111.gif" alt="这里写图片描述"></p>
+<a id="more"></a>
+<h1 id="前端实现"><a href="#前端实现" class="headerlink" title="前端实现"></a>前端实现</h1><p>遵循<code>React</code> 组件化的思想，我把图片上传做成了一个独立的组件（没有其他依赖），直接<code>import</code>即可。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> React, &#123; Component &#125; <span class="keyword">from</span> <span class="string">'react'</span></div><div class="line"><span class="keyword">import</span> Upload <span class="keyword">from</span> <span class="string">'../../components/FormControls/Upload/'</span></div><div class="line"></div><div class="line"><span class="comment">//......</span></div><div class="line"></div><div class="line">render() &#123;</div><div class="line">	<span class="keyword">return</span> (</div><div class="line">		<span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span><span class="tag">&lt;<span class="name">Upload</span> <span class="attr">uri</span>=<span class="string">&#123;</span>'<span class="attr">http:</span>//<span class="attr">jafeney.com:9999</span>/<span class="attr">upload</span>'&#125; /&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></div><div class="line">	)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p><code>uri</code> 参数是必须传的，是图片上传的后端接口地址，接口怎么写下面会讲到。</p>
+</blockquote>
+<h2 id="渲染页面"><a href="#渲染页面" class="headerlink" title="渲染页面"></a>渲染页面</h2><p>组件<code>render</code>部分需要体现三个功能：</p>
+<ul>
+<li>图片选取（dialog窗口）</li>
+<li>可拖拽功能（拖拽容器）</li>
+<li>可预览（预览列表）</li>
+<li>上传按钮 （button）</li>
+<li>上传完成图片地址和链接 （信息列表）</li>
+</ul>
+<h3 id="主render函数"><a href="#主render函数" class="headerlink" title="主render函数"></a>主<code>render</code>函数</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">render() &#123;</div><div class="line">	<span class="keyword">return</span> (</div><div class="line">	    <span class="xml"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&#123;this.state.uri&#125;</span> <span class="attr">method</span>=<span class="string">"post"</span> <span class="attr">encType</span>=<span class="string">"multipart/form-data"</span>&gt;</span></span></div><div class="line">	        <span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">"ry-upload-box"</span>&gt;</span></div><div class="line">	            <span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">"upload-main"</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">"upload-choose"</span>&gt;</span></div><div class="line">                        <span class="tag">&lt;<span class="name">input</span></span></div><div class="line">                            <span class="attr">onChange</span>=<span class="string">&#123;(v)</span>=&gt;this.handleChange(v)&#125;</div><div class="line">                            type="file"</div><div class="line">                            size=&#123;this.state.size&#125;</div><div class="line">                            name="fileSelect"</div><div class="line">                            accept="image/*"</div><div class="line">                            multiple=&#123;this.state.multiple&#125; /&gt;</div><div class="line">	                    <span class="tag">&lt;<span class="name">span</span> <span class="attr">ref</span>=<span class="string">"dragBox"</span></span></div><div class="line">                            <span class="attr">onDragOver</span>=<span class="string">&#123;(e)</span>=&gt;this.handleDragHover(e)&#125;</div><div class="line">                            onDragLeave=&#123;(e)=&gt;this.handleDragHover(e)&#125;</div><div class="line">                            onDrop=&#123;(e)=&gt;this.handleDrop(e)&#125;</div><div class="line">                            className="upload-drag-area"&gt;</div><div class="line">                            或者将图片拖到此处</div><div class="line">                        <span class="tag">&lt;/<span class="name">span</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#123;this.state.files.length?</span></span></div><div class="line">                         "<span class="attr">upload-preview</span>"<span class="attr">:</span>"<span class="attr">upload-preview</span> <span class="attr">ry-hidden</span>"&#125;&gt;</div><div class="line">                        &#123; this._renderPreview();   // 渲染图片预览列表 &#125;</div><div class="line">                    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#123;this.state.files.length?</span></span></div><div class="line">                     "<span class="attr">upload-submit</span>"<span class="attr">:</span>"<span class="attr">upload-submit</span> <span class="attr">ry-hidden</span>"&#125;&gt;</div><div class="line">                     <span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">"button"</span></span></div><div class="line">	                     <span class="attr">onClick</span>=<span class="string">&#123;()</span>=&gt;this.handleUpload()&#125;</div><div class="line">                         class="upload-submit-btn"&gt;</div><div class="line">                         确认上传图片</div><div class="line">                     <span class="tag">&lt;/<span class="name">button</span>&gt;</span></div><div class="line">	            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">"upload-info"</span>&gt;</span></div><div class="line">	                &#123; this._renderUploadInfos();   // 渲染图片上传信息 &#125;</div><div class="line">                <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">form</span>&gt;</span></div><div class="line">    )</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="渲染图片预览列表"><a href="#渲染图片预览列表" class="headerlink" title="渲染图片预览列表"></a>渲染图片预览列表</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">_renderPreview() &#123;</div><div class="line">	<span class="keyword">if</span> (<span class="keyword">this</span>.state.files) &#123;</div><div class="line">	    <span class="keyword">return</span> <span class="keyword">this</span>.state.files.map(<span class="function">(<span class="params">item, idx</span>) =&gt;</span> &#123;</div><div class="line">	        <span class="keyword">return</span> (</div><div class="line">	            <span class="xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">"upload-append-list"</span>&gt;</span></span></div><div class="line">	                <span class="tag">&lt;<span class="name">p</span>&gt;</span></div><div class="line">	                    <span class="tag">&lt;<span class="name">strong</span>&gt;</span>&#123;item.name&#125;<span class="tag">&lt;/<span class="name">strong</span>&gt;</span></div><div class="line">                        <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"javascript:void(0)"</span></span></div><div class="line">                           <span class="attr">className</span>=<span class="string">"upload-delete"</span></div><div class="line">                           <span class="attr">title</span>=<span class="string">"删除"</span> <span class="attr">index</span>=<span class="string">&#123;idx&#125;</span>&gt;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">                        <span class="tag">&lt;<span class="name">br</span>/&gt;</span></div><div class="line">                        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&#123;item.thumb&#125;</span> <span class="attr">className</span>=<span class="string">"upload-image"</span> /&gt;</span></div><div class="line">                     <span class="tag">&lt;/<span class="name">p</span>&gt;</span></div><div class="line">                     <span class="tag">&lt;<span class="name">span</span> <span class="attr">className</span>=<span class="string">&#123;this.state.progress[idx]?</span></span></div><div class="line">		                 "<span class="attr">upload-progress</span>"<span class="attr">:</span></div><div class="line">                         "<span class="attr">upload-progress</span> <span class="attr">ry-hidden</span>"&#125;&gt;</div><div class="line">                         &#123;this.state.progress[idx]&#125;</div><div class="line">                     <span class="tag">&lt;/<span class="name">span</span>&gt;</span></div><div class="line">                 <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">            )</div><div class="line">        &#125;)</div><div class="line">    &#125; else &#123;</div><div class="line">        return null</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="渲染图片上传信息列表"><a href="#渲染图片上传信息列表" class="headerlink" title="渲染图片上传信息列表"></a>渲染图片上传信息列表</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">_renderUploadInfos() &#123;</div><div class="line">	<span class="keyword">if</span> (<span class="keyword">this</span>.state.uploadHistory) &#123;</div><div class="line">	    <span class="keyword">return</span> <span class="keyword">this</span>.state.uploadHistory.map(<span class="function">(<span class="params">item, idx</span>) =&gt;</span> &#123;</div><div class="line">	        <span class="keyword">return</span> (</div><div class="line">	            <span class="xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span></span></div><div class="line">	                <span class="tag">&lt;<span class="name">span</span>&gt;</span>上传成功，图片地址是：<span class="tag">&lt;/<span class="name">span</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"upload-url"</span> <span class="attr">value</span>=<span class="string">&#123;item.relPath&#125;/</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&#123;item.relPath&#125;</span> <span class="attr">target</span>=<span class="string">"_blank"</span>&gt;</span>查看<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">                 <span class="tag">&lt;/<span class="name">p</span>&gt;</span></div><div class="line">            );</div><div class="line">        &#125;)</div><div class="line">    &#125; else &#123;</div><div class="line">        return null;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><p>前端要实现图片上传的原理就是通过构建<code>FormData</code>对象，把文件对象<code>append()</code>到该对象，然后挂载在<code>XMLHttpRequest</code>对象上 <code>send()</code> 到服务端。</p>
+<h3 id="获取文件对象"><a href="#获取文件对象" class="headerlink" title="获取文件对象"></a>获取文件对象</h3><p>获取文件对象需要借助 <code>input</code> 输入框的 <code>change</code> 事件来获取 句柄参数 <code>e</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">onChange=&#123;(e)=&gt;<span class="keyword">this</span>.handleChange(e)&#125;</div></pre></td></tr></table></figure>
+<p>然后做以下处理：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">e.preventDefault()</div><div class="line"><span class="keyword">let</span> target = event.target</div><div class="line"><span class="keyword">let</span> files = target.files</div><div class="line"><span class="keyword">let</span> count = <span class="keyword">this</span>.state.multiple ? files.length : <span class="number">1</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">    files[i].thumb = URL.createObjectURL(files[i])</div><div class="line">&#125;</div><div class="line"><span class="comment">// 转换为真正的数组</span></div><div class="line">files = <span class="built_in">Array</span>.prototype.slice.call(files, <span class="number">0</span>)</div><div class="line"><span class="comment">// 过滤非图片类型的文件</span></div><div class="line">files = files.filter(<span class="function"><span class="keyword">function</span> (<span class="params">file</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="regexp">/image/i</span>.test(file.type)</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>这时 <code>files</code> 就是 我们需要的文件对象组成的数组，把它 <code>concat</code> 到原有的 <code>files</code>里。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span>.setState(&#123;<span class="attr">files</span>: <span class="keyword">this</span>.state.files.concat(files)&#125;)</div></pre></td></tr></table></figure>
+<p>如此，接下来的操作 就可以 通过 <code>this.state.files</code> 取到当前已选中的 图片文件。</p>
+<h3 id="利用Promise处理异步上传"><a href="#利用Promise处理异步上传" class="headerlink" title="利用Promise处理异步上传"></a>利用<code>Promise</code>处理异步上传</h3><p>文件上传对于浏览器来说是异步的，为了处理 接下来的多图上传，这里引入了 <code>Promise</code>来处理异步操作：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">upload(file, idx) &#123;</div><div class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</div><div class="line">		<span class="keyword">let</span> xhr = <span class="keyword">new</span> XMLHttpRequest()</div><div class="line">		<span class="keyword">if</span> (xhr.upload) &#123;</div><div class="line">			<span class="comment">// 上传中</span></div><div class="line">		    xhr.upload.addEventListener(<span class="string">"progress"</span>, (e) =&gt; &#123;</div><div class="line">			    <span class="comment">// 处理上传进度</span></div><div class="line">		        <span class="keyword">this</span>.handleProgress(file, e.loaded, e.total, idx);</div><div class="line">		    &#125;, <span class="literal">false</span>)</div><div class="line">		    <span class="comment">// 文件上传成功或是失败</span></div><div class="line">		    xhr.onreadystatechange = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</div><div class="line">				<span class="keyword">if</span> (xhr.readyState === <span class="number">4</span>) &#123;</div><div class="line">				    <span class="keyword">if</span> (xhr.status === <span class="number">200</span>) &#123;</div><div class="line">				    <span class="comment">// 上传成功操作</span></div><div class="line">				    <span class="keyword">this</span>.handleSuccess(file, xhr.responseText)</div><div class="line">				    <span class="comment">// 把该文件从上传队列中删除</span></div><div class="line">                    <span class="keyword">this</span>.handleDeleteFile(file)</div><div class="line">				    resolve(xhr.responseText);</div><div class="line">		         &#125; <span class="keyword">else</span> &#123;</div><div class="line">			        <span class="comment">// 上传出错处理</span></div><div class="line">				    <span class="keyword">this</span>.handleFailure(file, xhr.responseText)</div><div class="line">				    reject(xhr.responseText);</div><div class="line">		         &#125;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">		<span class="comment">// 开始上传</span></div><div class="line">		xhr.open(<span class="string">"POST"</span>, <span class="keyword">this</span>.state.uri, <span class="literal">true</span>)</div><div class="line">		<span class="keyword">let</span> form = <span class="keyword">new</span> FormData()</div><div class="line">		form.append(<span class="string">"filedata"</span>, file)</div><div class="line">		xhr.send(form)</div><div class="line">	&#125;)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="上传进度计算"><a href="#上传进度计算" class="headerlink" title="上传进度计算"></a>上传进度计算</h3><p>利用<code>XMLHttpRequest</code>对象发异步请求的好处是可以 计算请求处理的进度，这是<code>fetch</code>所不具备的。<br>我们可以为 <code>xhr.upload</code> 对象的 <code>progress</code> 事件添加事件监听：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">xhr.upload.addEventListener(<span class="string">"progress"</span>, (e) =&gt; &#123;</div><div class="line">	<span class="comment">// 处理上传进度</span></div><div class="line">	<span class="keyword">this</span>.handleProgress(file, e.loaded, e.total, i);</div><div class="line">&#125;, <span class="literal">false</span>)</div></pre></td></tr></table></figure>
+<p>说明：<code>idx</code>参数是纪录多图上传队列的索引<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">handleProgress(file, loaded, total, idx) &#123;</div><div class="line">    <span class="keyword">let</span> percent = (loaded / total * <span class="number">100</span>).toFixed(<span class="number">2</span>) + <span class="string">'%'</span>;</div><div class="line">    <span class="keyword">let</span> _progress = <span class="keyword">this</span>.state.progress;</div><div class="line">    _progress[idx] = percent;</div><div class="line">    <span class="keyword">this</span>.setState(&#123; <span class="attr">progress</span>: _progress &#125;)  <span class="comment">// 反馈到DOM里显示</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="拖拽上传"><a href="#拖拽上传" class="headerlink" title="拖拽上传"></a>拖拽上传</h3><p>拖拽文件对于<code>HTML5</code>来说其实非常简单，因为它自带的几个事件监听机制可以直接做这类处理。主要用到的是下面三个：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">onDragOver=&#123;(e)=&gt;<span class="keyword">this</span>.handleDragHover(e)&#125;</div><div class="line">onDragLeave=&#123;(e)=&gt;<span class="keyword">this</span>.handleDragHover(e)&#125;</div><div class="line">onDrop=&#123;(e)=&gt;<span class="keyword">this</span>.handleDrop(e)&#125;</div></pre></td></tr></table></figure>
+<p>取消拖拽时的浏览器行为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">handleDragHover(e) &#123;</div><div class="line">	e.stopPropagation()</div><div class="line">	e.preventDefault()</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>处理拖拽进来的文件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">handleDrop(e) &#123;</div><div class="line">	<span class="keyword">this</span>.setState(&#123;<span class="attr">progress</span>:[]&#125;)</div><div class="line">    <span class="keyword">this</span>.handleDragHover(e)</div><div class="line">    <span class="comment">// 获取文件列表对象</span></div><div class="line">	<span class="keyword">let</span> files = e.target.files || e.dataTransfer.files</div><div class="line">    <span class="keyword">let</span> count = <span class="keyword">this</span>.state.multiple ? files.length : <span class="number">1</span></div><div class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">	    files[i].thumb = URL.createObjectURL(files[i])</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 转换为真正的数组</span></div><div class="line">    files = <span class="built_in">Array</span>.prototype.slice.call(files, <span class="number">0</span>)</div><div class="line">    <span class="comment">// 过滤非图片类型的文件</span></div><div class="line">    files = files.filter(<span class="function"><span class="keyword">function</span> (<span class="params">file</span>) </span>&#123;</div><div class="line">	    <span class="keyword">return</span> <span class="regexp">/image/i</span>.test(file.type)</div><div class="line">    &#125;)</div><div class="line">    <span class="keyword">this</span>.setState(&#123;<span class="attr">files</span>: <span class="keyword">this</span>.state.files.concat(files)&#125;)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="多图同时上传"><a href="#多图同时上传" class="headerlink" title="多图同时上传"></a>多图同时上传</h3><p>支持多图上传我们需要在组件调用处设置属性：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">multiple = &#123; <span class="literal">true</span> &#125;  <span class="comment">// 开启多图上传</span></div><div class="line">size = &#123; <span class="number">50</span> &#125;        <span class="comment">// 一次最大上传数量（虽没有上限，为保证服务端正常，建议50以下）</span></div></pre></td></tr></table></figure>
+<p>然后我们可以使用 <code>Promise.all()</code>  处理异步操作队列：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">handleUpload() &#123;</div><div class="line">	<span class="keyword">let</span> _promises = <span class="keyword">this</span>.state.files.map(<span class="function">(<span class="params">file, idx</span>) =&gt;</span> <span class="keyword">this</span>.upload(file, idx))</div><div class="line">	<span class="built_in">Promise</span>.all(_promises).then( <span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</div><div class="line">		<span class="comment">// 全部上传完成</span></div><div class="line">		<span class="keyword">this</span>.handleComplete()</div><div class="line">	&#125;).catch( <span class="function">(<span class="params">err</span>) =&gt;</span> &#123; <span class="built_in">console</span>.log(err) &#125;)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>好了，前端工作已经完成，接下来就是<code>Node</code>的工作了。</p>
+<h1 id="后端实现"><a href="#后端实现" class="headerlink" title="后端实现"></a>后端实现</h1><p>为了方便，后端采用的是<code>express</code>框架来快速搭建<code>Http</code>服务和路由。具体项目见我的<code>github</code> <a href="https://github.com/Jafeney/node-image-upload" target="_blank" rel="external"><code>node-image-upload</code></a>。逻辑虽然简单，但还是有几个可圈可点的地方：</p>
+<h2 id="跨域调用"><a href="#跨域调用" class="headerlink" title="跨域调用"></a>跨域调用</h2><p>本项目后端采用的是<code>express</code>，我们可以通过 <code>res.header()</code> 设置 请求的 <strong>“允许源”</strong> 来允许跨域调用：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">res.header(<span class="string">'Access-Control-Allow-Origin'</span>, <span class="string">'*'</span>);</div></pre></td></tr></table></figure>
+<p>设置为 <code>*</code> 说明允许任何 访问源，不太安全。建议设置成 你需要的 二级域名，如 <code>jafeney.com</code>。</p>
+<p>除了 <strong>“允许源”</strong> ，其他还有 “允许头” 、”允许域”、 “允许方法”、”文本类型” 等。常用的设置如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">allowCross</span>(<span class="params">res</span>) </span>&#123;</div><div class="line">	res.header(<span class="string">'Access-Control-Allow-Origin'</span>, <span class="string">'*'</span>);   </div><div class="line">	res.header(<span class="string">'Access-Control-Allow-Headers'</span>, <span class="string">'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild'</span>);</div><div class="line">	res.header(<span class="string">'Access-Control-Allow-Methods'</span>, <span class="string">'PUT, POST, GET, DELETE, OPTIONS'</span>);</div><div class="line">	res.header(<span class="string">"X-Powered-By"</span>,<span class="string">' 3.2.1'</span>)</div><div class="line">	res.header(<span class="string">"Content-Type"</span>, <span class="string">"application/json;charset=utf-8"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="ES6下的Ajax请求"><a href="#ES6下的Ajax请求" class="headerlink" title="ES6下的Ajax请求"></a>ES6下的Ajax请求</h2><p><code>ES6</code>风格下的<code>Ajax</code>请求和<code>ES5</code>不太一样，在正式的请求发出之前都会先发一个 类型为 <code>OPTIONS</code>的请求 作为试探，只有当该请求通过以后，正式的请求才能发向服务端。</p>
+<p>所以服务端路由 我们还需要 处理这样一个 请求：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">router.options(<span class="string">'*'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res, next</span>) </span>&#123;</div><div class="line">    res.header(<span class="string">'Access-Control-Allow-Origin'</span>, <span class="string">'*'</span>);</div><div class="line">    res.header(<span class="string">'Access-Control-Allow-Headers'</span>, <span class="string">'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild'</span>);</div><div class="line">    res.header(<span class="string">'Access-Control-Allow-Methods'</span>, <span class="string">'PUT, POST, GET, DELETE, OPTIONS'</span>);</div><div class="line">    res.header(<span class="string">"X-Powered-By"</span>,<span class="string">' 3.2.1'</span>)</div><div class="line">    res.header(<span class="string">"Content-Type"</span>, <span class="string">"application/json;charset=utf-8"</span>);</div><div class="line">    next();</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>注意：该请求同样需要设置跨域。</p>
+<h2 id="处理上传"><a href="#处理上传" class="headerlink" title="处理上传"></a>处理上传</h2><p>处理上传的图片引人了<code>multiparty</code>模块，用法很简单：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*使用multiparty处理上传的图片*/</span></div><div class="line">router.post(<span class="string">'/upload'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</div><div class="line">	<span class="comment">// 生成multiparty对象，并配置上传目标路径</span></div><div class="line">    <span class="keyword">var</span> form = <span class="keyword">new</span> multiparty.Form(&#123;<span class="attr">uploadDir</span>: <span class="string">'./public/file/'</span>&#125;);</div><div class="line">    <span class="comment">// 上传完成后处理</span></div><div class="line">    form.parse(req, <span class="function"><span class="keyword">function</span>(<span class="params">err, fields, files</span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> filesTmp = <span class="built_in">JSON</span>.stringify(files, <span class="literal">null</span>, <span class="number">2</span>);</div><div class="line">        <span class="keyword">var</span> relPath = <span class="string">''</span>;</div><div class="line">        <span class="keyword">if</span> (err) &#123;</div><div class="line">	        <span class="comment">// 保存失败</span></div><div class="line">            <span class="built_in">console</span>.log(<span class="string">'Parse error: '</span> + err);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">	        <span class="comment">// 图片保存成功！</span></div><div class="line">            <span class="built_in">console</span>.log(<span class="string">'Parse Files: '</span> + filesTmp);</div><div class="line">            <span class="comment">// 图片处理</span></div><div class="line">            processImg(files);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h2 id="图片处理"><a href="#图片处理" class="headerlink" title="图片处理"></a>图片处理</h2><p><code>Node</code>处理图片需要引入 <code>gm</code> 模块，它需要用 <code>npm</code> 来安装：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install gm --save</div></pre></td></tr></table></figure>
+<h3 id="BUG说明"><a href="#BUG说明" class="headerlink" title="BUG说明"></a>BUG说明</h3><p>注意：<code>node</code>的图形操作<code>gm</code>模块前使用必须 先安装 <code>imagemagick</code> 和 <code>graphicsmagick</code>，<code>Linux (ubuntu)</code>上使用<code>apt-get</code> 安装：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install imagemagick</div><div class="line">sudo apt-get install graphicsmagick  --with-webp  // 支持webp格式的图片</div></pre></td></tr></table></figure>
+<p><code>MacOS</code>上可以用 <code>Homebrew</code> 直接安装：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">brew install imagemagick</div><div class="line">brew install graphicsmagick --with-webp   // 支持webp格式的图片</div></pre></td></tr></table></figure>
+<h3 id="预设尺寸"><a href="#预设尺寸" class="headerlink" title="预设尺寸"></a>预设尺寸</h3><p>有些时候除了原图，我们可能需要把原图等比例缩小作为预览图或者缩略图。这个异步操作还是用<code>Promise</code>来实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">reSizeImage</span>(<span class="params">paths, dstPath, size</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>) </span>&#123;</div><div class="line">        gm(dstPath)</div><div class="line">        .noProfile()</div><div class="line">        .resizeExact(size)</div><div class="line">        .write(<span class="string">'.'</span> + paths[<span class="number">1</span>] + <span class="string">'@'</span> + size + <span class="string">'00.'</span> + paths[<span class="number">2</span>], <span class="function"><span class="keyword">function</span> (<span class="params">err</span>) </span>&#123;</div><div class="line">            <span class="keyword">if</span> (!err) &#123;</div><div class="line">                <span class="built_in">console</span>.log(<span class="string">'resize as '</span> + size + <span class="string">' ok!'</span>)</div><div class="line">                resolve()</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">else</span> &#123;</div><div class="line">                reject(err)</div><div class="line">            &#125;;</div><div class="line">        &#125;);</div><div class="line">    &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="重命名图片"><a href="#重命名图片" class="headerlink" title="重命名图片"></a>重命名图片</h3><p>为了方便排序和管理图片，我们按照 “年月日 ＋ 时间戳 + 尺寸” 来命名图片：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> _dateSymbol = <span class="keyword">new</span> <span class="built_in">Date</span>().toLocaleDateString().split(<span class="string">'-'</span>).join(<span class="string">''</span>);</div><div class="line"><span class="keyword">var</span> _timeSymbol = <span class="keyword">new</span> <span class="built_in">Date</span>().getTime().toString();</div></pre></td></tr></table></figure>
+<p>至于图片尺寸 使用 <code>gm</code>的 <code>size()</code> 方法来获取，处理方式如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">gm(uploadedPath).size(<span class="function"><span class="keyword">function</span>(<span class="params">err, size</span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> dstPath = <span class="string">'./public/file/'</span> + _dateSymbol + _timeSymbol</div><div class="line">	    + <span class="string">'_'</span> + size.width + <span class="string">'x'</span> + size.height + <span class="string">'.'</span></div><div class="line">	    + _img.originalFilename.split(<span class="string">'.'</span>)[<span class="number">1</span>];</div><div class="line">    <span class="keyword">var</span> _port = process.env.PORT || <span class="string">'9999'</span>;</div><div class="line">	    relPath = <span class="string">'http://'</span> + req.hostname + ( _port!==<span class="number">80</span> ? <span class="string">':'</span> + _port : <span class="string">''</span> )</div><div class="line">	    + <span class="string">'/file/'</span> + _dateSymbol + _timeSymbol + <span class="string">'_'</span> + size.width + <span class="string">'x'</span></div><div class="line">	    +  size.height + <span class="string">'.'</span> + _img.originalFilename.split(<span class="string">'.'</span>)[<span class="number">1</span>];</div><div class="line">    <span class="comment">// 重命名</span></div><div class="line">    fs.rename(uploadedPath, dstPath, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</div><div class="line">	    <span class="keyword">if</span> (err) &#123;</div><div class="line">	        reject(err)</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="built_in">console</span>.log(<span class="string">'rename ok!'</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>对于大前端的工作，理解图片上传的前后端原理仅仅是浅层的。我们的口号是 “把JavaScript进行到底！”，现在无论是 <code>ReactNative</code>的移动端开发，还是<code>NodeJS</code>的后端开发，前端工程师可以做的工作早已不仅仅是局限于web页面，它已经渗透到了互联网应用层面的方方面面，或许，叫 <code>全栈工程师</code> 更为贴切吧。</p>
+<p>当然，<code>全栈</code> 两个字的分量很重，<code>不积跬步，无以至千里</code>，功力低下的我还需要不断修炼和实践！</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://www.zhangxinxu.com/wordpress/2011/09/%E5%9F%BA%E4%BA%8Ehtml5%E7%9A%84%E5%8F%AF%E9%A2%84%E8%A7%88%E5%A4%9A%E5%9B%BE%E7%89%87ajax%E4%B8%8A%E4%BC%A0/" target="_blank" rel="external">张鑫旭 《基于HTML5的可预览多图片Ajax上传》</a></p>
+<hr>
+<p>@欢迎关注我的 <a href="https://github.com/jafeney" target="_blank" rel="external">github</a> 和 <a href="http://jafeney.com">个人博客 －Jafeney</a></p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>海内存知己，天涯若比邻<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="http://photo.jafeney.com:9999/file/Tt5HgGiKKsq1A7oSGnqq7FQG.png">
+                      <span class="reward-type">支付宝</span>
+                    </div>
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="http://photo.jafeney.com:9999/file/K0VhpLd4WrFL7ynleExrdZLL.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">express</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">react</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">node</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/大前端/" class="article-tag-list-link color4">大前端</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://jafeney.com/2016/08/11/2016-08-11-upload/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+  
+<nav id="article-nav">
+  
+    <a href="/2016/08/15/2016-08-15-async/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          JavaScript异步编程的终极演变
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/07/19/2016-07-19-this/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">深入理解React中的上下文this</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+  
+  <div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="2016-08-11-upload" data-title="基于Node的React图片上传组件实现" data-url="http://jafeney.com/2016/08/11/2016-08-11-upload/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"true"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+  
+
+
+
+
+          </div>
+        </div>
+      </div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2017 Jafeney Lou
+        <span class="with-love">
+          浙ICP备15041893号-1
+          <i class="icon-next-heart fa fa-heart"></i>
+        </span>
+        <br />
+        Jafeney Lou - like programming, like life. 
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script>
+	var yiliaConfig = {
+		mathjax: false,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true,
+		root: "/",
+		innerArchive: true,
+		showTags: false
+	}
+</script>
+
+<script>!function(t){function n(r){if(e[r])return e[r].exports;var o=e[r]={exports:{},id:r,loaded:!1};return t[r].call(o.exports,o,o.exports,n),o.loaded=!0,o.exports}var e={};n.m=t,n.c=e,n.p="./",n(0)}([function(t,n,e){"use strict";function r(t){return t&&t.__esModule?t:{default:t}}function o(t,n){var e=/\/|index.html/g;return t.replace(e,"")===n.replace(e,"")}function i(){for(var t=document.querySelectorAll(".js-header-menu li a"),n=window.location.pathname,e=0,r=t.length;e<r;e++){var i=t[e];o(n,i.getAttribute("href"))&&(0,p.default)(i,"active")}}function u(t){for(var n=t.offsetLeft,e=t.offsetParent;null!==e;)n+=e.offsetLeft,e=e.offsetParent;return n}function c(t){for(var n=t.offsetTop,e=t.offsetParent;null!==e;)n+=e.offsetTop,e=e.offsetParent;return n}function f(t,n,e,r,o){var i=u(t),f=c(t)-n;if(f-e<=o){var a=t.$newDom;a||(a=t.cloneNode(!0),(0,v.default)(t,a),t.$newDom=a,a.style.position="fixed",a.style.top=(e||f)+"px",a.style.left=i+"px",a.style.zIndex=r||2,a.style.width="100%",a.style.color="#fff"),a.style.visibility="visible",t.style.visibility="hidden"}else{t.style.visibility="visible";var s=t.$newDom;s&&(s.style.visibility="hidden")}}function a(){var t=document.querySelector(".js-overlay"),n=document.querySelector(".js-header-menu");f(t,document.body.scrollTop,-63,2,0),f(n,document.body.scrollTop,1,3,0)}function s(){document.querySelector("#container").addEventListener("scroll",function(t){a()}),window.addEventListener("scroll",function(t){a()}),a()}var l=e(25),p=r(l),d=e(26),y=(r(d),e(96)),v=r(y),h=e(97),b=r(h),x=e(98),m=r(x),g=e(27);!function(){b.default.versions.mobile&&window.screen.width<800&&(i(),s())}(),(0,g.addLoadEvent)(function(){m.default.init()}),t.exports={}},,,,,,,,,,,,,,,,,,,,,,,,,function(t,n){function e(t,n){t.classList?t.classList.add(n):t.className+=" "+n}t.exports=e},function(t,n){function e(t,n){if(t.classList)t.classList.remove(n);else{var e=new RegExp("(^|\\b)"+n.split(" ").join("|")+"(\\b|$)","gi");t.className=t.className.replace(e," ")}}t.exports=e},function(t,n,e){"use strict";var r=e(28),o=function(t){return t&&t.__esModule?t:{default:t}}(r),i=function(){function t(t,n,r){return n||r?String.fromCharCode(n||r):e[t]||t}function n(t){return r[t]}var e={"&quot;":'"',"&lt;":"<","&gt;":">","&amp;":"&","&nbsp;":" "},r={};for(var u in e)r[e[u]]=u;return e["&apos;"]="'",r["'"]="&#39;",{encode:function(t){return t?(""+t).replace(/['<> "&]/g,n).replace(/\r?\n/g,"<br/>").replace(/\s/g,"&nbsp;"):""},decode:function(n){return n?(""+n).replace(/<br\s*\/?>/gi,"\n").replace(/&quot;|&lt;|&gt;|&amp;|&nbsp;|&apos;|&#(\d+);|&#(\d+)/g,t).replace(/\u00a0/g," "):""},encodeBase16:function(t){if(!t)return t;t+="";for(var n=[],e=0,r=t.length;r>e;e++)n.push(t.charCodeAt(e).toString(16).toUpperCase());return n.join("")},encodeBase16forJSON:function(t){if(!t)return t;t=t.replace(/[\u4E00-\u9FBF]/gi,function(t){return escape(t).replace("%u","\\u")});for(var n=[],e=0,r=t.length;r>e;e++)n.push(t.charCodeAt(e).toString(16).toUpperCase());return n.join("")},decodeBase16:function(t){if(!t)return t;t+="";for(var n=[],e=0,r=t.length;r>e;e+=2)n.push(String.fromCharCode("0x"+t.slice(e,e+2)));return n.join("")},encodeObject:function(t){if(t instanceof Array)for(var n=0,e=t.length;e>n;n++)t[n]=i.encodeObject(t[n]);else if("object"==(void 0===t?"undefined":(0,o.default)(t)))for(var r in t)t[r]=i.encodeObject(t[r]);else if("string"==typeof t)return i.encode(t);return t},loadScript:function(t){var n=document.createElement("script");document.getElementsByTagName("body")[0].appendChild(n),n.setAttribute("src",t)},addLoadEvent:function(t){var n=window.onload;"function"!=typeof window.onload?window.onload=t:window.onload=function(){n(),t()}}}}();t.exports=i},function(t,n,e){"use strict";function r(t){return t&&t.__esModule?t:{default:t}}n.__esModule=!0;var o=e(29),i=r(o),u=e(80),c=r(u),f="function"==typeof c.default&&"symbol"==typeof i.default?function(t){return typeof t}:function(t){return t&&"function"==typeof c.default&&t.constructor===c.default&&t!==c.default.prototype?"symbol":typeof t};n.default="function"==typeof c.default&&"symbol"===f(i.default)?function(t){return void 0===t?"undefined":f(t)}:function(t){return t&&"function"==typeof c.default&&t.constructor===c.default&&t!==c.default.prototype?"symbol":void 0===t?"undefined":f(t)}},function(t,n,e){t.exports={default:e(30),__esModule:!0}},function(t,n,e){e(31),e(75),t.exports=e(79).f("iterator")},function(t,n,e){"use strict";var r=e(32)(!0);e(35)(String,"String",function(t){this._t=String(t),this._i=0},function(){var t,n=this._t,e=this._i;return e>=n.length?{value:void 0,done:!0}:(t=r(n,e),this._i+=t.length,{value:t,done:!1})})},function(t,n,e){var r=e(33),o=e(34);t.exports=function(t){return function(n,e){var i,u,c=String(o(n)),f=r(e),a=c.length;return f<0||f>=a?t?"":void 0:(i=c.charCodeAt(f),i<55296||i>56319||f+1===a||(u=c.charCodeAt(f+1))<56320||u>57343?t?c.charAt(f):i:t?c.slice(f,f+2):u-56320+(i-55296<<10)+65536)}}},function(t,n){var e=Math.ceil,r=Math.floor;t.exports=function(t){return isNaN(t=+t)?0:(t>0?r:e)(t)}},function(t,n){t.exports=function(t){if(void 0==t)throw TypeError("Can't call method on  "+t);return t}},function(t,n,e){"use strict";var r=e(36),o=e(37),i=e(52),u=e(42),c=e(53),f=e(54),a=e(55),s=e(71),l=e(73),p=e(72)("iterator"),d=!([].keys&&"next"in[].keys()),y=function(){return this};t.exports=function(t,n,e,v,h,b,x){a(e,n,v);var m,g,w,O=function(t){if(!d&&t in P)return P[t];switch(t){case"keys":return function(){return new e(this,t)};case"values":return function(){return new e(this,t)}}return function(){return new e(this,t)}},S=n+" Iterator",_="values"==h,j=!1,P=t.prototype,E=P[p]||P["@@iterator"]||h&&P[h],M=E||O(h),A=h?_?O("entries"):M:void 0,T="Array"==n?P.entries||E:E;if(T&&(w=l(T.call(new t)))!==Object.prototype&&(s(w,S,!0),r||c(w,p)||u(w,p,y)),_&&E&&"values"!==E.name&&(j=!0,M=function(){return E.call(this)}),r&&!x||!d&&!j&&P[p]||u(P,p,M),f[n]=M,f[S]=y,h)if(m={values:_?M:O("values"),keys:b?M:O("keys"),entries:A},x)for(g in m)g in P||i(P,g,m[g]);else o(o.P+o.F*(d||j),n,m);return m}},function(t,n){t.exports=!0},function(t,n,e){var r=e(38),o=e(39),i=e(40),u=e(42),c=function(t,n,e){var f,a,s,l=t&c.F,p=t&c.G,d=t&c.S,y=t&c.P,v=t&c.B,h=t&c.W,b=p?o:o[n]||(o[n]={}),x=b.prototype,m=p?r:d?r[n]:(r[n]||{}).prototype;p&&(e=n);for(f in e)(a=!l&&m&&void 0!==m[f])&&f in b||(s=a?m[f]:e[f],b[f]=p&&"function"!=typeof m[f]?e[f]:v&&a?i(s,r):h&&m[f]==s?function(t){var n=function(n,e,r){if(this instanceof t){switch(arguments.length){case 0:return new t;case 1:return new t(n);case 2:return new t(n,e)}return new t(n,e,r)}return t.apply(this,arguments)};return n.prototype=t.prototype,n}(s):y&&"function"==typeof s?i(Function.call,s):s,y&&((b.virtual||(b.virtual={}))[f]=s,t&c.R&&x&&!x[f]&&u(x,f,s)))};c.F=1,c.G=2,c.S=4,c.P=8,c.B=16,c.W=32,c.U=64,c.R=128,t.exports=c},function(t,n){var e=t.exports="undefined"!=typeof window&&window.Math==Math?window:"undefined"!=typeof self&&self.Math==Math?self:Function("return this")();"number"==typeof __g&&(__g=e)},function(t,n){var e=t.exports={version:"2.4.0"};"number"==typeof __e&&(__e=e)},function(t,n,e){var r=e(41);t.exports=function(t,n,e){if(r(t),void 0===n)return t;switch(e){case 1:return function(e){return t.call(n,e)};case 2:return function(e,r){return t.call(n,e,r)};case 3:return function(e,r,o){return t.call(n,e,r,o)}}return function(){return t.apply(n,arguments)}}},function(t,n){t.exports=function(t){if("function"!=typeof t)throw TypeError(t+" is not a function!");return t}},function(t,n,e){var r=e(43),o=e(51);t.exports=e(47)?function(t,n,e){return r.f(t,n,o(1,e))}:function(t,n,e){return t[n]=e,t}},function(t,n,e){var r=e(44),o=e(46),i=e(50),u=Object.defineProperty;n.f=e(47)?Object.defineProperty:function(t,n,e){if(r(t),n=i(n,!0),r(e),o)try{return u(t,n,e)}catch(t){}if("get"in e||"set"in e)throw TypeError("Accessors not supported!");return"value"in e&&(t[n]=e.value),t}},function(t,n,e){var r=e(45);t.exports=function(t){if(!r(t))throw TypeError(t+" is not an object!");return t}},function(t,n){t.exports=function(t){return"object"==typeof t?null!==t:"function"==typeof t}},function(t,n,e){t.exports=!e(47)&&!e(48)(function(){return 7!=Object.defineProperty(e(49)("div"),"a",{get:function(){return 7}}).a})},function(t,n,e){t.exports=!e(48)(function(){return 7!=Object.defineProperty({},"a",{get:function(){return 7}}).a})},function(t,n){t.exports=function(t){try{return!!t()}catch(t){return!0}}},function(t,n,e){var r=e(45),o=e(38).document,i=r(o)&&r(o.createElement);t.exports=function(t){return i?o.createElement(t):{}}},function(t,n,e){var r=e(45);t.exports=function(t,n){if(!r(t))return t;var e,o;if(n&&"function"==typeof(e=t.toString)&&!r(o=e.call(t)))return o;if("function"==typeof(e=t.valueOf)&&!r(o=e.call(t)))return o;if(!n&&"function"==typeof(e=t.toString)&&!r(o=e.call(t)))return o;throw TypeError("Can't convert object to primitive value")}},function(t,n){t.exports=function(t,n){return{enumerable:!(1&t),configurable:!(2&t),writable:!(4&t),value:n}}},function(t,n,e){t.exports=e(42)},function(t,n){var e={}.hasOwnProperty;t.exports=function(t,n){return e.call(t,n)}},function(t,n){t.exports={}},function(t,n,e){"use strict";var r=e(56),o=e(51),i=e(71),u={};e(42)(u,e(72)("iterator"),function(){return this}),t.exports=function(t,n,e){t.prototype=r(u,{next:o(1,e)}),i(t,n+" Iterator")}},function(t,n,e){var r=e(44),o=e(57),i=e(69),u=e(66)("IE_PROTO"),c=function(){},f=function(){var t,n=e(49)("iframe"),r=i.length;for(n.style.display="none",e(70).appendChild(n),n.src="javascript:",t=n.contentWindow.document,t.open(),t.write("<script>document.F=Object<\/script>"),t.close(),f=t.F;r--;)delete f.prototype[i[r]];return f()};t.exports=Object.create||function(t,n){var e;return null!==t?(c.prototype=r(t),e=new c,c.prototype=null,e[u]=t):e=f(),void 0===n?e:o(e,n)}},function(t,n,e){var r=e(43),o=e(44),i=e(58);t.exports=e(47)?Object.defineProperties:function(t,n){o(t);for(var e,u=i(n),c=u.length,f=0;c>f;)r.f(t,e=u[f++],n[e]);return t}},function(t,n,e){var r=e(59),o=e(69);t.exports=Object.keys||function(t){return r(t,o)}},function(t,n,e){var r=e(53),o=e(60),i=e(63)(!1),u=e(66)("IE_PROTO");t.exports=function(t,n){var e,c=o(t),f=0,a=[];for(e in c)e!=u&&r(c,e)&&a.push(e);for(;n.length>f;)r(c,e=n[f++])&&(~i(a,e)||a.push(e));return a}},function(t,n,e){var r=e(61),o=e(34);t.exports=function(t){return r(o(t))}},function(t,n,e){var r=e(62);t.exports=Object("z").propertyIsEnumerable(0)?Object:function(t){return"String"==r(t)?t.split(""):Object(t)}},function(t,n){var e={}.toString;t.exports=function(t){return e.call(t).slice(8,-1)}},function(t,n,e){var r=e(60),o=e(64),i=e(65);t.exports=function(t){return function(n,e,u){var c,f=r(n),a=o(f.length),s=i(u,a);if(t&&e!=e){for(;a>s;)if((c=f[s++])!=c)return!0}else for(;a>s;s++)if((t||s in f)&&f[s]===e)return t||s||0;return!t&&-1}}},function(t,n,e){var r=e(33),o=Math.min;t.exports=function(t){return t>0?o(r(t),9007199254740991):0}},function(t,n,e){var r=e(33),o=Math.max,i=Math.min;t.exports=function(t,n){return t=r(t),t<0?o(t+n,0):i(t,n)}},function(t,n,e){var r=e(67)("keys"),o=e(68);t.exports=function(t){return r[t]||(r[t]=o(t))}},function(t,n,e){var r=e(38),o=r["__core-js_shared__"]||(r["__core-js_shared__"]={});t.exports=function(t){return o[t]||(o[t]={})}},function(t,n){var e=0,r=Math.random();t.exports=function(t){return"Symbol(".concat(void 0===t?"":t,")_",(++e+r).toString(36))}},function(t,n){t.exports="constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf".split(",")},function(t,n,e){t.exports=e(38).document&&document.documentElement},function(t,n,e){var r=e(43).f,o=e(53),i=e(72)("toStringTag");t.exports=function(t,n,e){t&&!o(t=e?t:t.prototype,i)&&r(t,i,{configurable:!0,value:n})}},function(t,n,e){var r=e(67)("wks"),o=e(68),i=e(38).Symbol,u="function"==typeof i;(t.exports=function(t){return r[t]||(r[t]=u&&i[t]||(u?i:o)("Symbol."+t))}).store=r},function(t,n,e){var r=e(53),o=e(74),i=e(66)("IE_PROTO"),u=Object.prototype;t.exports=Object.getPrototypeOf||function(t){return t=o(t),r(t,i)?t[i]:"function"==typeof t.constructor&&t instanceof t.constructor?t.constructor.prototype:t instanceof Object?u:null}},function(t,n,e){var r=e(34);t.exports=function(t){return Object(r(t))}},function(t,n,e){e(76);for(var r=e(38),o=e(42),i=e(54),u=e(72)("toStringTag"),c=["NodeList","DOMTokenList","MediaList","StyleSheetList","CSSRuleList"],f=0;f<5;f++){var a=c[f],s=r[a],l=s&&s.prototype;l&&!l[u]&&o(l,u,a),i[a]=i.Array}},function(t,n,e){"use strict";var r=e(77),o=e(78),i=e(54),u=e(60);t.exports=e(35)(Array,"Array",function(t,n){this._t=u(t),this._i=0,this._k=n},function(){var t=this._t,n=this._k,e=this._i++;return!t||e>=t.length?(this._t=void 0,o(1)):"keys"==n?o(0,e):"values"==n?o(0,t[e]):o(0,[e,t[e]])},"values"),i.Arguments=i.Array,r("keys"),r("values"),r("entries")},function(t,n){t.exports=function(){}},function(t,n){t.exports=function(t,n){return{value:n,done:!!t}}},function(t,n,e){n.f=e(72)},function(t,n,e){t.exports={default:e(81),__esModule:!0}},function(t,n,e){e(82),e(93),e(94),e(95),t.exports=e(39).Symbol},function(t,n,e){"use strict";var r=e(38),o=e(53),i=e(47),u=e(37),c=e(52),f=e(83).KEY,a=e(48),s=e(67),l=e(71),p=e(68),d=e(72),y=e(79),v=e(84),h=e(85),b=e(86),x=e(89),m=e(44),g=e(60),w=e(50),O=e(51),S=e(56),_=e(90),j=e(92),P=e(43),E=e(58),M=j.f,A=P.f,T=_.f,L=r.Symbol,N=r.JSON,C=N&&N.stringify,k=d("_hidden"),F=d("toPrimitive"),q={}.propertyIsEnumerable,I=s("symbol-registry"),B=s("symbols"),D=s("op-symbols"),W=Object.prototype,H="function"==typeof L,K=r.QObject,R=!K||!K.prototype||!K.prototype.findChild,J=i&&a(function(){return 7!=S(A({},"a",{get:function(){return A(this,"a",{value:7}).a}})).a})?function(t,n,e){var r=M(W,n);r&&delete W[n],A(t,n,e),r&&t!==W&&A(W,n,r)}:A,U=function(t){var n=B[t]=S(L.prototype);return n._k=t,n},G=H&&"symbol"==typeof L.iterator?function(t){return"symbol"==typeof t}:function(t){return t instanceof L},$=function(t,n,e){return t===W&&$(D,n,e),m(t),n=w(n,!0),m(e),o(B,n)?(e.enumerable?(o(t,k)&&t[k][n]&&(t[k][n]=!1),e=S(e,{enumerable:O(0,!1)})):(o(t,k)||A(t,k,O(1,{})),t[k][n]=!0),J(t,n,e)):A(t,n,e)},z=function(t,n){m(t);for(var e,r=b(n=g(n)),o=0,i=r.length;i>o;)$(t,e=r[o++],n[e]);return t},Y=function(t,n){return void 0===n?S(t):z(S(t),n)},Q=function(t){var n=q.call(this,t=w(t,!0));return!(this===W&&o(B,t)&&!o(D,t))&&(!(n||!o(this,t)||!o(B,t)||o(this,k)&&this[k][t])||n)},X=function(t,n){if(t=g(t),n=w(n,!0),t!==W||!o(B,n)||o(D,n)){var e=M(t,n);return!e||!o(B,n)||o(t,k)&&t[k][n]||(e.enumerable=!0),e}},V=function(t){for(var n,e=T(g(t)),r=[],i=0;e.length>i;)o(B,n=e[i++])||n==k||n==f||r.push(n);return r},Z=function(t){for(var n,e=t===W,r=T(e?D:g(t)),i=[],u=0;r.length>u;)!o(B,n=r[u++])||e&&!o(W,n)||i.push(B[n]);return i};H||(L=function(){if(this instanceof L)throw TypeError("Symbol is not a constructor!");var t=p(arguments.length>0?arguments[0]:void 0),n=function(e){this===W&&n.call(D,e),o(this,k)&&o(this[k],t)&&(this[k][t]=!1),J(this,t,O(1,e))};return i&&R&&J(W,t,{configurable:!0,set:n}),U(t)},c(L.prototype,"toString",function(){return this._k}),j.f=X,P.f=$,e(91).f=_.f=V,e(88).f=Q,e(87).f=Z,i&&!e(36)&&c(W,"propertyIsEnumerable",Q,!0),y.f=function(t){return U(d(t))}),u(u.G+u.W+u.F*!H,{Symbol:L});for(var tt="hasInstance,isConcatSpreadable,iterator,match,replace,search,species,split,toPrimitive,toStringTag,unscopables".split(","),nt=0;tt.length>nt;)d(tt[nt++]);for(var tt=E(d.store),nt=0;tt.length>nt;)v(tt[nt++]);u(u.S+u.F*!H,"Symbol",{for:function(t){return o(I,t+="")?I[t]:I[t]=L(t)},keyFor:function(t){if(G(t))return h(I,t);throw TypeError(t+" is not a symbol!")},useSetter:function(){R=!0},useSimple:function(){R=!1}}),u(u.S+u.F*!H,"Object",{create:Y,defineProperty:$,defineProperties:z,getOwnPropertyDescriptor:X,getOwnPropertyNames:V,getOwnPropertySymbols:Z}),N&&u(u.S+u.F*(!H||a(function(){var t=L();return"[null]"!=C([t])||"{}"!=C({a:t})||"{}"!=C(Object(t))})),"JSON",{stringify:function(t){if(void 0!==t&&!G(t)){for(var n,e,r=[t],o=1;arguments.length>o;)r.push(arguments[o++]);return n=r[1],"function"==typeof n&&(e=n),!e&&x(n)||(n=function(t,n){if(e&&(n=e.call(this,t,n)),!G(n))return n}),r[1]=n,C.apply(N,r)}}}),L.prototype[F]||e(42)(L.prototype,F,L.prototype.valueOf),l(L,"Symbol"),l(Math,"Math",!0),l(r.JSON,"JSON",!0)},function(t,n,e){var r=e(68)("meta"),o=e(45),i=e(53),u=e(43).f,c=0,f=Object.isExtensible||function(){return!0},a=!e(48)(function(){return f(Object.preventExtensions({}))}),s=function(t){u(t,r,{value:{i:"O"+ ++c,w:{}}})},l=function(t,n){if(!o(t))return"symbol"==typeof t?t:("string"==typeof t?"S":"P")+t;if(!i(t,r)){if(!f(t))return"F";if(!n)return"E";s(t)}return t[r].i},p=function(t,n){if(!i(t,r)){if(!f(t))return!0;if(!n)return!1;s(t)}return t[r].w},d=function(t){return a&&y.NEED&&f(t)&&!i(t,r)&&s(t),t},y=t.exports={KEY:r,NEED:!1,fastKey:l,getWeak:p,onFreeze:d}},function(t,n,e){var r=e(38),o=e(39),i=e(36),u=e(79),c=e(43).f;t.exports=function(t){var n=o.Symbol||(o.Symbol=i?{}:r.Symbol||{});"_"==t.charAt(0)||t in n||c(n,t,{value:u.f(t)})}},function(t,n,e){var r=e(58),o=e(60);t.exports=function(t,n){for(var e,i=o(t),u=r(i),c=u.length,f=0;c>f;)if(i[e=u[f++]]===n)return e}},function(t,n,e){var r=e(58),o=e(87),i=e(88);t.exports=function(t){var n=r(t),e=o.f;if(e)for(var u,c=e(t),f=i.f,a=0;c.length>a;)f.call(t,u=c[a++])&&n.push(u);return n}},function(t,n){n.f=Object.getOwnPropertySymbols},function(t,n){n.f={}.propertyIsEnumerable},function(t,n,e){var r=e(62);t.exports=Array.isArray||function(t){return"Array"==r(t)}},function(t,n,e){var r=e(60),o=e(91).f,i={}.toString,u="object"==typeof window&&window&&Object.getOwnPropertyNames?Object.getOwnPropertyNames(window):[],c=function(t){try{return o(t)}catch(t){return u.slice()}};t.exports.f=function(t){return u&&"[object Window]"==i.call(t)?c(t):o(r(t))}},function(t,n,e){var r=e(59),o=e(69).concat("length","prototype");n.f=Object.getOwnPropertyNames||function(t){return r(t,o)}},function(t,n,e){var r=e(88),o=e(51),i=e(60),u=e(50),c=e(53),f=e(46),a=Object.getOwnPropertyDescriptor;n.f=e(47)?a:function(t,n){if(t=i(t),n=u(n,!0),f)try{return a(t,n)}catch(t){}if(c(t,n))return o(!r.f.call(t,n),t[n])}},function(t,n){},function(t,n,e){e(84)("asyncIterator")},function(t,n,e){e(84)("observable")},function(t,n){function e(t,n){if("string"==typeof n)return t.insertAdjacentHTML("afterend",n);var e=t.nextSibling;return e?t.parentNode.insertBefore(n,e):t.parentNode.appendChild(n)}t.exports=e},function(t,n){"use strict";var e={versions:function(){var t=window.navigator.userAgent;return{trident:t.indexOf("Trident")>-1,presto:t.indexOf("Presto")>-1,webKit:t.indexOf("AppleWebKit")>-1,gecko:t.indexOf("Gecko")>-1&&t.indexOf("KHTML")==-1,mobile:!!t.match(/AppleWebKit.*Mobile.*/),ios:!!t.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),android:t.indexOf("Android")>-1||t.indexOf("Linux")>-1,iPhone:t.indexOf("iPhone")>-1||t.indexOf("Mac")>-1,iPad:t.indexOf("iPad")>-1,webApp:t.indexOf("Safari")==-1,weixin:t.indexOf("MicroMessenger")==-1}}()};t.exports=e},function(t,n){"use strict";function e(){var t=document.querySelector("#page-nav");if(t&&!document.querySelector("#page-nav .extend.prev")&&(t.innerHTML='<a class="extend prev disabled" rel="prev">&laquo; Prev</a>'+t.innerHTML),t&&!document.querySelector("#page-nav .extend.next")&&(t.innerHTML=t.innerHTML+'<a class="extend next disabled" rel="next">Next &raquo;</a>'),yiliaConfig&&yiliaConfig.open_in_new){document.querySelectorAll(".article-entry a:not(.article-more-a)").forEach(function(t){t.setAttribute("target","_blank")})}var n=document.querySelector("#js-aboutme");n&&0!==n.length&&(n.innerHTML=n.innerText)}t.exports={init:e}}])</script><script src="/./main.b07bcf.js"></script><script>!function(){!function(e){var t=document.createElement("script");document.getElementsByTagName("body")[0].appendChild(t),t.setAttribute("src",e)}("/slider.583eaa.js")}()</script>
+
+
+    
+<div class="tools-col" q-class="show:isShow,hide:isShow|isFalse" q-on="click:stop(e)">
+  <div class="tools-nav header-menu">
+    
+    
+      
+      
+      
+    
+      
+      
+      
+    
+      
+      
+      
+    
+    
+
+    <ul style="width: 70%">
+    
+    
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'innerArchive')"><a href="javascript:void(0)" q-class="active:innerArchive">所有文章</a></li>
+      
+        
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'friends')"><a href="javascript:void(0)" q-class="active:friends">友链</a></li>
+      
+        
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'aboutme')"><a href="javascript:void(0)" q-class="active:aboutme">关于我</a></li>
+      
+        
+    </ul>
+  </div>
+  <div class="tools-wrap">
+    
+    	<section class="tools-section tools-section-all" q-show="innerArchive">
+        <div class="search-wrap">
+          <input class="search-ipt" q-model="search" type="text" placeholder="find something…">
+          <i class="icon-search icon" q-show="search|isEmptyStr"></i>
+          <i class="icon-close icon" q-show="search|isNotEmptyStr" q-on="click:clearChose(e)"></i>
+        </div>
+        <div class="widget tagcloud search-tag">
+          <p class="search-tag-wording">tag:</p>
+          <label class="search-switch">
+            <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
+          </label>
+          <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">NodeJS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Javascript</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">模块化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">jQuery</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">express</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">设计模式</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">mongoDB</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">webApp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">cookie</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">css</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">ES6</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">自动化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">react-native</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">团队建设</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Redux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">node</a>
+              </li>
+            
+            <div class="clearfix"></div>
+          </ul>
+        </div>
+        <ul class="search-ul">
+          <p q-show="jsonFail" style="padding: 20px; font-size: 12px;">
+            缺失模块。<br/>1、在博客根目录（注意不是yilia根目录）执行以下命令：<br/> npm i hexo-generator-json-content --save<br/><br/>
+            2、在根目录_config.yml里添加配置：
+<pre style="font-size: 12px;" q-show="jsonFail">
+  jsonContent:
+    meta: false
+    pages: false
+    posts:
+      title: true
+      date: true
+      path: true
+      text: true
+      raw: false
+      content: false
+      slug: false
+      updated: false
+      comments: false
+      link: false
+      permalink: false
+      excerpt: false
+      categories: false
+      tags: true
+</pre>
+          </p>
+          <li class="search-li" q-repeat="items" q-show="isShow">
+            <a q-attr="href:path|urlformat" class="search-title"><i class="icon-quo-left icon"></i><span q-text="title"></span></a>
+            <p class="search-time">
+              <i class="icon-calendar icon"></i>
+              <span q-text="date|dateformat"></span>
+            </p>
+            <p class="search-tag">
+              <i class="icon-price-tags icon"></i>
+              <span q-repeat="tags" q-on="click:choseTag(e, name)" q-text="name|tagformat"></span>
+            </p>
+          </li>
+        </ul>
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-friends" q-show="friends">
+  		
+        <ul class="search-ul">
+          
+            <li class="search-li">
+              <a href="http://blog.csdn.net/u011413061" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的csdn</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://photo.jafeney.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的图片</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://royal.jafeney.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的Royal</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://www.e2718281828459.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>老黄的leo</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://www.bysocket.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>强强的bysocket</a>
+            </li>
+          
+        </ul>
+  		
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-me" q-show="aboutme">
+  	  	
+  	  		<div class="aboutme-wrap" id="js-aboutme">Jafeney Lou，一个安静的代码客</div>
+  	  	
+    	</section>
+    
+  </div>
+  
+</div>
+    <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <link rel="dns-prefetch" href="http://jafeney.com">
+  <title>前端框架设计理念 | Jafeney</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="写在前面接下去的一段时间要集中对React和ReactNative的项目做进一步的组件化。我这里也先吹个牛，虽然是小团队，但是我们也决心要搞出一套体系化的东西，暂且把它命名为Royal。动工之前为也做了些理论方面的调研，主要是阿里开发的那套ANT和Twitter的 Bootstrap，作为科学理论基础。
+十大原则『好设计比差设计更难发现』，因为好设计是如此的自然，帮助用户轻松的完成目标，以至于用户">
+<meta property="og:type" content="article">
+<meta property="og:title" content="前端框架设计理念">
+<meta property="og:url" content="http://jafeney.com/2016/07/02/2016-07-02-design/index.html">
+<meta property="og:site_name" content="Jafeney">
+<meta property="og:description" content="写在前面接下去的一段时间要集中对React和ReactNative的项目做进一步的组件化。我这里也先吹个牛，虽然是小团队，但是我们也决心要搞出一套体系化的东西，暂且把它命名为Royal。动工之前为也做了些理论方面的调研，主要是阿里开发的那套ANT和Twitter的 Bootstrap，作为科学理论基础。
+十大原则『好设计比差设计更难发现』，因为好设计是如此的自然，帮助用户轻松的完成目标，以至于用户">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/blBCqHsUJhKxxAU.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/EWpTfSlQzueWlbp.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/LdomydjSKKlFhiv.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/DxzQXtIEnFcFxGY.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/xvmiAZAIxrEcqdP.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/qvycImsTiDGVgLJ.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/DmEbaUsrpJkRyUh.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/hCSQTEmahFyQcWk.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/FDjScmPlWFPxkxL.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/RruKZUSYEwauGdF.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/TOupLSPNQkBTmYw.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/xskurfmyKPumFSv.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/HEDJpTyufnfXUOP.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/bafqoUWFgXjsuSG.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/UHjarNwxrXndznP.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/DCAtXAEaFnAXEmG.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/SREcKOUMmiWPQNO.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/ZjFUWyPHGzyQJYD.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/mveDxAdjucdJDll.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/PmVuUUKeamHdveT.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/ZmRlahliUbCurhu.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/hGXGErepBnrwqzj.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/DjMFcqSxZrulbGF.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/KVhqdSoLUjXPXuN.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/woHOTIZeXCYmtkv.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/hDlhNscVtHdvvgu.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/JEcWKBYlMcYIowX.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/WIhhhXExyQBsZwj.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/YehbrRkldqWsezo.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/bHCqDMqXhZvKbve.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/MsVyvEIJtlxZWBL.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/xpynnwXnfCpGHvn.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/EBVLFAwHHjiXtIJ.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/xcYosQncDPuFxhS.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/sfytaOSssRrdYFg.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/AUiWMlbxCvpBFyA.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/uGWcpAFgWdynxBy.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/STvIHSgnVAHOVHl.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/aRihOoBCQHGATBA.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/MfbnQfAJhQfIODY.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/bCrBxGPJiDvkyOH.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/dSehXwUuXDFDhJO.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/pWnlJpbkCPIaKdP.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/DkOYgfJHDuzhyBg.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/cojQlWfINmsVDGd.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/TGnzYViseCoFBYL.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/KQabdaTbolVuMld.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/gzfDJLcETyTOfFg.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/tdJWZFIDWYuMVIe.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/SyurwytfcvpbNLG.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/sOqYOydwQjLHqph.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/fgQfkNakHrUiAun.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/hUfCsXwnOsVlskl.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/OyJCVmOigyXKWCf.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/jecYhRgfbHleGDJ.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/FBAZGqfeUnDlUtw.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/FPXsINbTgsuSStI.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/WJqeUHzthTXaHnW.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/qPWjexSmFfCiLVJ.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/DdmWqoqIFSCSAvq.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/guiuShsfpJzxZQx.png">
+<meta property="og:image" content="https://os.alipayobjects.com/rmsportal/OKbesWXtRMCNGmO.png">
+<meta property="og:image" content="https://t.alipayobjects.com/images/T1bcXhXfNeXXXXXXXX.png">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702160708984">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702161031167">
+<meta property="og:image" content="https://t.alipayobjects.com/images/T1KrXhXlxnXXXXXXXX.png">
+<meta property="og:image" content="https://t.alipayobjects.com/images/T1UYphXe8lXXXXXXXX.png">
+<meta property="og:image" content="https://t.alipayobjects.com/images/T1nHhhXl4mXXXXXXXX.png">
+<meta property="og:image" content="https://t.alipayobjects.com/images/T1YbthXhRkXXXXXXXX.png">
+<meta property="og:image" content="https://t.alipayobjects.com/images/T1hcJhXnlXXXXXXXXX.png">
+<meta property="og:image" content="https://t.alipayobjects.com/images/T17cthXgpbXXXXXXXX.png">
+<meta property="og:image" content="https://t.alipayobjects.com/images/T1GYBhXghjXXXXXXXX.png">
+<meta property="og:image" content="https://t.alipayobjects.com/images/T1bY4hXkpfXXXXXXXX.png">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702162339740">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702162351656">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702162402516">
+<meta property="og:image" content="https://t.alipayobjects.com/images/T1ZHxhXdNmXXXXXXXX.png">
+<meta property="og:image" content="https://t.alipayobjects.com/images/T1fZJhXahgXXXXXXXX.png">
+<meta property="og:image" content="https://t.alipayobjects.com/images/rmsweb/T1hLphXgXcXXXXXXXX.png">
+<meta property="og:image" content="https://t.alipayobjects.com/images/rmsweb/T1v2phXj8bXXXXXXXX.png">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702163337098">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702163346113">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702163356395">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702163409505">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702163423442">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702163623771">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702163639583">
+<meta property="og:image" content="http://img.blog.csdn.net/20160702165844120">
+<meta property="og:updated_time" content="2017-03-28T06:39:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="前端框架设计理念">
+<meta name="twitter:description" content="写在前面接下去的一段时间要集中对React和ReactNative的项目做进一步的组件化。我这里也先吹个牛，虽然是小团队，但是我们也决心要搞出一套体系化的东西，暂且把它命名为Royal。动工之前为也做了些理论方面的调研，主要是阿里开发的那套ANT和Twitter的 Bootstrap，作为科学理论基础。
+十大原则『好设计比差设计更难发现』，因为好设计是如此的自然，帮助用户轻松的完成目标，以至于用户">
+<meta name="twitter:image" content="https://os.alipayobjects.com/rmsportal/blBCqHsUJhKxxAU.png">
+  
+    <link rel="alternative" href="/atom.xml" title="Jafeney" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" type="text/css" href="/./main.b07bcf.css">
+  <style type="text/css">
+  
+    #container.show {
+      background: linear-gradient(200deg,#a0cfe4,#e8c37e);
+    }
+  </style>
+  
+
+  
+<script>
+var _hmt = _hmt || [];
+(function() {
+	var hm = document.createElement("script");
+	hm.src = "https://hm.baidu.com/hm.js?4c0fe03f16c08a15b32cda310c30b262";
+	var s = document.getElementsByTagName("script")[0]; 
+	s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+</head>
+
+<body>
+  <div id="container" q-class="show:isCtnShow">
+    <canvas id="anm-canvas" class="anm-canvas"></canvas>
+    <div class="left-col" q-class="show:isShow">
+      
+<div class="overlay" style="background: #4d4d4d"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			<img src="http://avatar.csdn.net/F/8/E/1_u011413061.jpg" class="js-avatar">
+		</a>
+		<hgroup>
+		  <h1 class="header-author"><a href="/">Jafeney Lou</a></h1>
+		</hgroup>
+		
+		<p class="header-subtitle">like programming,like life</p>
+		
+
+		<nav class="header-menu">
+			<ul>
+			
+				<li><a href="/">主页</a></li>
+	        
+				<li><a href="/tags">标签</a></li>
+	        
+				<li><a href="/archives">归档</a></li>
+	        
+				<li><a href="/categories">分类</a></li>
+	        
+			</ul>
+		</nav>
+		<nav class="header-smart-menu">
+    		
+    			
+    			<a q-on="click: openSlider(e, 'innerArchive')" href="javascript:void(0)">所有文章</a>
+    			
+            
+    			
+    			<a q-on="click: openSlider(e, 'friends')" href="javascript:void(0)">友链</a>
+    			
+            
+    			
+    			<a q-on="click: openSlider(e, 'aboutme')" href="javascript:void(0)">关于我</a>
+    			
+            
+		</nav>
+		<nav class="header-nav">
+			<div class="social">
+				
+					<a class="github" target="_blank" href="https://github.com/Jafeney" title="github"><i class="icon-github"></i></a>
+		        
+					<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/jafeney-lou/activities" title="zhihu"><i class="icon-zhihu"></i></a>
+		        
+					<a class="segmentfault" target="_blank" href="https://segmentfault.com/u/jafeney" title="segmentfault"><i class="icon-segmentfault"></i></a>
+		        
+					<a class="mail" target="_blank" href="mailto:692270687@qq.com" title="mail"><i class="icon-mail"></i></a>
+		        
+			</div>
+		</nav>
+	</header>		
+</div>
+
+    </div>
+    <div class="mid-col" q-class="show:isShow,hide:isShow|isFalse">
+      
+<nav id="mobile-nav">
+  	<div class="overlay js-overlay" style="background: #4d4d4d"></div>
+	<div class="btnctn js-mobile-btnctn">
+  		<div class="slider-trigger list" q-on="click: openSlider(e)"><i class="icon icon-sort"></i></div>
+	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img src="http://avatar.csdn.net/F/8/E/1_u011413061.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author js-header-author">Jafeney Lou</h1>
+			</hgroup>
+			
+			<p class="header-subtitle"><i class="icon icon-quo-left"></i>like programming,like life<i class="icon icon-quo-right"></i></p>
+			
+			
+			
+				
+			
+				
+			
+				
+			
+				
+			
+			
+			
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/Jafeney" title="github"><i class="icon-github"></i></a>
+			        
+						<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/jafeney-lou/activities" title="zhihu"><i class="icon-zhihu"></i></a>
+			        
+						<a class="segmentfault" target="_blank" href="https://segmentfault.com/u/jafeney" title="segmentfault"><i class="icon-segmentfault"></i></a>
+			        
+						<a class="mail" target="_blank" href="mailto:692270687@qq.com" title="mail"><i class="icon-mail"></i></a>
+			        
+				</div>
+			</nav>
+
+			<nav class="header-menu js-header-menu">
+				<ul style="width: 70%">
+				
+				
+					<li style="width: 25%"><a href="/">主页</a></li>
+		        
+					<li style="width: 25%"><a href="/tags">标签</a></li>
+		        
+					<li style="width: 25%"><a href="/archives">归档</a></li>
+		        
+					<li style="width: 25%"><a href="/categories">分类</a></li>
+		        
+				</ul>
+			</nav>
+		</header>				
+	</div>
+	<div class="mobile-mask" style="display:none" q-show="isShow"></div>
+</nav>
+
+      <div id="wrapper" class="body-wrap">
+        <div class="menu-l">
+          <div class="canvas-wrap">
+            <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
+          </div>
+          <div id="js-content" class="content-ll">
+            <article id="post-2016-07-02-design" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      前端框架设计理念
+    </h1>
+  
+
+        
+        <a href="/2016/07/02/2016-07-02-design/" class="archive-article-date">
+  	<time datetime="2016-07-02T09:09:15.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-07-02</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>接下去的一段时间要集中对<code>React</code>和<code>ReactNative</code>的项目做进一步的组件化。我这里也先吹个牛，虽然是小团队，但是我们也决心要搞出一套体系化的东西，暂且把它命名为<code>Royal</code>。动工之前为也做了些理论方面的调研，主要是阿里开发的那套<code>ANT</code>和Twitter的 <code>Bootstrap</code>，作为科学理论基础。</p>
+<h1 id="十大原则"><a href="#十大原则" class="headerlink" title="十大原则"></a>十大原则</h1><p>『好设计比差设计更难发现』，因为好设计是如此的自然，帮助用户轻松的完成目标，以至于用户根本意识不到好设计的存在。</p>
+<blockquote>
+<p>注：设计原则是对具象设计的抽象和总结，然而产品是一个整体，用户对整个产品的认知也是从全局到局部，所以忽略全局，只在局部套用原则是不可取的。对于这些原则，『设计者』应当理性地学会它，而后勇敢地抛弃它。</p>
+</blockquote>
+<h2 id="亲密度-Proximity"><a href="#亲密度-Proximity" class="headerlink" title="亲密度 Proximity"></a>亲密度 Proximity</h2><blockquote>
+<p>如果信息之间关联性越高，它们之间的距离就应该越接近，也越像一个视觉单元；反之，则它们的距离就应该越远，也越像多个视觉单元。亲密性的根本目的是实现组织性，让用户对页面结构和信息层次一目了然。</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="纵向间距关系"><a href="#纵向间距关系" class="headerlink" title="纵向间距关系"></a>纵向间距关系</h3><p>通过『小号间距』、『中号间距』、『大号间距』这三种规格来划分信息层次。比如：</p>
+<h4 id="纵向间距"><a href="#纵向间距" class="headerlink" title="纵向间距"></a>纵向间距</h4><p><img src="https://os.alipayobjects.com/rmsportal/blBCqHsUJhKxxAU.png" alt="纵向间距示例"></p>
+<blockquote>
+<p>在阿里的Ant Design 中，这三种规格分别为：8px（小号间距）、16px（中号间距）、24px（大号间距）。</p>
+</blockquote>
+<p>在这三种规格不适用的情况下，可以通过加减『基础间距』的倍数，或者增加元素来拉开信息层次。</p>
+<blockquote>
+<p>注：在 Ant Design 中，y=8+8*n。其中，n&gt;=0，y 是纵向间距，8 是『基础间距』。</p>
+</blockquote>
+<h4 id="增加元素"><a href="#增加元素" class="headerlink" title="增加元素"></a>增加元素</h4><p><img src="https://os.alipayobjects.com/rmsportal/EWpTfSlQzueWlbp.png" alt="增加元素示例"></p>
+<blockquote>
+<p>这里通过增加『分割线』来拉开层次。</p>
+</blockquote>
+<h3 id="横向间距关系"><a href="#横向间距关系" class="headerlink" title="横向间距关系"></a>横向间距关系</h3><p>为了适用不同尺寸的屏幕，在横向采用栅格布局来排布组件，从而保证布局的灵活性。</p>
+<h4 id="组合排布示例"><a href="#组合排布示例" class="headerlink" title="组合排布示例"></a>组合排布示例</h4><p><img src="https://os.alipayobjects.com/rmsportal/LdomydjSKKlFhiv.png" alt="组合排布示例"></p>
+<h4 id="复选框内示例"><a href="#复选框内示例" class="headerlink" title="复选框内示例"></a>复选框内示例</h4><p><img src="https://os.alipayobjects.com/rmsportal/DxzQXtIEnFcFxGY.png" alt="复选框内示例"></p>
+<blockquote>
+<p>注意：在一个组件内部，元素的横向间距也应该有所不同。</p>
+</blockquote>
+<h2 id="对齐Alignment"><a href="#对齐Alignment" class="headerlink" title="对齐Alignment"></a>对齐Alignment</h2><p>正如『格式塔学派』中的连续律（Law of Continuity）所描述的，在知觉过程中人们往往倾向于使知觉对象的直线继续成为直线，使曲线继续成为曲线。在界面设计中，将元素进行对齐，既符合用户的认知特性，也能引导视觉流向，让用户更流畅地接收信息。</p>
+<blockquote>
+<p>格式塔学派（德语：Gestalttheorie） ：是心理学重要流派之一，兴起于 20 世纪初的德国，又称为完形心理学；主张人脑的运作原理是整体的，『整体不同于其部件的总和』。——摘自『维基百科』</p>
+</blockquote>
+<h3 id="文案类对齐"><a href="#文案类对齐" class="headerlink" title="文案类对齐"></a>文案类对齐</h3><p>如果页面的字段或段落较短、较散时，需要确定一个统一的视觉起点。</p>
+<h4 id="推荐示例"><a href="#推荐示例" class="headerlink" title="推荐示例"></a>推荐示例</h4><p><img src="https://os.alipayobjects.com/rmsportal/xvmiAZAIxrEcqdP.png" alt="推荐示例"></p>
+<blockquote>
+<p>标题和正文左对齐，使用了一个视觉起点。</p>
+</blockquote>
+<h4 id="不推荐示例"><a href="#不推荐示例" class="headerlink" title="不推荐示例"></a>不推荐示例</h4><p><img src="https://os.alipayobjects.com/rmsportal/qvycImsTiDGVgLJ.png" alt="不推荐示例">    </p>
+<blockquote>
+<p>标题和正文使用了两个视觉起点，不推荐该种对齐方式，除非刻意强调两者区别。</p>
+</blockquote>
+<h3 id="表单类对齐"><a href="#表单类对齐" class="headerlink" title="表单类对齐"></a>表单类对齐</h3><p>冒号对齐（右对齐）能让内容锁定在一定范围内，让用户眼球顺着冒号的视觉流，就能找到所有填写项，从而提高填写效率。<br><img src="https://os.alipayobjects.com/rmsportal/DmEbaUsrpJkRyUh.png" alt="冒号对齐示例">  </p>
+<h3 id="数字类对齐"><a href="#数字类对齐" class="headerlink" title="数字类对齐"></a>数字类对齐</h3><p>为了快速对比数值大小，建议所有数值取相同有效位数，并且右对齐。</p>
+<h4 id="正确示例"><a href="#正确示例" class="headerlink" title="正确示例"></a>正确示例</h4><p><img src="https://os.alipayobjects.com/rmsportal/hCSQTEmahFyQcWk.png" alt="正确示例">   </p>
+<h4 id="错误示例"><a href="#错误示例" class="headerlink" title="错误示例"></a>错误示例</h4><p><img src="https://os.alipayobjects.com/rmsportal/FDjScmPlWFPxkxL.png" alt="错误示例">     </p>
+<h2 id="对比Contrast"><a href="#对比Contrast" class="headerlink" title="对比Contrast"></a>对比Contrast</h2><p>对比是增加视觉效果最有效方法之一，同时也能在不同元素之间建立一种有组织的层次结构，让用户快速识别关键信息。</p>
+<blockquote>
+<p>注：要实现有效的对比，对比就必须强烈，切不可畏畏缩缩。</p>
+</blockquote>
+<h3 id="主次关系对比"><a href="#主次关系对比" class="headerlink" title="主次关系对比"></a>主次关系对比</h3><p>为了让用户能在操作上（类似表单、弹出框等场景）快速做出判断， 来突出其中一项相对更重要或者更高频的操作。</p>
+<blockquote>
+<p>注意：突出的方法，不局限于强化重点项，也可以是弱化其他项。</p>
+<h4 id="正确示例-1"><a href="#正确示例-1" class="headerlink" title="正确示例"></a>正确示例</h4><p><img src="https://os.alipayobjects.com/rmsportal/RruKZUSYEwauGdF.png" alt="正确示例">  </p>
+<h4 id="错误示例-1"><a href="#错误示例-1" class="headerlink" title="错误示例"></a>错误示例</h4><p><img src="https://os.alipayobjects.com/rmsportal/TOupLSPNQkBTmYw.png" alt="错误示例"></p>
+</blockquote>
+<p>在一些需要用户慎重决策的场景中，系统应该保持中立，不能替用户或者诱导用户做出判断。</p>
+<h4 id="不区分主次"><a href="#不区分主次" class="headerlink" title="不区分主次"></a>不区分主次</h4><p><img src="https://os.alipayobjects.com/rmsportal/xskurfmyKPumFSv.png" alt="不区分主次的示例">  </p>
+<h3 id="总分关系对比"><a href="#总分关系对比" class="headerlink" title="总分关系对比"></a>总分关系对比</h3><p>通过调整排版、字体、大小等方式来突出层次感，区分总分关系，使得页面更具张力和节奏感。  </p>
+<h4 id="总分关系"><a href="#总分关系" class="headerlink" title="总分关系"></a>总分关系</h4><p><img src="https://os.alipayobjects.com/rmsportal/HEDJpTyufnfXUOP.png" alt="总分关系示例1"></p>
+<p><img src="https://os.alipayobjects.com/rmsportal/bafqoUWFgXjsuSG.png" alt="总分关系示例2"></p>
+<h3 id="状态关系对比"><a href="#状态关系对比" class="headerlink" title="状态关系对比"></a>状态关系对比</h3><p>通过改变颜色、增加辅助形状等方法来实现状态关系的对比，以便用户更好的区分信息。<br>常见类型有『静态对比』、『动态对比』。</p>
+<h4 id="静态对比"><a href="#静态对比" class="headerlink" title="静态对比"></a>静态对比</h4><p>用不同颜色点，来表明不同状态。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/UHjarNwxrXndznP.png" alt="静态对比示例 "></p>
+<h4 id="动态对比"><a href="#动态对比" class="headerlink" title="动态对比"></a>动态对比</h4><p>鼠标悬停时，该项和其他项呈现出明显不同的视觉效果，响应用户操作。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/DCAtXAEaFnAXEmG.png" alt="动态对比示例"></p>
+<h2 id="重复Repetition"><a href="#重复Repetition" class="headerlink" title="重复Repetition"></a>重复Repetition</h2><p>相同的元素在整个界面中不断重复，不仅可以有效降低用户的学习成本，也可以帮助用户识别出这些元素之间的关联性。</p>
+<h3 id="重复元素"><a href="#重复元素" class="headerlink" title="重复元素"></a>重复元素</h3><p>重复元素可以是一条粗线、一种线框，某种相同的颜色、设计要素、设计风格，某种格式、空间关系等。</p>
+<h4 id="线框重复"><a href="#线框重复" class="headerlink" title="线框重复"></a>线框重复</h4><p><img src="https://os.alipayobjects.com/rmsportal/SREcKOUMmiWPQNO.png" alt="线框重复示例"></p>
+<h4 id="设计要素重复"><a href="#设计要素重复" class="headerlink" title="设计要素重复"></a>设计要素重复</h4><p><img src="https://os.alipayobjects.com/rmsportal/ZjFUWyPHGzyQJYD.png" alt="设计要素重复示例"></p>
+<h4 id="设计要素重复-1"><a href="#设计要素重复-1" class="headerlink" title="设计要素重复"></a>设计要素重复</h4><p><img src="https://os.alipayobjects.com/rmsportal/mveDxAdjucdJDll.png" alt="设计要素重复示例"></p>
+<h2 id="直截了当Make-it-Direct"><a href="#直截了当Make-it-Direct" class="headerlink" title="直截了当Make it Direct"></a>直截了当Make it Direct</h2><blockquote>
+<p>正如 Alan Cooper 所言：『需要在哪里输出，就要允许在哪里输入』。这就是直接操作的原理。eg：不要为了编辑内容而打开另一个页面，应该直接在上下文中实现编辑。</p>
+</blockquote>
+<h3 id="页内编辑"><a href="#页内编辑" class="headerlink" title="页内编辑"></a>页内编辑</h3><p>单字段行内编辑</p>
+<h4 id="单击编辑"><a href="#单击编辑" class="headerlink" title="单击编辑"></a>单击编辑</h4><p>当『易读性』远比『易编辑性』重要时，可以使用『单击编辑』。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/PmVuUUKeamHdveT.png" alt="单击编辑示例">  </p>
+<ul>
+<li>状态一：普通的浏览模式，不区分可编辑行和不可编辑行；</li>
+<li>状态二：鼠标悬停时，『指针』变为『手型』，编辑区域底色变黄，出现『Tooltips』提示单击编辑；</li>
+<li>状态三：鼠标点击后，出现『输入框』、『确定』、『取消』表单元素，同时光标定位在『输入框』中。</li>
+</ul>
+<h4 id="文字链-图标编辑"><a href="#文字链-图标编辑" class="headerlink" title="文字链/图标编辑"></a>文字链/图标编辑</h4><p><img src="https://os.alipayobjects.com/rmsportal/ZmRlahliUbCurhu.png" alt="文字链/图标编辑示例">  </p>
+<ul>
+<li>状态一：在可编辑行附近出现文字链/图标；</li>
+<li>状态二：鼠标点击『编辑』后，出现『输入框』、『确定』、『取消』表单元素，同时光标定位在『输入框』中。</li>
+</ul>
+<h4 id="多字段行内编辑"><a href="#多字段行内编辑" class="headerlink" title="多字段行内编辑"></a>多字段行内编辑</h4><blockquote>
+<p>注：在『多字段行内编辑』的情况下，显示的内容和编辑时所需的字段会存在比较大的差异，所以更需要『巧用过渡』原则中的<a href="http://ant.design/spec/transition#%E8%A7%A3%E9%87%8A%E5%88%9A%E5%88%9A%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88" target="_blank" rel="external">『解释刚刚发生了什么』</a>来消除这种视觉影响。</p>
+</blockquote>
+<p><img src="https://os.alipayobjects.com/rmsportal/hGXGErepBnrwqzj.png" alt="多字段行内编辑示例"></p>
+<p>编辑模式在不破坏整体性的前提下，可扩大空间，以便放下『输入框』等表单元素；其中，在 Table 中进行编辑模式切换时，需要保证每列的不跳动。</p>
+<h3 id="利用拖放"><a href="#利用拖放" class="headerlink" title="利用拖放"></a>利用拖放</h3><p>只能限制在一个维度（上/下或者左/右）进行拖放。</p>
+<h4 id="拖放列表"><a href="#拖放列表" class="headerlink" title="拖放列表"></a>拖放列表</h4><p><img src="https://os.alipayobjects.com/rmsportal/DjMFcqSxZrulbGF.png" alt="拖放列表示例"></p>
+<ul>
+<li>状态一：鼠标悬停该行时，出现可移动的『图标』；</li>
+<li>状态二：鼠标悬停在该『图标』时，指针变为『手型』，点击即可进行拖动；</li>
+<li>状态三：拖动到可放置区块，出现蓝色描边，告知用户该区块可放置该对象。</li>
+</ul>
+<h4 id="拖放图片-文件"><a href="#拖放图片-文件" class="headerlink" title="拖放图片/文件"></a>拖放图片/文件</h4><p><img src="https://os.alipayobjects.com/rmsportal/KVhqdSoLUjXPXuN.png" alt="拖放图片/文件示例"></p>
+<h2 id="足不出户Stay-on-the-Page"><a href="#足不出户Stay-on-the-Page" class="headerlink" title="足不出户Stay on the Page"></a>足不出户Stay on the Page</h2><p>能在这个页面解决的问题，就不要去其它页面解决，因为任何页面刷新和跳转都会引起变化盲视（Change Blindness），导致用户心流（Flow）被打断。频繁的页面刷新和跳转，就像在看戏时，演员说完一行台词就安排一次谢幕一样。</p>
+<blockquote>
+<p>变换盲视（Change Blindness） ：指视觉场景中的某些变化并未被观察者注意到的心理现象。产生这种现象的原因包括场景中的障碍物，眼球运动、地点的变化，或者是缺乏注意力等。——摘自《维基百科》</p>
+<p>心流（Flow） ：也有别名以化境 (Zone) 表示，亦有人翻译为神驰状态，定义是一种将个人精神力完全投注在某种活动上的感觉；心流产生时同时会有高度的兴奋及充实感。——摘自《维基百科》</p>
+</blockquote>
+<h3 id="覆盖层"><a href="#覆盖层" class="headerlink" title="覆盖层"></a>覆盖层</h3><p>二次确认覆盖层：避免滥用 Modal 进行二次确认，应该勇敢的让用户去尝试，给用户机会『撤消』即可。</p>
+<h4 id="推荐示例-1"><a href="#推荐示例-1" class="headerlink" title="推荐示例"></a>推荐示例</h4><p>用户点击『删除』后，直接操作；出现 Message 告知用户操作成功，并提供用户『撤消』的按钮；用户进行下一个操作或者 1 分钟内不进行任何操作， Message 消失，用户无法再『撤消』。<br><img src="https://os.alipayobjects.com/rmsportal/woHOTIZeXCYmtkv.png" alt="推荐示例">  </p>
+<p>特例：在执行某些无法『撤消』的操作时，可以点击『删除』后，出现 Popconfirm 进行二次确认，在当前页面完成任务。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/hDlhNscVtHdvvgu.png" alt="特例"></p>
+<h4 id="不推荐示例-1"><a href="#不推荐示例-1" class="headerlink" title="不推荐示例"></a>不推荐示例</h4><p>滥用 Modal 进行二次确认，就像『狼来了』一样，既打断用户心流（无法将上下文带到弹出框中），也无法避免失误的发生。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/JEcWKBYlMcYIowX.png" alt="不推荐示例">  </p>
+<h4 id="详情覆盖层"><a href="#详情覆盖层" class="headerlink" title="详情覆盖层"></a>详情覆盖层</h4><p>一般在列表中，通过用户『悬停』/『点击』某个区块，在当前页加载该条列表项的更多详情信息。</p>
+<blockquote>
+<p>注：使用『悬停』激活时，当鼠标移入时，需要设置 0.5 秒左右的延迟触发；当鼠标移出时，立刻关闭覆盖层</p>
+</blockquote>
+<p><img src="https://os.alipayobjects.com/rmsportal/WIhhhXExyQBsZwj.png" alt="详情覆盖层示例">  </p>
+<p>通过『点击』图标查看更多详情信息。</p>
+<h4 id="输入覆盖层"><a href="#输入覆盖层" class="headerlink" title="输入覆盖层"></a>输入覆盖层</h4><p>在覆盖层上，让用户直接进行少量字段的输入。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/YehbrRkldqWsezo.png" alt="输入覆盖层示例"></p>
+<blockquote>
+<p>鼠标『点击』图标触发；鼠标『点击』悬浮层以外的其他区块后，直接保存输入结果并退出。</p>
+</blockquote>
+<h3 id="嵌入层"><a href="#嵌入层" class="headerlink" title="嵌入层"></a>嵌入层</h3><p>列表嵌入层：在列表中，显示某条列表项的详情信息，保持上下文不中断。</p>
+<h4 id="列表嵌入层"><a href="#列表嵌入层" class="headerlink" title="列表嵌入层"></a>列表嵌入层</h4><p><img src="https://os.alipayobjects.com/rmsportal/bHCqDMqXhZvKbve.png" alt="列表嵌入层示例">  </p>
+<h4 id="标签页"><a href="#标签页" class="headerlink" title="标签页"></a>标签页</h4><p>将多个平级的信息进行整理和分类了，一次只显示一组信息。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/MsVyvEIJtlxZWBL.png" alt="标签页示例"></p>
+<h3 id="虚拟页面"><a href="#虚拟页面" class="headerlink" title="虚拟页面"></a>虚拟页面</h3><p>在交互过程中，『覆盖层』可以在当前页面上方显示附加内容和交互链接；『嵌入层』可以在页面内部实现同样效果；而『虚拟页面』不局限机械时代的『页面』，可以利用信息时代的特点构建一种新型『页面』。</p>
+<h3 id="流程处理"><a href="#流程处理" class="headerlink" title="流程处理"></a>流程处理</h3><p>长期以来，Web 实现流程的方式就是把每个步骤放在一个单独的页面上。虽然这种做法是分解问题最简单的方式，但并不是最佳解决方案。对于某些『流程处理』而言，让用户始终待在同一个页面上则更有必要。</p>
+<h4 id="渐进式展现"><a href="#渐进式展现" class="headerlink" title="渐进式展现"></a>渐进式展现</h4><p>基于用户的操作/某种特定规则，渐进式展现不同的操作选项。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/xpynnwXnfCpGHvn.png" alt="渐进式展现示例"></p>
+<h4 id="配置程序"><a href="#配置程序" class="headerlink" title="配置程序"></a>配置程序</h4><p>配置程序：通过提供一系列的配置项，帮助用户完成任务或者产品组装。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/EBVLFAwHHjiXtIJ.png" alt="配置程序示例"></p>
+<h4 id="弹出框覆盖层"><a href="#弹出框覆盖层" class="headerlink" title="弹出框覆盖层"></a>弹出框覆盖层</h4><p>虽然弹出框的出现会打断用户的心流，但是有时候在弹出框中使用『步骤条』来管理复杂流程也是可行的。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/xcYosQncDPuFxhS.png" alt="弹出框覆盖层示例">  </p>
+<h2 id="简化交互Keep-it-Lightweight"><a href="#简化交互Keep-it-Lightweight" class="headerlink" title="简化交互Keep it Lightweight"></a>简化交互Keep it Lightweight</h2><p>根据费茨法则（Fitts’s Law）所描述的，如果用户鼠标移动距离越少、对象相对目标越大，那么用户越容易操作。通过运用上下文工具（即：放在内容中的操作工具），使内容和操作融合，从而简化交互。</p>
+<blockquote>
+<p>费茨法则 ：到达目标的时间是到达目标的距离与目标大小的函数，具体：$T = a + blog_2(1 + D/W) $  </p>
+<p>其中：1.设备当前位置和目标位置的距离（D）；2.目标的大小（W）。距离越长，所用时间越长；目标越大，所用时间越短。</p>
+</blockquote>
+<h3 id="实时可见工具"><a href="#实时可见工具" class="headerlink" title="实时可见工具"></a>实时可见工具</h3><p>如果某个操作非常重要，就应该把它放在界面中，并实时可见。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/sfytaOSssRrdYFg.png" alt="实时可见工具示例 --摘自知乎"></p>
+<ul>
+<li>状态一：在文案中出现一个相对明显的点击区域；</li>
+<li>状态二：鼠标悬停时，鼠标『指针』变为『手型』，底色发生变化，邀请用户点击。</li>
+<li>状态三：鼠标点击后，和未点击前有明显的区分。</li>
+</ul>
+<h3 id="悬停即现工具"><a href="#悬停即现工具" class="headerlink" title="悬停即现工具"></a>悬停即现工具</h3><p>如果某个操作不那么重要，或者使用『实时可见工具』过于啰嗦会影响用户阅读时，可以在悬停在该对象上时展示操作项。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/AUiWMlbxCvpBFyA.png" alt="悬停即现工具示例"></p>
+<blockquote>
+<p>鼠标悬停时，出现操作项。</p>
+</blockquote>
+<h3 id="开关显示工具"><a href="#开关显示工具" class="headerlink" title="开关显示工具"></a>开关显示工具</h3><p>如果某些操作只需要在特定模式时显示，可以通过开关来实现。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/uGWcpAFgWdynxBy.png" alt="开关显示工具示例"></p>
+<blockquote>
+<p>用户点击『修改』后，Table 中『文本』变成『输入框』，开启编辑功能。</p>
+</blockquote>
+<h3 id="交互中的工具"><a href="#交互中的工具" class="headerlink" title="交互中的工具"></a>交互中的工具</h3><p>如果操作不重要或者可以通过其他途径完成时，可以将工具放置在用户的操作流程中，减少界面元素，降低认知负担，给用户小惊喜。</p>
+<h4 id="推荐示例-2"><a href="#推荐示例-2" class="headerlink" title="推荐示例"></a>推荐示例</h4><p>鼠标悬停时，出现 Tooltips 进行提示，用户点击内容直接复制。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/STvIHSgnVAHOVHl.png" alt="推荐示例1">  </p>
+<p>鼠标滑选/双击时，系统自动复制该部分内容。通过大胆猜测用户的行为，并帮助完成，给用户小惊喜。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/aRihOoBCQHGATBA.png" alt="推荐示例2"></p>
+<h4 id="不推荐示例-2"><a href="#不推荐示例-2" class="headerlink" title="不推荐示例"></a>不推荐示例</h4><p>在可复制内容的附近出现『图标』，点击后复制。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/MfbnQfAJhQfIODY.png" alt="不推荐示例"></p>
+<h3 id="可视区域-≠-可点击区域"><a href="#可视区域-≠-可点击区域" class="headerlink" title="可视区域 ≠ 可点击区域"></a>可视区域 ≠ 可点击区域</h3><p>在使用 Table 时，文字链的点击范围受到文字长短影响，可以设置整个单元格为热区，以便用户触发。</p>
+<h4 id="文字链热区示例"><a href="#文字链热区示例" class="headerlink" title="文字链热区示例"></a>文字链热区示例</h4><p>当悬浮在 ID 所在的文字链单元格时，鼠标『指针』随即变为『手型』，单击即可跳转。<br><img src="https://os.alipayobjects.com/rmsportal/bCrBxGPJiDvkyOH.png" alt="文字链热区示例"></p>
+<h4 id="按钮热区示例"><a href="#按钮热区示例" class="headerlink" title="按钮热区示例"></a>按钮热区示例</h4><p>鼠标移入按钮附近，即可激活 Hover 状态。<br><img src="https://os.alipayobjects.com/rmsportal/dSehXwUuXDFDhJO.png" alt="按钮热区示例"></p>
+<p>当需要增强按钮的响应性时，可以通过增加用户点击热区的范围，而不是增大按钮形状，从而增强响应性，又不缺失美感。</p>
+<blockquote>
+<p>注：在移动端尤其适用。</p>
+</blockquote>
+<h2 id="提供邀请Provide-Invitation"><a href="#提供邀请Provide-Invitation" class="headerlink" title="提供邀请Provide Invitation"></a>提供邀请Provide Invitation</h2><p>很多富交互模式（eg：『拖放』、『行内编辑』、『上下文工具』）都有一个共同问题，就是缺少易发现性。所以『提供邀请』是成功完成人机交互的关键所在。</p>
+<p>邀请就是引导用户进入下一个交互层次的提醒和暗示，通常包括意符（eg：实时的提示信息）和可供性，以表明在下一个界面可以做什么。当可供性中可感知的部分（Perceived Affordance）表现为意符时，人机交互的过程往往更加自然、顺畅。</p>
+<blockquote>
+<p>意符（Signifiers） ：一种额外的提示，告诉用户可以采取什么行为，以及应该怎么操作；必须是可感知（eg：视觉、听觉、触觉等）。——摘自《设计心理学 1 》</p>
+<p>可供性（Affordance） ：也被翻译成『示能』，由 James J. Gibson 提出，定义为物品的特性与决定物品用途的主体能力之间的关系；其中部分可感知（此部分定义为 Perceived Affordance），部分不可感知。——摘自《设计心理学 1 》</p>
+</blockquote>
+<h3 id="静态邀请"><a href="#静态邀请" class="headerlink" title="静态邀请"></a>静态邀请</h3><p>指通过可视化技术在页面上提供引导交互的邀请。</p>
+<h4 id="引导操作邀请"><a href="#引导操作邀请" class="headerlink" title="引导操作邀请"></a>引导操作邀请</h4><p>一般以静态说明形式出现在页面上，不过它们在视觉上也可以表现出多种不同样式。 常见类型：『文本邀请』、『白板式邀请』、『未完成邀请』。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/pWnlJpbkCPIaKdP.png" alt="文本邀请"></p>
+<p><img src="https://os.alipayobjects.com/rmsportal/DkOYgfJHDuzhyBg.png" alt="白板式邀请"></p>
+<p><img src="https://os.alipayobjects.com/rmsportal/cojQlWfINmsVDGd.png" alt="未完成要求示例">  </p>
+<h4 id="漫游探索邀请"><a href="#漫游探索邀请" class="headerlink" title="漫游探索邀请"></a>漫游探索邀请</h4><p>是向用户介绍新功能的好方法，尤其是对于那些设计优良的界面。但是它不是『创口贴』，仅通过它不能解决界面交互的真正问题。</p>
+<blockquote>
+<p>注：保持漫游过程简单，让用户容易退出和重新启动；保持内容简明扼要，与功能密切相关。</p>
+</blockquote>
+<p><img src="https://os.alipayobjects.com/rmsportal/TGnzYViseCoFBYL.png" alt="漫游探索邀请示例1"></p>
+<p>在用户首次登陆时出现少量『探索点』，当用户点击『我知道了』，能快速切换到下一个探索点。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/KQabdaTbolVuMld.png" alt="漫游探索邀请示例2"></p>
+<h3 id="动态邀请"><a href="#动态邀请" class="headerlink" title="动态邀请"></a>动态邀请</h3><p>指以响应用户在特定位置执行特定操作的方式，提供特定的邀请。</p>
+<h4 id="悬停邀请"><a href="#悬停邀请" class="headerlink" title="悬停邀请"></a>悬停邀请</h4><p>在鼠标悬停期间提供邀请。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/gzfDJLcETyTOfFg.png" alt="悬停邀请示例1">  </p>
+<blockquote>
+<p>鼠标『悬停』整个卡片时，可被点击部分变为蓝色的『文字链』。</p>
+</blockquote>
+<p><img src="https://os.alipayobjects.com/rmsportal/tdJWZFIDWYuMVIe.png" alt="悬停邀请示例 ">   </p>
+<blockquote>
+<p>鼠标『悬停』时，出现『选择此模板』的按钮。</p>
+</blockquote>
+<h4 id="推论邀请"><a href="#推论邀请" class="headerlink" title="推论邀请"></a>推论邀请</h4><p>用于交互期间，合理推断用户可能产生的需求。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/SyurwytfcvpbNLG.png" alt="推论邀请示例"></p>
+<blockquote>
+<p>用户点击『赞』后，同时系统分析（既然用户喜欢这篇文章，那么可能对这一类文章都有兴趣）并提供开启『精打细算』的邀请。<br>推论邀请：用于交互期间，合理推断用户可能产生的需求。</p>
+</blockquote>
+<h4 id="更多内容邀请"><a href="#更多内容邀请" class="headerlink" title="更多内容邀请"></a>更多内容邀请</h4><p>用于邀请用户查看更多内容。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/sOqYOydwQjLHqph.png" alt="更多内容邀请示例"></p>
+<blockquote>
+<p>在 Modal 中会出现前后切换的箭头。</p>
+</blockquote>
+<h2 id="巧用过渡Use-Transition"><a href="#巧用过渡Use-Transition" class="headerlink" title="巧用过渡Use Transition"></a>巧用过渡Use Transition</h2><p>人脑灰质（Gray Matter）会对动态的事物（eg：移动、形变、色变等）保持敏感。在界面中，适当的加入一些过渡效果，能让界面保持生动，同时也能增强用户和界面的沟通。</p>
+<ul>
+<li>Adding: 新加入的信息元素应被告知如何使用，从页面转变的信息元素需被重新识别。</li>
+<li>Receding: 与当前页无关的信息元素应采用适当方式移除。</li>
+<li>Normal: 指那些从转场开始到结束都没有发生变化的信息元素。</li>
+</ul>
+<h3 id="在视图变化时保持上下文"><a href="#在视图变化时保持上下文" class="headerlink" title="在视图变化时保持上下文"></a>在视图变化时保持上下文</h3><ul>
+<li>滑入与滑出：可以有效构建虚拟空间。</li>
+<li>传送带：可极大地扩展虚拟空间。</li>
+<li>折叠窗口：在视图切换时，有助于保持上下文，同时也能拓展虚拟空间。</li>
+</ul>
+<h3 id="解释刚刚发生了什么"><a href="#解释刚刚发生了什么" class="headerlink" title="解释刚刚发生了什么"></a>解释刚刚发生了什么</h3><ul>
+<li>对象增加：在列表/表格中，新增了一个对象。</li>
+<li>对象删除：在列表/表格中，删除了一个对象。</li>
+<li>对象更改：在列表/表格中，更改了一个对象。</li>
+<li>对象呼出：点击页面中元素，呼出一个新对象。</li>
+</ul>
+<h3 id="改善感知性能"><a href="#改善感知性能" class="headerlink" title="改善感知性能"></a>改善感知性能</h3><p>当无法有效提升『实际性能』时，可以考虑适当转移用户的注意力，来缩短某项操作的感知时间，改善感知性能。</p>
+<h2 id="即时反应React-Immediately"><a href="#即时反应React-Immediately" class="headerlink" title="即时反应React Immediately"></a>即时反应React Immediately</h2><p>『提供邀请』的强大体现在交互之前给出反馈，解决易发现性问题；『巧用过渡』的有用体现在它能够在交互期间为用户提供视觉反馈；『即时反应』的重要性体现在交互之后立即给出反馈。<br>就像『牛顿第三定律』所描述作用力和反作用一样，用户进行了操作或者内部数据发生了变化，系统就应该立即有一个对应的反馈，同时输入量级越大、重要性越高，那么反馈量级越大、重要性越高。<br>虽然反馈太多（准确的说，错误的反馈太多）是一个问题，但是反馈太少甚至没有反馈的系统，则让人感觉迟钝和笨拙，用户体验更差。</p>
+<blockquote>
+<p>牛顿第三定律 ：当两个物体互相作用时，彼此施加于对方的力，其大小相等、方向相反。——摘自《维基百科》</p>
+</blockquote>
+<h3 id="查询模式"><a href="#查询模式" class="headerlink" title="查询模式"></a>查询模式</h3><h4 id="自动完成"><a href="#自动完成" class="headerlink" title="自动完成"></a>自动完成</h4><p>用户输入时，下拉列表会随着输入的关键词显示匹配项。 根据查询结果分类的多少，可以分为『确定类目』、『不确定类目』两种类型。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/fgQfkNakHrUiAun.png" alt="确定类目示例"></p>
+<blockquote>
+<p>用户所查询的关键词，只会在『话题』、『问题』、『文章』这 3 种类目中出现。</p>
+</blockquote>
+<p><img src="https://os.alipayobjects.com/rmsportal/hUfCsXwnOsVlskl.png" alt="不确定类目示例"></p>
+<blockquote>
+<p>用户所查询的关键词，其所属的类目数量不确定，可能 4 个，可能 5 个，可能更多。</p>
+</blockquote>
+<h4 id="实时搜索"><a href="#实时搜索" class="headerlink" title="实时搜索"></a>实时搜索</h4><p>随着用户输入，实时显示搜索结果。『自动完成』、『实时建议』的近亲。<br><img src="https://os.alipayobjects.com/rmsportal/OyJCVmOigyXKWCf.png" alt="实时搜索示例"></p>
+<blockquote>
+<p>用户输入一个搜索值，系统随即显示查询结果。</p>
+</blockquote>
+<h4 id="微调搜索"><a href="#微调搜索" class="headerlink" title="微调搜索"></a>微调搜索</h4><p>随着用户调整搜索条件，实时调整搜索结构。具体可见：<a href="http://ant.design/docs/pattern/advanced-search" target="_blank" rel="external">『模式／高级搜索』</a>。</p>
+<h3 id="反馈模式"><a href="#反馈模式" class="headerlink" title="反馈模式"></a>反馈模式</h3><h4 id="实时预览"><a href="#实时预览" class="headerlink" title="实时预览"></a>实时预览</h4><p>在用户提交输入之前，让他先行了解系统将如何处理他的输入。</p>
+<blockquote>
+<p>注：解决错误最好的办法，就是不让错误发生。而『实时预览』就是有效避免错误的好设计。</p>
+</blockquote>
+<p><img src="https://os.alipayobjects.com/rmsportal/jecYhRgfbHleGDJ.png" alt="实时预览示例"></p>
+<blockquote>
+<p>根据用户的输入，提供关于密码强度和有效性的实时反馈。</p>
+</blockquote>
+<h4 id="渐进式展现-1"><a href="#渐进式展现-1" class="headerlink" title="渐进式展现"></a>渐进式展现</h4><p>在必要的时候提供必要的提示，而不是一股脑儿显示所有提示，导致界面混乱，增加认知负担。案例详见<a href="http://ant.design/docs/spec/stay#%E6%B5%81%E7%A8%8B%E5%A4%84%E7%90%86" target="_blank" rel="external">『足不出户／渐进式展现』</a>。</p>
+<h4 id="进度指示"><a href="#进度指示" class="headerlink" title="进度指示"></a>进度指示</h4><p>当一个操作需要一定时间完成时，就需要即时告知进度，保持与用户的沟通。 常见的进度指示：『按钮加载』、『表格加载』、『富列表加载』、『页面加载』。可根据操作的量级和重要性，展示不同类型的进度指示。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/FBAZGqfeUnDlUtw.png" alt="按钮加载示例"></p>
+<p><img src="https://os.alipayobjects.com/rmsportal/FPXsINbTgsuSStI.png" alt="表格加载示例"></p>
+<p> <img src="https://os.alipayobjects.com/rmsportal/WJqeUHzthTXaHnW.png" alt="富列加载示例"></p>
+<p><img src="https://os.alipayobjects.com/rmsportal/qPWjexSmFfCiLVJ.png" alt="页面加载示例"></p>
+<h4 id="点击刷新"><a href="#点击刷新" class="headerlink" title="点击刷新"></a>点击刷新</h4><p>告知用户有新内容，并提供按钮等工具帮助用户查看新内容。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/DdmWqoqIFSCSAvq.png" alt="点击刷新示例"></p>
+<h4 id="定时刷新"><a href="#定时刷新" class="headerlink" title="定时刷新"></a>定时刷新</h4><p>无需用户介入，定时展示新内容。</p>
+<p><img src="https://os.alipayobjects.com/rmsportal/guiuShsfpJzxZQx.png" alt="定时示例"></p>
+<blockquote>
+<p>新增的列表项『高亮』，持续几秒后恢复正常。</p>
+</blockquote>
+<h1 id="设计基础"><a href="#设计基础" class="headerlink" title="设计基础"></a>设计基础</h1><h2 id="字体-Font"><a href="#字体-Font" class="headerlink" title="字体 Font"></a>字体 Font</h2><p>跨平台的字体设定，力求在各个操作系统下都有最佳展示效果。</p>
+<h3 id="字体家族"><a href="#字体家族" class="headerlink" title="字体家族"></a>字体家族</h3><ul>
+<li>中文字体族</li>
+</ul>
+<p><img src="https://os.alipayobjects.com/rmsportal/OKbesWXtRMCNGmO.png" alt="中文字体族"></p>
+<ul>
+<li>英文文字体族</li>
+</ul>
+<p><img src="https://t.alipayobjects.com/images/T1bcXhXfNeXXXXXXXX.png" alt="英文文字体族"></p>
+<blockquote>
+<p>字体家族 css 代码如下</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">font-family: &quot;Helvetica Neue&quot;,Helvetica,&quot;PingFang SC&quot;,&quot;Hiragino Sans GB&quot;,&quot;Microsoft YaHei&quot;,&quot;微软雅黑&quot;,Arial,sans-serif;</div></pre></td></tr></table></figure>
+<p><img src="http://img.blog.csdn.net/20160702160708984" alt="常用字体"></p>
+<h2 id="排版-Typography"><a href="#排版-Typography" class="headerlink" title="排版 Typography"></a>排版 Typography</h2><p>良好的排版规范能大大提升用户的视觉体验。</p>
+<h3 id="行高和段落"><a href="#行高和段落" class="headerlink" title="行高和段落"></a>行高和段落</h3><p>考虑到阅读的舒适度和节奏感，句子和段落间需要合适的间距。行距決定了段落中各行文字的垂直距离，通过字体本身行高来控制，我们行高默认为字号的 1.5 倍。段落间距決定了段落上下的间距，一般为字号的一倍宽。</p>
+<p><img src="http://img.blog.csdn.net/20160702161031167" alt="这里写图片描述"></p>
+<h3 id="标点和空格"><a href="#标点和空格" class="headerlink" title="标点和空格"></a>标点和空格</h3><p><img src="https://t.alipayobjects.com/images/T1KrXhXlxnXXXXXXXX.png" alt="这里写图片描述"></p>
+<ul>
+<li>使用全角中文标点。</li>
+<li>遇到完整的英文整句、特殊名词，其内容使用半角标点。</li>
+<li>数字使用半角字符。</li>
+<li>不重复使用标点符号。</li>
+</ul>
+<h4 id="空格规范"><a href="#空格规范" class="headerlink" title="空格规范"></a>空格规范</h4><ul>
+<li>中文和英文间需要空格。</li>
+<li>数字与单位之间需要增加空格。 例外：度、百分比与数字之间不需要增加空格。</li>
+<li>中文链接之间增加空格。</li>
+</ul>
+<h3 id="文字背景"><a href="#文字背景" class="headerlink" title="文字背景"></a>文字背景</h3><p>当文字和背景明暗对比小于一定比值时，人眼识别文字信息将会变得吃力，尤其在明亮的室外或晃动的情况下。</p>
+<blockquote>
+<p>方法：若彩色背景，可先将色彩去色转为黑白，分别吸取并查看背景和文字的 HSV 色值。 两者的 V 值的差额便是明暗对比差。这个明暗对比差建议不小于 40。</p>
+</blockquote>
+<p><img src="https://t.alipayobjects.com/images/T1UYphXe8lXXXXXXXX.png" alt="文字背景"></p>
+<h3 id="对齐"><a href="#对齐" class="headerlink" title="对齐"></a>对齐</h3><h4 id="中文-英文居左对齐"><a href="#中文-英文居左对齐" class="headerlink" title="中文/英文居左对齐"></a>中文/英文居左对齐</h4><p><img src="https://t.alipayobjects.com/images/T1nHhhXl4mXXXXXXXX.png" alt="这里写图片描述">  </p>
+<blockquote>
+<p>中文和英文均采用左对齐的方式，是因为文字的阅读顺序一般是从左到右的。</p>
+</blockquote>
+<h4 id="数字-小数点对齐"><a href="#数字-小数点对齐" class="headerlink" title="数字/小数点对齐"></a>数字/小数点对齐</h4><p><img src="https://t.alipayobjects.com/images/T1YbthXhRkXXXXXXXX.png" alt="这里写图片描述"></p>
+<blockquote>
+<p>数字通常采用右对齐或小数点对齐，这样便于对个十百千位上的数字进行对比。</p>
+</blockquote>
+<h4 id="冒号对齐"><a href="#冒号对齐" class="headerlink" title="冒号对齐"></a>冒号对齐</h4><p><img src="https://t.alipayobjects.com/images/T1hcJhXnlXXXXXXXXX.png" alt="这里写图片描述"></p>
+<blockquote>
+<p>以冒号对齐的方式在表单中尤其常见。主要是为了区分标题和内容区块，除了美观简洁外，让用户能迅速看清标题减少出错概率。</p>
+</blockquote>
+<h3 id="文案长度"><a href="#文案长度" class="headerlink" title="文案长度"></a>文案长度</h3><p>语言通常是越简单越明确，而提示性文字更需要简明扼要，让用户一目了然，减少操作失误。提示性句子长度视业务而定，建议一般不超过 16–18 个字。</p>
+<p><img src="https://t.alipayobjects.com/images/T17cthXgpbXXXXXXXX.png" alt="文案对齐"></p>
+<blockquote>
+<p>保持简明准确的方法：</p>
+<ul>
+<li>每个句子只包含一个观点；</li>
+<li>使用明确的词；</li>
+<li>尽可能使用主动语态少用被动语态；</li>
+</ul>
+</blockquote>
+<h3 id="层级引导"><a href="#层级引导" class="headerlink" title="层级引导"></a>层级引导</h3><p>我们通常使用对比的手法来区分出信息的层次感，信息主次分明能准确地将信息清晰地传达给用户，让用户第一眼获取所需资讯，提升阅读体验。</p>
+<p><img src="https://t.alipayobjects.com/images/T1GYBhXghjXXXXXXXX.png" alt="这里写图片描述"></p>
+<h4 id="Squint-test"><a href="#Squint-test" class="headerlink" title="Squint test"></a>Squint test</h4><p>我们可以采用 <a href="https://chrome.google.com/webstore/detail/the-squint-test/gppnipfbappicilfniaimcnagbpfflpg" target="_blank" rel="external">模糊测试</a> 的方法，即眯起眼睛从整体来检视结构上的合理与否。</p>
+<p><img src="https://t.alipayobjects.com/images/T1bY4hXkpfXXXXXXXX.png" alt="这里写图片描述"></p>
+<h2 id="色彩-Colors"><a href="#色彩-Colors" class="headerlink" title="色彩 Colors"></a>色彩 Colors</h2><h3 id="有意义的色彩"><a href="#有意义的色彩" class="headerlink" title="有意义的色彩"></a>有意义的色彩</h3><p>色彩在界面设计中的使用应同时具备品牌识别性以及界面设计功能性。众所周知色彩是相当感性的东西，设计中对色彩的运用首要应考虑到品牌层面的表达，另外很重要的一点是色彩的运用应达到信息传递，动作指引，交互反馈，或是强化和凸现某一个元素的目的。任何颜色的选取和使用应该是有意义的。众所周知色彩是相当感性的东西，设计中对色彩的运用首要应考虑到品牌层面的表达，另外很重要的一点是色彩的运用应达到信息传递，动作指引，交互反馈，或是强化和凸现某一个元素的目的。任何颜色的选取和使用应该是有意义的。</p>
+<h3 id="Ant-Design-Colors"><a href="#Ant-Design-Colors" class="headerlink" title="Ant Design Colors"></a>Ant Design Colors</h3><p>Ant Design 的色板由 9 种基本色彩组成，每种基本色又衍生出九宫格色板，在此基础上还可以通过黑白叠加的方式实现色彩明暗的效果。</p>
+<p><img src="http://img.blog.csdn.net/20160702162339740" alt="这里写图片描述"></p>
+<p><img src="http://img.blog.csdn.net/20160702162351656" alt="这里写图片描述"></p>
+<p><img src="http://img.blog.csdn.net/20160702162402516" alt="这里写图片描述"></p>
+<h3 id="色彩和交互"><a href="#色彩和交互" class="headerlink" title="色彩和交互"></a>色彩和交互</h3><p>设计元素本身由于交互行为会引发一系列细微的视觉变化，而元素本身的颜色变化有时也能很好的实现这一目的。在进行这类设计的同时，建议采取在颜色上添加黑色或者白色并按照 n+5% 的规律递增的方式来实现。以下图为例，当鼠标 hover 某个特定元素，就视为浮起，对应颜色就相应增加白色叠加，相反点击的行为可以理解为按下去，在颜色上就相应的增加黑色的叠加。</p>
+<p><img src="https://t.alipayobjects.com/images/T1ZHxhXdNmXXXXXXXX.png" alt="这里写图片描述"></p>
+<p><img src="https://t.alipayobjects.com/images/T1fZJhXahgXXXXXXXX.png" alt="这里写图片描述"></p>
+<h3 id="色彩识别"><a href="#色彩识别" class="headerlink" title="色彩识别"></a>色彩识别</h3><p>合适的色彩对比为信息传达加分，同时也应放考虑到有颜色识别障碍人群的需求。我们将每种主色衍生出来的颜色进行了打标，在考虑对比颜色的选择时建议两种颜色对应标签数值的差要大于等于 5。</p>
+<p><img src="https://t.alipayobjects.com/images/rmsweb/T1hLphXgXcXXXXXXXX.png" alt="这里写图片描述"></p>
+<p><img src="https://t.alipayobjects.com/images/rmsweb/T1v2phXj8bXXXXXXXX.png" alt="这里写图片描述"></p>
+<h3 id="常用布局-Layout"><a href="#常用布局-Layout" class="headerlink" title="常用布局  Layout"></a>常用布局  Layout</h3><p>布局和导航是产品的骨架，是页面的重要构成模式之一，是作为后续展开页面设计的基础，可以为产品奠定交互和视觉风格。</p>
+<p>Ant Design 的布局和导航设计规范如下：</p>
+<h4 id="尺寸规则"><a href="#尺寸规则" class="headerlink" title="尺寸规则"></a>尺寸规则</h4><p>一级导航项偏左靠近 logo 放置，辅助菜单偏右放置。</p>
+<ul>
+<li>顶部导航（大部分系统）：一级导航高度 <code>64px</code>，二级导航 <code>48px</code>。</li>
+<li>顶部导航（展示类页面）：一级导航高度 <code>80px</code>,二级导航 <code>56px</code>。</li>
+<li>顶部导航高度的范围计算公式为：<code>48+8n</code>。</li>
+<li>侧边导航宽度的范围计算公式：<code>200+8n</code>。</li>
+</ul>
+<h4 id="交互原则"><a href="#交互原则" class="headerlink" title="交互原则"></a>交互原则</h4><ul>
+<li>一级导航和末级的导航需要在可视化的层面被强调出来；</li>
+<li>当前项应该在呈现上优先级最高；</li>
+<li>当导航收起的时候，当前项的样式自动赋予给它的上一个层级；</li>
+<li>左侧导航栏的收放交互同时支持手风琴和全展开的样式，根据业务的要求进行适当的选择。</li>
+</ul>
+<h4 id="视觉原则"><a href="#视觉原则" class="headerlink" title="视觉原则"></a>视觉原则</h4><p> 导航样式上需要根据信息层级合理的选择样式：</p>
+<ul>
+<li><strong>大色块强调</strong><br>建议用于底色为深色系时，当前页面父级的导航项。</li>
+<li><strong>高亮火柴棍</strong><br>当导航栏底色为浅色系时使用，可用于当前页面对应导航项，建议尽量在导航路径的最终项使用。</li>
+<li><strong>字体高亮变色</strong><br>从可视化层面，字体高亮的视觉强化力度低于大色块，通常在当前项的上一级使用。</li>
+<li><strong>字体放大</strong><br>12px、14px 是导航的标准字号，14 号字体用在一、二级导航中。字号可以考虑导航项的等级做相应选择。</li>
+</ul>
+<p>在大中后台系统中，Ant Design 使用两种常见的布局形式，顶部导航布局和侧边导航布局，以下收集了使用 Ant Design 设计的中后台产品的基本布局。</p>
+<p><img src="http://img.blog.csdn.net/20160702163337098" alt="这里写图片描述"></p>
+<p><img src="http://img.blog.csdn.net/20160702163346113" alt="这里写图片描述"></p>
+<p><img src="http://img.blog.csdn.net/20160702163356395" alt="这里写图片描述"></p>
+<p><img src="http://img.blog.csdn.net/20160702163409505" alt="这里写图片描述"></p>
+<p><img src="http://img.blog.csdn.net/20160702163423442" alt="这里写图片描述"></p>
+<h2 id="组件动画-Motion"><a href="#组件动画-Motion" class="headerlink" title="组件动画 Motion"></a>组件动画 Motion</h2><h3 id="组件动画"><a href="#组件动画" class="headerlink" title="组件动画"></a>组件动画</h3><p><img src="http://img.blog.csdn.net/20160702163623771" alt="这里写图片描述"></p>
+<h3 id="缓动函数"><a href="#缓动函数" class="headerlink" title="缓动函数"></a>缓动函数</h3><p><img src="http://img.blog.csdn.net/20160702163639583" alt="这里写图片描述"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>阿里ANT框架非常强大，几乎涵盖项目开发方方面面，但是有一个弊端。她非常臃肿，这是功能强大无可避免的问题。我有个单页应用的项目，webpack打包好之后大概500k，但是一旦引入ANT框架，大小达到了5M，暂且不提后续的优化，我并不需要用到ANT所有的东西，可能是某个<code>component</code>或是<code>Layout</code>，实际的利用率其实不到10％。对于自由的开发者来说，我更倾向于选择 各自独立且低耦合的组件。</p>
+<p>相比而言， Bootstrap可定制的特性是非常优秀的一种设计理念。组件化工作做得越久，越觉得以前写的组件不够好。如果把一个web项目比喻成一杯水，它其实是由无数的水分子构成的，但是水分子又是由氢原子和氧原子构成，而原子又是由质子和中子构成…..  所以总是会纠结组件耦合度的问题。</p>
+<p><img src="http://img.blog.csdn.net/20160702165844120" alt="这里写图片描述"></p>
+<p>因此什么是 好的组件库？没有最好，但是它一定是各自相对独立、可配置、可定制，可以像原子一样无处不在的。这里并不是说ANT不好，如果你希望用整套的ANT做开发，她一样会让你觉得省事和高大上，还是按需求来做选择吧。</p>
+<blockquote>
+<p>@ 参考 <a href="http://v3.bootcss.com/customize/" target="_blank" rel="external">《定制并下载 Bootstrap》</a><br>@ 参考 <a href="http://ant.design/docs/spec/introduce" target="_blank" rel="external">《Ant Design》</a></p>
+</blockquote>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>海内存知己，天涯若比邻<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="http://photo.jafeney.com:9999/file/Tt5HgGiKKsq1A7oSGnqq7FQG.png">
+                      <span class="reward-type">支付宝</span>
+                    </div>
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="http://photo.jafeney.com:9999/file/K0VhpLd4WrFL7ynleExrdZLL.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">设计模式</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/前端/" class="article-tag-list-link color3">前端</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://jafeney.com/2016/07/02/2016-07-02-design/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+  
+<nav id="article-nav">
+  
+    <a href="/2016/07/03/2016-07-03-promise/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          深入理解JavaScript的Promise
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/06/26/2016-06-26-immutable/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Immutable 详解及 React 中实践</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+  
+  <div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="2016-07-02-design" data-title="前端框架设计理念" data-url="http://jafeney.com/2016/07/02/2016-07-02-design/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"true"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+  
+
+
+
+
+          </div>
+        </div>
+      </div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2017 Jafeney Lou
+        <span class="with-love">
+          浙ICP备15041893号-1
+          <i class="icon-next-heart fa fa-heart"></i>
+        </span>
+        <br />
+        Jafeney Lou - like programming, like life. 
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script>
+	var yiliaConfig = {
+		mathjax: false,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true,
+		root: "/",
+		innerArchive: true,
+		showTags: false
+	}
+</script>
+
+<script>!function(t){function n(r){if(e[r])return e[r].exports;var o=e[r]={exports:{},id:r,loaded:!1};return t[r].call(o.exports,o,o.exports,n),o.loaded=!0,o.exports}var e={};n.m=t,n.c=e,n.p="./",n(0)}([function(t,n,e){"use strict";function r(t){return t&&t.__esModule?t:{default:t}}function o(t,n){var e=/\/|index.html/g;return t.replace(e,"")===n.replace(e,"")}function i(){for(var t=document.querySelectorAll(".js-header-menu li a"),n=window.location.pathname,e=0,r=t.length;e<r;e++){var i=t[e];o(n,i.getAttribute("href"))&&(0,p.default)(i,"active")}}function u(t){for(var n=t.offsetLeft,e=t.offsetParent;null!==e;)n+=e.offsetLeft,e=e.offsetParent;return n}function c(t){for(var n=t.offsetTop,e=t.offsetParent;null!==e;)n+=e.offsetTop,e=e.offsetParent;return n}function f(t,n,e,r,o){var i=u(t),f=c(t)-n;if(f-e<=o){var a=t.$newDom;a||(a=t.cloneNode(!0),(0,v.default)(t,a),t.$newDom=a,a.style.position="fixed",a.style.top=(e||f)+"px",a.style.left=i+"px",a.style.zIndex=r||2,a.style.width="100%",a.style.color="#fff"),a.style.visibility="visible",t.style.visibility="hidden"}else{t.style.visibility="visible";var s=t.$newDom;s&&(s.style.visibility="hidden")}}function a(){var t=document.querySelector(".js-overlay"),n=document.querySelector(".js-header-menu");f(t,document.body.scrollTop,-63,2,0),f(n,document.body.scrollTop,1,3,0)}function s(){document.querySelector("#container").addEventListener("scroll",function(t){a()}),window.addEventListener("scroll",function(t){a()}),a()}var l=e(25),p=r(l),d=e(26),y=(r(d),e(96)),v=r(y),h=e(97),b=r(h),x=e(98),m=r(x),g=e(27);!function(){b.default.versions.mobile&&window.screen.width<800&&(i(),s())}(),(0,g.addLoadEvent)(function(){m.default.init()}),t.exports={}},,,,,,,,,,,,,,,,,,,,,,,,,function(t,n){function e(t,n){t.classList?t.classList.add(n):t.className+=" "+n}t.exports=e},function(t,n){function e(t,n){if(t.classList)t.classList.remove(n);else{var e=new RegExp("(^|\\b)"+n.split(" ").join("|")+"(\\b|$)","gi");t.className=t.className.replace(e," ")}}t.exports=e},function(t,n,e){"use strict";var r=e(28),o=function(t){return t&&t.__esModule?t:{default:t}}(r),i=function(){function t(t,n,r){return n||r?String.fromCharCode(n||r):e[t]||t}function n(t){return r[t]}var e={"&quot;":'"',"&lt;":"<","&gt;":">","&amp;":"&","&nbsp;":" "},r={};for(var u in e)r[e[u]]=u;return e["&apos;"]="'",r["'"]="&#39;",{encode:function(t){return t?(""+t).replace(/['<> "&]/g,n).replace(/\r?\n/g,"<br/>").replace(/\s/g,"&nbsp;"):""},decode:function(n){return n?(""+n).replace(/<br\s*\/?>/gi,"\n").replace(/&quot;|&lt;|&gt;|&amp;|&nbsp;|&apos;|&#(\d+);|&#(\d+)/g,t).replace(/\u00a0/g," "):""},encodeBase16:function(t){if(!t)return t;t+="";for(var n=[],e=0,r=t.length;r>e;e++)n.push(t.charCodeAt(e).toString(16).toUpperCase());return n.join("")},encodeBase16forJSON:function(t){if(!t)return t;t=t.replace(/[\u4E00-\u9FBF]/gi,function(t){return escape(t).replace("%u","\\u")});for(var n=[],e=0,r=t.length;r>e;e++)n.push(t.charCodeAt(e).toString(16).toUpperCase());return n.join("")},decodeBase16:function(t){if(!t)return t;t+="";for(var n=[],e=0,r=t.length;r>e;e+=2)n.push(String.fromCharCode("0x"+t.slice(e,e+2)));return n.join("")},encodeObject:function(t){if(t instanceof Array)for(var n=0,e=t.length;e>n;n++)t[n]=i.encodeObject(t[n]);else if("object"==(void 0===t?"undefined":(0,o.default)(t)))for(var r in t)t[r]=i.encodeObject(t[r]);else if("string"==typeof t)return i.encode(t);return t},loadScript:function(t){var n=document.createElement("script");document.getElementsByTagName("body")[0].appendChild(n),n.setAttribute("src",t)},addLoadEvent:function(t){var n=window.onload;"function"!=typeof window.onload?window.onload=t:window.onload=function(){n(),t()}}}}();t.exports=i},function(t,n,e){"use strict";function r(t){return t&&t.__esModule?t:{default:t}}n.__esModule=!0;var o=e(29),i=r(o),u=e(80),c=r(u),f="function"==typeof c.default&&"symbol"==typeof i.default?function(t){return typeof t}:function(t){return t&&"function"==typeof c.default&&t.constructor===c.default&&t!==c.default.prototype?"symbol":typeof t};n.default="function"==typeof c.default&&"symbol"===f(i.default)?function(t){return void 0===t?"undefined":f(t)}:function(t){return t&&"function"==typeof c.default&&t.constructor===c.default&&t!==c.default.prototype?"symbol":void 0===t?"undefined":f(t)}},function(t,n,e){t.exports={default:e(30),__esModule:!0}},function(t,n,e){e(31),e(75),t.exports=e(79).f("iterator")},function(t,n,e){"use strict";var r=e(32)(!0);e(35)(String,"String",function(t){this._t=String(t),this._i=0},function(){var t,n=this._t,e=this._i;return e>=n.length?{value:void 0,done:!0}:(t=r(n,e),this._i+=t.length,{value:t,done:!1})})},function(t,n,e){var r=e(33),o=e(34);t.exports=function(t){return function(n,e){var i,u,c=String(o(n)),f=r(e),a=c.length;return f<0||f>=a?t?"":void 0:(i=c.charCodeAt(f),i<55296||i>56319||f+1===a||(u=c.charCodeAt(f+1))<56320||u>57343?t?c.charAt(f):i:t?c.slice(f,f+2):u-56320+(i-55296<<10)+65536)}}},function(t,n){var e=Math.ceil,r=Math.floor;t.exports=function(t){return isNaN(t=+t)?0:(t>0?r:e)(t)}},function(t,n){t.exports=function(t){if(void 0==t)throw TypeError("Can't call method on  "+t);return t}},function(t,n,e){"use strict";var r=e(36),o=e(37),i=e(52),u=e(42),c=e(53),f=e(54),a=e(55),s=e(71),l=e(73),p=e(72)("iterator"),d=!([].keys&&"next"in[].keys()),y=function(){return this};t.exports=function(t,n,e,v,h,b,x){a(e,n,v);var m,g,w,O=function(t){if(!d&&t in P)return P[t];switch(t){case"keys":return function(){return new e(this,t)};case"values":return function(){return new e(this,t)}}return function(){return new e(this,t)}},S=n+" Iterator",_="values"==h,j=!1,P=t.prototype,E=P[p]||P["@@iterator"]||h&&P[h],M=E||O(h),A=h?_?O("entries"):M:void 0,T="Array"==n?P.entries||E:E;if(T&&(w=l(T.call(new t)))!==Object.prototype&&(s(w,S,!0),r||c(w,p)||u(w,p,y)),_&&E&&"values"!==E.name&&(j=!0,M=function(){return E.call(this)}),r&&!x||!d&&!j&&P[p]||u(P,p,M),f[n]=M,f[S]=y,h)if(m={values:_?M:O("values"),keys:b?M:O("keys"),entries:A},x)for(g in m)g in P||i(P,g,m[g]);else o(o.P+o.F*(d||j),n,m);return m}},function(t,n){t.exports=!0},function(t,n,e){var r=e(38),o=e(39),i=e(40),u=e(42),c=function(t,n,e){var f,a,s,l=t&c.F,p=t&c.G,d=t&c.S,y=t&c.P,v=t&c.B,h=t&c.W,b=p?o:o[n]||(o[n]={}),x=b.prototype,m=p?r:d?r[n]:(r[n]||{}).prototype;p&&(e=n);for(f in e)(a=!l&&m&&void 0!==m[f])&&f in b||(s=a?m[f]:e[f],b[f]=p&&"function"!=typeof m[f]?e[f]:v&&a?i(s,r):h&&m[f]==s?function(t){var n=function(n,e,r){if(this instanceof t){switch(arguments.length){case 0:return new t;case 1:return new t(n);case 2:return new t(n,e)}return new t(n,e,r)}return t.apply(this,arguments)};return n.prototype=t.prototype,n}(s):y&&"function"==typeof s?i(Function.call,s):s,y&&((b.virtual||(b.virtual={}))[f]=s,t&c.R&&x&&!x[f]&&u(x,f,s)))};c.F=1,c.G=2,c.S=4,c.P=8,c.B=16,c.W=32,c.U=64,c.R=128,t.exports=c},function(t,n){var e=t.exports="undefined"!=typeof window&&window.Math==Math?window:"undefined"!=typeof self&&self.Math==Math?self:Function("return this")();"number"==typeof __g&&(__g=e)},function(t,n){var e=t.exports={version:"2.4.0"};"number"==typeof __e&&(__e=e)},function(t,n,e){var r=e(41);t.exports=function(t,n,e){if(r(t),void 0===n)return t;switch(e){case 1:return function(e){return t.call(n,e)};case 2:return function(e,r){return t.call(n,e,r)};case 3:return function(e,r,o){return t.call(n,e,r,o)}}return function(){return t.apply(n,arguments)}}},function(t,n){t.exports=function(t){if("function"!=typeof t)throw TypeError(t+" is not a function!");return t}},function(t,n,e){var r=e(43),o=e(51);t.exports=e(47)?function(t,n,e){return r.f(t,n,o(1,e))}:function(t,n,e){return t[n]=e,t}},function(t,n,e){var r=e(44),o=e(46),i=e(50),u=Object.defineProperty;n.f=e(47)?Object.defineProperty:function(t,n,e){if(r(t),n=i(n,!0),r(e),o)try{return u(t,n,e)}catch(t){}if("get"in e||"set"in e)throw TypeError("Accessors not supported!");return"value"in e&&(t[n]=e.value),t}},function(t,n,e){var r=e(45);t.exports=function(t){if(!r(t))throw TypeError(t+" is not an object!");return t}},function(t,n){t.exports=function(t){return"object"==typeof t?null!==t:"function"==typeof t}},function(t,n,e){t.exports=!e(47)&&!e(48)(function(){return 7!=Object.defineProperty(e(49)("div"),"a",{get:function(){return 7}}).a})},function(t,n,e){t.exports=!e(48)(function(){return 7!=Object.defineProperty({},"a",{get:function(){return 7}}).a})},function(t,n){t.exports=function(t){try{return!!t()}catch(t){return!0}}},function(t,n,e){var r=e(45),o=e(38).document,i=r(o)&&r(o.createElement);t.exports=function(t){return i?o.createElement(t):{}}},function(t,n,e){var r=e(45);t.exports=function(t,n){if(!r(t))return t;var e,o;if(n&&"function"==typeof(e=t.toString)&&!r(o=e.call(t)))return o;if("function"==typeof(e=t.valueOf)&&!r(o=e.call(t)))return o;if(!n&&"function"==typeof(e=t.toString)&&!r(o=e.call(t)))return o;throw TypeError("Can't convert object to primitive value")}},function(t,n){t.exports=function(t,n){return{enumerable:!(1&t),configurable:!(2&t),writable:!(4&t),value:n}}},function(t,n,e){t.exports=e(42)},function(t,n){var e={}.hasOwnProperty;t.exports=function(t,n){return e.call(t,n)}},function(t,n){t.exports={}},function(t,n,e){"use strict";var r=e(56),o=e(51),i=e(71),u={};e(42)(u,e(72)("iterator"),function(){return this}),t.exports=function(t,n,e){t.prototype=r(u,{next:o(1,e)}),i(t,n+" Iterator")}},function(t,n,e){var r=e(44),o=e(57),i=e(69),u=e(66)("IE_PROTO"),c=function(){},f=function(){var t,n=e(49)("iframe"),r=i.length;for(n.style.display="none",e(70).appendChild(n),n.src="javascript:",t=n.contentWindow.document,t.open(),t.write("<script>document.F=Object<\/script>"),t.close(),f=t.F;r--;)delete f.prototype[i[r]];return f()};t.exports=Object.create||function(t,n){var e;return null!==t?(c.prototype=r(t),e=new c,c.prototype=null,e[u]=t):e=f(),void 0===n?e:o(e,n)}},function(t,n,e){var r=e(43),o=e(44),i=e(58);t.exports=e(47)?Object.defineProperties:function(t,n){o(t);for(var e,u=i(n),c=u.length,f=0;c>f;)r.f(t,e=u[f++],n[e]);return t}},function(t,n,e){var r=e(59),o=e(69);t.exports=Object.keys||function(t){return r(t,o)}},function(t,n,e){var r=e(53),o=e(60),i=e(63)(!1),u=e(66)("IE_PROTO");t.exports=function(t,n){var e,c=o(t),f=0,a=[];for(e in c)e!=u&&r(c,e)&&a.push(e);for(;n.length>f;)r(c,e=n[f++])&&(~i(a,e)||a.push(e));return a}},function(t,n,e){var r=e(61),o=e(34);t.exports=function(t){return r(o(t))}},function(t,n,e){var r=e(62);t.exports=Object("z").propertyIsEnumerable(0)?Object:function(t){return"String"==r(t)?t.split(""):Object(t)}},function(t,n){var e={}.toString;t.exports=function(t){return e.call(t).slice(8,-1)}},function(t,n,e){var r=e(60),o=e(64),i=e(65);t.exports=function(t){return function(n,e,u){var c,f=r(n),a=o(f.length),s=i(u,a);if(t&&e!=e){for(;a>s;)if((c=f[s++])!=c)return!0}else for(;a>s;s++)if((t||s in f)&&f[s]===e)return t||s||0;return!t&&-1}}},function(t,n,e){var r=e(33),o=Math.min;t.exports=function(t){return t>0?o(r(t),9007199254740991):0}},function(t,n,e){var r=e(33),o=Math.max,i=Math.min;t.exports=function(t,n){return t=r(t),t<0?o(t+n,0):i(t,n)}},function(t,n,e){var r=e(67)("keys"),o=e(68);t.exports=function(t){return r[t]||(r[t]=o(t))}},function(t,n,e){var r=e(38),o=r["__core-js_shared__"]||(r["__core-js_shared__"]={});t.exports=function(t){return o[t]||(o[t]={})}},function(t,n){var e=0,r=Math.random();t.exports=function(t){return"Symbol(".concat(void 0===t?"":t,")_",(++e+r).toString(36))}},function(t,n){t.exports="constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf".split(",")},function(t,n,e){t.exports=e(38).document&&document.documentElement},function(t,n,e){var r=e(43).f,o=e(53),i=e(72)("toStringTag");t.exports=function(t,n,e){t&&!o(t=e?t:t.prototype,i)&&r(t,i,{configurable:!0,value:n})}},function(t,n,e){var r=e(67)("wks"),o=e(68),i=e(38).Symbol,u="function"==typeof i;(t.exports=function(t){return r[t]||(r[t]=u&&i[t]||(u?i:o)("Symbol."+t))}).store=r},function(t,n,e){var r=e(53),o=e(74),i=e(66)("IE_PROTO"),u=Object.prototype;t.exports=Object.getPrototypeOf||function(t){return t=o(t),r(t,i)?t[i]:"function"==typeof t.constructor&&t instanceof t.constructor?t.constructor.prototype:t instanceof Object?u:null}},function(t,n,e){var r=e(34);t.exports=function(t){return Object(r(t))}},function(t,n,e){e(76);for(var r=e(38),o=e(42),i=e(54),u=e(72)("toStringTag"),c=["NodeList","DOMTokenList","MediaList","StyleSheetList","CSSRuleList"],f=0;f<5;f++){var a=c[f],s=r[a],l=s&&s.prototype;l&&!l[u]&&o(l,u,a),i[a]=i.Array}},function(t,n,e){"use strict";var r=e(77),o=e(78),i=e(54),u=e(60);t.exports=e(35)(Array,"Array",function(t,n){this._t=u(t),this._i=0,this._k=n},function(){var t=this._t,n=this._k,e=this._i++;return!t||e>=t.length?(this._t=void 0,o(1)):"keys"==n?o(0,e):"values"==n?o(0,t[e]):o(0,[e,t[e]])},"values"),i.Arguments=i.Array,r("keys"),r("values"),r("entries")},function(t,n){t.exports=function(){}},function(t,n){t.exports=function(t,n){return{value:n,done:!!t}}},function(t,n,e){n.f=e(72)},function(t,n,e){t.exports={default:e(81),__esModule:!0}},function(t,n,e){e(82),e(93),e(94),e(95),t.exports=e(39).Symbol},function(t,n,e){"use strict";var r=e(38),o=e(53),i=e(47),u=e(37),c=e(52),f=e(83).KEY,a=e(48),s=e(67),l=e(71),p=e(68),d=e(72),y=e(79),v=e(84),h=e(85),b=e(86),x=e(89),m=e(44),g=e(60),w=e(50),O=e(51),S=e(56),_=e(90),j=e(92),P=e(43),E=e(58),M=j.f,A=P.f,T=_.f,L=r.Symbol,N=r.JSON,C=N&&N.stringify,k=d("_hidden"),F=d("toPrimitive"),q={}.propertyIsEnumerable,I=s("symbol-registry"),B=s("symbols"),D=s("op-symbols"),W=Object.prototype,H="function"==typeof L,K=r.QObject,R=!K||!K.prototype||!K.prototype.findChild,J=i&&a(function(){return 7!=S(A({},"a",{get:function(){return A(this,"a",{value:7}).a}})).a})?function(t,n,e){var r=M(W,n);r&&delete W[n],A(t,n,e),r&&t!==W&&A(W,n,r)}:A,U=function(t){var n=B[t]=S(L.prototype);return n._k=t,n},G=H&&"symbol"==typeof L.iterator?function(t){return"symbol"==typeof t}:function(t){return t instanceof L},$=function(t,n,e){return t===W&&$(D,n,e),m(t),n=w(n,!0),m(e),o(B,n)?(e.enumerable?(o(t,k)&&t[k][n]&&(t[k][n]=!1),e=S(e,{enumerable:O(0,!1)})):(o(t,k)||A(t,k,O(1,{})),t[k][n]=!0),J(t,n,e)):A(t,n,e)},z=function(t,n){m(t);for(var e,r=b(n=g(n)),o=0,i=r.length;i>o;)$(t,e=r[o++],n[e]);return t},Y=function(t,n){return void 0===n?S(t):z(S(t),n)},Q=function(t){var n=q.call(this,t=w(t,!0));return!(this===W&&o(B,t)&&!o(D,t))&&(!(n||!o(this,t)||!o(B,t)||o(this,k)&&this[k][t])||n)},X=function(t,n){if(t=g(t),n=w(n,!0),t!==W||!o(B,n)||o(D,n)){var e=M(t,n);return!e||!o(B,n)||o(t,k)&&t[k][n]||(e.enumerable=!0),e}},V=function(t){for(var n,e=T(g(t)),r=[],i=0;e.length>i;)o(B,n=e[i++])||n==k||n==f||r.push(n);return r},Z=function(t){for(var n,e=t===W,r=T(e?D:g(t)),i=[],u=0;r.length>u;)!o(B,n=r[u++])||e&&!o(W,n)||i.push(B[n]);return i};H||(L=function(){if(this instanceof L)throw TypeError("Symbol is not a constructor!");var t=p(arguments.length>0?arguments[0]:void 0),n=function(e){this===W&&n.call(D,e),o(this,k)&&o(this[k],t)&&(this[k][t]=!1),J(this,t,O(1,e))};return i&&R&&J(W,t,{configurable:!0,set:n}),U(t)},c(L.prototype,"toString",function(){return this._k}),j.f=X,P.f=$,e(91).f=_.f=V,e(88).f=Q,e(87).f=Z,i&&!e(36)&&c(W,"propertyIsEnumerable",Q,!0),y.f=function(t){return U(d(t))}),u(u.G+u.W+u.F*!H,{Symbol:L});for(var tt="hasInstance,isConcatSpreadable,iterator,match,replace,search,species,split,toPrimitive,toStringTag,unscopables".split(","),nt=0;tt.length>nt;)d(tt[nt++]);for(var tt=E(d.store),nt=0;tt.length>nt;)v(tt[nt++]);u(u.S+u.F*!H,"Symbol",{for:function(t){return o(I,t+="")?I[t]:I[t]=L(t)},keyFor:function(t){if(G(t))return h(I,t);throw TypeError(t+" is not a symbol!")},useSetter:function(){R=!0},useSimple:function(){R=!1}}),u(u.S+u.F*!H,"Object",{create:Y,defineProperty:$,defineProperties:z,getOwnPropertyDescriptor:X,getOwnPropertyNames:V,getOwnPropertySymbols:Z}),N&&u(u.S+u.F*(!H||a(function(){var t=L();return"[null]"!=C([t])||"{}"!=C({a:t})||"{}"!=C(Object(t))})),"JSON",{stringify:function(t){if(void 0!==t&&!G(t)){for(var n,e,r=[t],o=1;arguments.length>o;)r.push(arguments[o++]);return n=r[1],"function"==typeof n&&(e=n),!e&&x(n)||(n=function(t,n){if(e&&(n=e.call(this,t,n)),!G(n))return n}),r[1]=n,C.apply(N,r)}}}),L.prototype[F]||e(42)(L.prototype,F,L.prototype.valueOf),l(L,"Symbol"),l(Math,"Math",!0),l(r.JSON,"JSON",!0)},function(t,n,e){var r=e(68)("meta"),o=e(45),i=e(53),u=e(43).f,c=0,f=Object.isExtensible||function(){return!0},a=!e(48)(function(){return f(Object.preventExtensions({}))}),s=function(t){u(t,r,{value:{i:"O"+ ++c,w:{}}})},l=function(t,n){if(!o(t))return"symbol"==typeof t?t:("string"==typeof t?"S":"P")+t;if(!i(t,r)){if(!f(t))return"F";if(!n)return"E";s(t)}return t[r].i},p=function(t,n){if(!i(t,r)){if(!f(t))return!0;if(!n)return!1;s(t)}return t[r].w},d=function(t){return a&&y.NEED&&f(t)&&!i(t,r)&&s(t),t},y=t.exports={KEY:r,NEED:!1,fastKey:l,getWeak:p,onFreeze:d}},function(t,n,e){var r=e(38),o=e(39),i=e(36),u=e(79),c=e(43).f;t.exports=function(t){var n=o.Symbol||(o.Symbol=i?{}:r.Symbol||{});"_"==t.charAt(0)||t in n||c(n,t,{value:u.f(t)})}},function(t,n,e){var r=e(58),o=e(60);t.exports=function(t,n){for(var e,i=o(t),u=r(i),c=u.length,f=0;c>f;)if(i[e=u[f++]]===n)return e}},function(t,n,e){var r=e(58),o=e(87),i=e(88);t.exports=function(t){var n=r(t),e=o.f;if(e)for(var u,c=e(t),f=i.f,a=0;c.length>a;)f.call(t,u=c[a++])&&n.push(u);return n}},function(t,n){n.f=Object.getOwnPropertySymbols},function(t,n){n.f={}.propertyIsEnumerable},function(t,n,e){var r=e(62);t.exports=Array.isArray||function(t){return"Array"==r(t)}},function(t,n,e){var r=e(60),o=e(91).f,i={}.toString,u="object"==typeof window&&window&&Object.getOwnPropertyNames?Object.getOwnPropertyNames(window):[],c=function(t){try{return o(t)}catch(t){return u.slice()}};t.exports.f=function(t){return u&&"[object Window]"==i.call(t)?c(t):o(r(t))}},function(t,n,e){var r=e(59),o=e(69).concat("length","prototype");n.f=Object.getOwnPropertyNames||function(t){return r(t,o)}},function(t,n,e){var r=e(88),o=e(51),i=e(60),u=e(50),c=e(53),f=e(46),a=Object.getOwnPropertyDescriptor;n.f=e(47)?a:function(t,n){if(t=i(t),n=u(n,!0),f)try{return a(t,n)}catch(t){}if(c(t,n))return o(!r.f.call(t,n),t[n])}},function(t,n){},function(t,n,e){e(84)("asyncIterator")},function(t,n,e){e(84)("observable")},function(t,n){function e(t,n){if("string"==typeof n)return t.insertAdjacentHTML("afterend",n);var e=t.nextSibling;return e?t.parentNode.insertBefore(n,e):t.parentNode.appendChild(n)}t.exports=e},function(t,n){"use strict";var e={versions:function(){var t=window.navigator.userAgent;return{trident:t.indexOf("Trident")>-1,presto:t.indexOf("Presto")>-1,webKit:t.indexOf("AppleWebKit")>-1,gecko:t.indexOf("Gecko")>-1&&t.indexOf("KHTML")==-1,mobile:!!t.match(/AppleWebKit.*Mobile.*/),ios:!!t.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),android:t.indexOf("Android")>-1||t.indexOf("Linux")>-1,iPhone:t.indexOf("iPhone")>-1||t.indexOf("Mac")>-1,iPad:t.indexOf("iPad")>-1,webApp:t.indexOf("Safari")==-1,weixin:t.indexOf("MicroMessenger")==-1}}()};t.exports=e},function(t,n){"use strict";function e(){var t=document.querySelector("#page-nav");if(t&&!document.querySelector("#page-nav .extend.prev")&&(t.innerHTML='<a class="extend prev disabled" rel="prev">&laquo; Prev</a>'+t.innerHTML),t&&!document.querySelector("#page-nav .extend.next")&&(t.innerHTML=t.innerHTML+'<a class="extend next disabled" rel="next">Next &raquo;</a>'),yiliaConfig&&yiliaConfig.open_in_new){document.querySelectorAll(".article-entry a:not(.article-more-a)").forEach(function(t){t.setAttribute("target","_blank")})}var n=document.querySelector("#js-aboutme");n&&0!==n.length&&(n.innerHTML=n.innerText)}t.exports={init:e}}])</script><script src="/./main.b07bcf.js"></script><script>!function(){!function(e){var t=document.createElement("script");document.getElementsByTagName("body")[0].appendChild(t),t.setAttribute("src",e)}("/slider.583eaa.js")}()</script>
+
+
+    
+<div class="tools-col" q-class="show:isShow,hide:isShow|isFalse" q-on="click:stop(e)">
+  <div class="tools-nav header-menu">
+    
+    
+      
+      
+      
+    
+      
+      
+      
+    
+      
+      
+      
+    
+    
+
+    <ul style="width: 70%">
+    
+    
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'innerArchive')"><a href="javascript:void(0)" q-class="active:innerArchive">所有文章</a></li>
+      
+        
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'friends')"><a href="javascript:void(0)" q-class="active:friends">友链</a></li>
+      
+        
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'aboutme')"><a href="javascript:void(0)" q-class="active:aboutme">关于我</a></li>
+      
+        
+    </ul>
+  </div>
+  <div class="tools-wrap">
+    
+    	<section class="tools-section tools-section-all" q-show="innerArchive">
+        <div class="search-wrap">
+          <input class="search-ipt" q-model="search" type="text" placeholder="find something…">
+          <i class="icon-search icon" q-show="search|isEmptyStr"></i>
+          <i class="icon-close icon" q-show="search|isNotEmptyStr" q-on="click:clearChose(e)"></i>
+        </div>
+        <div class="widget tagcloud search-tag">
+          <p class="search-tag-wording">tag:</p>
+          <label class="search-switch">
+            <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
+          </label>
+          <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">NodeJS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Javascript</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">模块化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">jQuery</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">express</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">设计模式</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">mongoDB</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">webApp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">cookie</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">css</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">ES6</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">自动化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">react-native</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">团队建设</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Redux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">node</a>
+              </li>
+            
+            <div class="clearfix"></div>
+          </ul>
+        </div>
+        <ul class="search-ul">
+          <p q-show="jsonFail" style="padding: 20px; font-size: 12px;">
+            缺失模块。<br/>1、在博客根目录（注意不是yilia根目录）执行以下命令：<br/> npm i hexo-generator-json-content --save<br/><br/>
+            2、在根目录_config.yml里添加配置：
+<pre style="font-size: 12px;" q-show="jsonFail">
+  jsonContent:
+    meta: false
+    pages: false
+    posts:
+      title: true
+      date: true
+      path: true
+      text: true
+      raw: false
+      content: false
+      slug: false
+      updated: false
+      comments: false
+      link: false
+      permalink: false
+      excerpt: false
+      categories: false
+      tags: true
+</pre>
+          </p>
+          <li class="search-li" q-repeat="items" q-show="isShow">
+            <a q-attr="href:path|urlformat" class="search-title"><i class="icon-quo-left icon"></i><span q-text="title"></span></a>
+            <p class="search-time">
+              <i class="icon-calendar icon"></i>
+              <span q-text="date|dateformat"></span>
+            </p>
+            <p class="search-tag">
+              <i class="icon-price-tags icon"></i>
+              <span q-repeat="tags" q-on="click:choseTag(e, name)" q-text="name|tagformat"></span>
+            </p>
+          </li>
+        </ul>
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-friends" q-show="friends">
+  		
+        <ul class="search-ul">
+          
+            <li class="search-li">
+              <a href="http://blog.csdn.net/u011413061" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的csdn</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://photo.jafeney.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的图片</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://royal.jafeney.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的Royal</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://www.e2718281828459.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>老黄的leo</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://www.bysocket.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>强强的bysocket</a>
+            </li>
+          
+        </ul>
+  		
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-me" q-show="aboutme">
+  	  	
+  	  		<div class="aboutme-wrap" id="js-aboutme">Jafeney Lou，一个安静的代码客</div>
+  	  	
+    	</section>
+    
+  </div>
+  
+</div>
+    <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+  </div>
+</body>
+</html>

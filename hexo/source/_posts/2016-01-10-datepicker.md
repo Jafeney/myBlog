@@ -1,0 +1,463 @@
+---
+title: 封装一个简单的日历组件
+date: 2016-01-10 14:30:05
+tags: jQuery
+categories: 前端  
+---
+
+
+# 写在前面
+> 说到日历组件，网上一搜一大堆，各种插件啊、集成框架啊实在不少。但是插件有的不合需求，框架嘛依赖关系一大堆，比如jQueryUI、bootstrap等。其实现在我就是想要一个轻量级的日历组件，功能也不需要很强大，只要能兼容所有浏览器，能选择任意年份日期和星期就可以了。
+
+<!--more-->
+
+>
+![这里写图片描述](http://img.blog.csdn.net/20151129002848150)
+![这里写图片描述](http://img.blog.csdn.net/20151129002915624)  
+![这里写图片描述](http://img.blog.csdn.net/20151129002950961)
+
+好了，废话不多说，直接上代码：
+
+# 实现代码
+<br/>
+> 好了，先引入jQuery库。（发表一下感概：angularJS的数据双向绑定着实让我对jQuery的未来担忧了一阵子，不过jQuery毕竟存在的时间很久，API文档和应用方面实在太广泛了 * _ *，而且jQuery无可厚非是一款相当不错的DOM操作类库，至少我觉得段时间内这个地位无可动摇。所以大家还是大胆地用吧！）
+
+``` html
+	<script type="text/javascript" src="./js/jQuery.min.js"></script>
+```
+
+下面这个是还没压缩的js文件，纯手写哦 ^_^
+``` Javascript
+/*
+ * jquery extend: dateField
+ * author:jafeney
+ * createTime:2015-8-28 （很久之前写的，拿出来炒下冷饭）
+ */
+
+jQuery.fn.extend({
+	dateField:function(options,callback){
+		var self=this,
+			_self=$(this),
+			_eventType=options.eventType || 'click',
+			_style=options.style || 'default',
+			_parent=$(this).parent(),
+			_nowDate={
+				year:new Date().getFullYear(),
+				month:new Date().getMonth()+1
+			},
+			_switchState=0,
+			_monthArray=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],
+		    _daysArray=[31,28,31,30,31,30,31,31,30,31,30,31];
+
+		/*init*/
+		_self.on(_eventType,function(){
+			/*before use this extend,the '_self' must have a container*/
+			_self.parent().css('position','relative');
+
+			/*create element as dateField's container*/
+			var _container=$("<div class='dateField-container'></div>");
+			var _header=$("<div class='dateField-header'>"
+					+"<div class='dateField-header-btns'>"
+					+"<span class='btn dateField-header-btn-left'>«</span>"
+					+"<span class='btn dateField-header-datePicker'>"+_nowDate.year+"年"+_nowDate.month+"月</span>"
+					+"<span class='btn dateField-header-btn-right'>»</span>"
+					+"</div>"
+					+"<ul class='dateField-header-week'><li>日</li><li>一</li><li>二</li><li>三</li><li>四</li><li>五</li><li>六</li></ul>"
+					+"</div>");
+			var _body=$("<div class='dateField-body'>"+self.getDays(_nowDate.year,_nowDate.month)+"</div>");
+			var _footer=$("<div class='dateField-footer'><span class='btn dateField-footer-close'>关闭</span></div>");
+			_container.append(_header).append(_body).append(_footer);
+			_self.parent().append(_container);
+			_self.parent().find('.dateField-container').show();
+
+			/*do callback*/
+			if(callback) callback();
+		});
+
+		/*some functions*/
+		/*get any year and any month's days into a list*/
+		self.getDays=function(year,month){
+			var _monthDay=self.getMonthDays(year,month);
+			var _firstDay=new Date(year+'/'+month+'/'+'01').getDay();  //get this month's first day's weekday
+			var returnStr='';
+			returnStr+="<ul class='dateField-body-days'>";
+			for(var i=1;i<=42;i++){
+				if(i<=_monthDay+_firstDay){
+					if(i%7===0){
+						returnStr+="<li class='dateField-select select-day last'>"+self.filterDay(i-_firstDay)+"</li>";
+					}else{
+						returnStr+="<li class='dateField-select select-day'>"+self.filterDay(i-_firstDay)+"</li>";
+					}
+				}else{
+					if(i%7===0){
+						returnStr+="<li class='dateField-select select-day last'></li>";
+					}else{
+						returnStr+="<li class='dateField-select select-day'></li>";
+					}
+				}
+			}
+			returnStr+="</ul>";
+			return returnStr;
+		}
+		/*filter days*/
+		self.filterDay=function(day){
+			if(day<=0 || day>31) {
+				return '';
+			}else{
+				return day;
+			}
+		}
+		/*judge any year is LeapYear*/
+		self.isLeapYear=function(year){
+			var bolRet = false;
+			if (0===year%4&&((year%100!==0)||(year%400===0))) {
+				bolRet = true;
+			}
+			return bolRet;
+		}
+		/*get any year and any month's full days*/
+		self.getMonthDays=function(year,month){
+			var c=_daysArray[month-1];
+			if((month===2) && self.isLeapYear(year)) c++;
+			return c;
+		}
+		/*get this year's months*/
+		self.getMonths=function(){
+			var returnStr="";
+			returnStr="<ul class='dateField-body-days dateField-body-months'>";
+			for(var i=0;i<12;i++){
+				if((i+1)%3===0){
+					returnStr+="<li class='dateField-select select-month last' data-month='"+(i+1)+"'>"+self.switchMonth(i)+"</li>";
+				}else{
+					returnStr+="<li class='dateField-select select-month' data-month='"+(i+1)+"'>"+self.switchMonth(i)+"</li>";
+				}
+			}
+			returnStr+='</ul>';
+			return returnStr;
+		}
+		/*get siblings 12 years*/
+		self.getYears=function(year){
+			var returnStr="";
+			returnStr="<ul class='dateField-body-days dateField-body-years'>";
+			for(var i=0;i<12;i++){
+				if((i+1)%3===0){
+					returnStr+="<li class='dateField-select select-year last' data-year='"+(year+i)+"'>"+(year+i)+"</li>";
+				}else{
+					returnStr+="<li class='dateField-select select-year' data-year='"+(year+i)+"'>"+(year+i)+"</li>";
+				}
+			}
+			returnStr+='</ul>';
+			return returnStr;
+		}
+		/*formatDate*/
+		self.formatDate=function(date){
+			if(date.length===1 || date<10){
+				return '0'+date;
+			}else{
+				return date;
+			}
+		}
+		/*switch month number to chinese*/
+		self.switchMonth=function(number){
+			return _monthArray[number];
+		}
+
+		/*go to prev*/
+		_parent.on('click','.dateField-header-btn-left',function(){
+			switch(_switchState){
+				/*prev month*/
+				case 0:
+					_nowDate.month--;
+					if(_nowDate.month===0){
+						_nowDate.year--;
+						_nowDate.month=12;
+					}
+					$(this).siblings('.dateField-header-datePicker').text(_nowDate.year+'年'+_nowDate.month+'月');
+					$(this).parent().siblings('ul').show();
+					$(this).parent().parent().siblings('.dateField-body').html(self.getDays(_nowDate.year,_nowDate.month));
+					break;
+				/*next 12 years*/
+				case 2:
+					_nowDate.year-=12;
+					$(this).parent().parent().siblings('.dateField-body').html(self.getYears(_nowDate.year));
+					break;
+				default:
+					break;
+			}
+		});
+
+		/*go to next*/
+		_parent.on('click','.dateField-header-btn-right',function(){
+			switch(_switchState){
+				/*next month*/
+				case 0:
+					_nowDate.month++;
+					if(_nowDate.month===13){
+						_nowDate.year++;
+						_nowDate.month=1;
+					}
+					$(this).siblings('.dateField-header-datePicker').text(_nowDate.year+'年'+_nowDate.month+'月');
+					$(this).parent().siblings('ul').show();
+					$(this).parent().parent().siblings('.dateField-body').html(self.getDays(_nowDate.year,_nowDate.month));
+					break;
+				/*next 12 years*/
+				case 2:
+					_nowDate.year+=12;
+					$(this).parent().parent().siblings('.dateField-body').html(self.getYears(_nowDate.year));
+					break;
+				default:
+					break;
+			}
+		});
+
+		/*switch choose year or month*/
+		_parent.on('click','.dateField-header-datePicker',function(){
+			switch(_switchState){
+				case 0:
+					/*switch month select*/
+					$(this).parent().siblings('ul').hide();
+					$(this).parent().parent().siblings('.dateField-body').html(self.getMonths());
+					_switchState=1;
+					break;
+				case 1:
+					/*switch year select*/
+					$(this).parent().parent().siblings('.dateField-body').html(self.getYears(_nowDate.year));
+					_switchState=2;
+					break;
+				default:
+					break;
+			}
+		});
+
+		/*select a year*/
+		_parent.on('click','.dateField-select.select-year',function(){
+			if($(this).text()!==''){
+				$(this).parent().children('.dateField-select.select-year').removeClass('active');
+				$(this).addClass('active');
+				_nowDate.year=$(this).data('year');
+				$(this).parent().parent().siblings().find('.dateField-header-datePicker').text(_nowDate.year+'年'+_nowDate.month+'月');
+				$(this).parent().parent().parent().find('.dateField-header-week').hide();
+				$(this).parent().parent().html(self.getMonths());
+				_switchState=1;
+			}
+		});
+
+		/*select a month*/
+		_parent.on('click','.dateField-select.select-month',function(){
+			if($(this).text()!==''){
+				$(this).parent().children('.dateField-select.select-month').removeClass('active');
+				$(this).addClass('active');
+				_nowDate.month=$(this).data('month');
+				$(this).parent().parent().siblings().find('.dateField-header-datePicker').text(_nowDate.year+'年'+_nowDate.month+'月');
+				$(this).parent().parent().parent().find('.dateField-header-week').show();
+				$(this).parent().parent().html(self.getDays(_nowDate.year,_nowDate.month));
+				_switchState=0;
+			}
+		});
+
+		/*select a day*/
+		_parent.on('click','.dateField-select.select-day',function(){
+			if($(this).text()!==''){
+				var _day=$(this).text();
+				$(this).parent().children('.dateField-select.select-day').removeClass('active');
+				$(this).addClass('active');
+				var _selectedDate=_nowDate.year+'-'+self.formatDate(_nowDate.month)+'-'+self.formatDate(_day);
+				_self.val(_selectedDate).attr('data-Date',_selectedDate);
+				_self.parent().find('.dateField-container').remove();
+
+				/*template code： just for this page*/
+				$('#check-birthday').removeClass('fail').hide();
+			}
+		});
+
+		/*close the dateFiled*/
+		/*click other field to close the dateField (outclick event)*/
+		$(document).on('click',function(e){
+			var temp=$(e.target);
+			if(temp.hasClass('dateField-container') || temp.hasClass('dateField-header-btn-left') || temp.hasClass('dateField-header-datePicker') || $(e.target).hasClass('dateField-header-btn-right') || $(e.target).hasClass('dateField-select') || $(e.target)[0].id===_self.attr('id')){
+				;
+			}else{
+				$('.dateField-container').remove();
+				_switchState=0;
+			}
+		});
+		return self;
+	}
+});
+```
+
+下面是我 写的简单的一套样式风格，有点模仿微信的风格。
+
+```css
+/*dateField styles*/
+/*reset*/
+ul,li{
+	list-style: none;
+	padding:0;
+	margin:0;
+}
+/*default*/
+.dateField-container{
+	position:absolute;
+	width:210px;
+	border:1px solid rgb(229,229,229);
+	z-index:99999;
+	background:#fff;
+	font-size:13px;
+	margin-top:0px;
+	cursor: pointer;
+	display:none;
+}
+.dateField-header{
+	width:212px;
+	position:relative;
+	left:-1px;
+}
+.dateField-header-btns{
+	width:100%;
+	height:30px;
+	text-align:center;
+	background:rgb(243,95,143);
+}
+.btn{
+	user-select:none;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+}
+.dateField-header-btn-left{
+	float: left;
+	display:block;
+	width:30px;
+	height:30px;
+	color:#fff;
+	line-height:30px;
+}
+.dateField-header-btn-left:hover{
+	background:rgb(238,34,102);
+}
+.dateField-header-datePicker{
+	display:inline-block;
+	width:120px;
+	text-align:center;
+	color:#fff;
+	line-height:30px;
+}
+.dateField-header-datePicker:hover{
+	background:rgb(238,34,102);
+}
+.dateField-header-btn-right{
+	float: right;
+	width:30px;
+	height:30px;
+	display:block;
+	color:#fff;
+	line-height:30px;
+}
+.dateField-header-btn-right:hover{
+	background:rgb(238,34,102);
+}
+.dateField-header-week{
+	clear:both;
+	width:100%;
+	height:26px;
+}
+.dateField-header-week li{
+	float: left;
+	width:30px;
+	height:30px;
+	line-height:30px;
+	text-align:center;
+}
+.dateField-body{
+	width:100%;
+}
+.dateField-body-days{
+	clear: both;
+}
+.dateField-body-days li{
+	float: left;
+	width:30px;
+	height:30px;
+	box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	-ms-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	border-top:1px solid rgb(229,229,229);
+	border-right:1px solid rgb(229,229,229);
+	line-height:30px;
+	text-align:center;
+}
+.dateField-body-days li:hover{
+	color:#fff;
+	background:rgb(243,95,143);
+}
+.dateField-body-days li.active{
+	color:#fff;
+	background:rgb(243,95,143);
+}
+.dateField-body-days li.last{
+	border-right:0;
+}
+.dateField-footer{
+	border-top:1px solid rgb(229,229,229);
+	clear:both;
+	width:100%;
+	height:26px;
+	font-size:12px;
+}
+.dateField-footer-close{
+	margin-top:2px;
+	display:inline-block;
+	width:100%;
+	height:22px;
+	background:rgb(245,245,245);
+	text-align: center;
+	line-height:22px;
+}
+.dateField-footer-close:hover{
+	background:rgb(238,238,238);
+}
+.dateField-select{
+	user-select:none;
+	-webkit-user-select:none;
+	-ms-user-select:none;
+	-moz-user-select:none;
+}
+.dateField-body-months{
+}
+.dateField-body-months li{
+	width:70px;
+	height:35px;
+	line-height:35px;
+}
+.dateField-body-years li{
+	width:70px;
+	height: 35px;
+	line-height: 35px;
+}
+```
+
+到了最关键的时刻，怎么使用呢？嘿嘿，就2行代码。
+
+```html
+	<!-- input group -->
+    <div class="input-group">
+        <input type="text" id="input-date" class="input-text">
+    </div>
+    <!--end input group-->
+
+	<script type="text/javascript">
+        ;$(function(){
+        	$('#input-date').dateField({
+                eventType:'click',
+                style:'default'
+            })
+        });
+    </script>
+```
+
+> 好吧，我承认我很装逼，故意写一大堆英文注释。不过因为需求，还是出现了汉字 ＊_＊
+>
+> 感兴趣的同学可以 到我的gitHub上clone一份吧 ^_^    
+> 我的地址 https://github.com/Jafeney/dateField ，欢迎star我，哈哈

@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <link rel="dns-prefetch" href="http://jafeney.com">
+  <title>如何十倍提高你的webpack构建效率 | Jafeney</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前言webpack 是个好东西，和 NPM 搭配起来使用管理模块实在非常方便。而 Babel 更是神一般的存在，让我们在这个浏览器尚未全面普及 ES6 语法的时代可以先一步体验到新的语法带来的便利和效率上的提升。在 React 项目架构中这两个东西基本成为了标配，但 commonjs 的模块必须在使用前经过 webpack 的构建(后文称为 build)才能在浏览器端使用，而每次修改也都需要重新构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何十倍提高你的webpack构建效率">
+<meta property="og:url" content="http://jafeney.com/2016/07/10/2016-07-10-webpack/index.html">
+<meta property="og:site_name" content="Jafeney">
+<meta property="og:description" content="前言webpack 是个好东西，和 NPM 搭配起来使用管理模块实在非常方便。而 Babel 更是神一般的存在，让我们在这个浏览器尚未全面普及 ES6 语法的时代可以先一步体验到新的语法带来的便利和效率上的提升。在 React 项目架构中这两个东西基本成为了标配，但 commonjs 的模块必须在使用前经过 webpack 的构建(后文称为 build)才能在浏览器端使用，而每次修改也都需要重新构">
+<meta property="og:image" content="https://www.bram.us/wordpress/wp-content/uploads/2016/04/es6-webpack-react-babel.png">
+<meta property="og:image" content="http://webpack.github.io/assets/what-is-webpack.png">
+<meta property="og:image" content="https://gw.alicdn.com/tps/TB14FSMKpXXXXcwXXXXXXXXXXXX-1320-370.png">
+<meta property="og:image" content="https://img.alicdn.com/tps/TB11I5VKpXXXXamXXXXXXXXXXXX-916-556.png">
+<meta property="og:updated_time" content="2017-03-28T06:40:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何十倍提高你的webpack构建效率">
+<meta name="twitter:description" content="前言webpack 是个好东西，和 NPM 搭配起来使用管理模块实在非常方便。而 Babel 更是神一般的存在，让我们在这个浏览器尚未全面普及 ES6 语法的时代可以先一步体验到新的语法带来的便利和效率上的提升。在 React 项目架构中这两个东西基本成为了标配，但 commonjs 的模块必须在使用前经过 webpack 的构建(后文称为 build)才能在浏览器端使用，而每次修改也都需要重新构">
+<meta name="twitter:image" content="https://www.bram.us/wordpress/wp-content/uploads/2016/04/es6-webpack-react-babel.png">
+  
+    <link rel="alternative" href="/atom.xml" title="Jafeney" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" type="text/css" href="/./main.b07bcf.css">
+  <style type="text/css">
+  
+    #container.show {
+      background: linear-gradient(200deg,#a0cfe4,#e8c37e);
+    }
+  </style>
+  
+
+  
+<script>
+var _hmt = _hmt || [];
+(function() {
+	var hm = document.createElement("script");
+	hm.src = "https://hm.baidu.com/hm.js?4c0fe03f16c08a15b32cda310c30b262";
+	var s = document.getElementsByTagName("script")[0]; 
+	s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+</head>
+
+<body>
+  <div id="container" q-class="show:isCtnShow">
+    <canvas id="anm-canvas" class="anm-canvas"></canvas>
+    <div class="left-col" q-class="show:isShow">
+      
+<div class="overlay" style="background: #4d4d4d"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			<img src="http://avatar.csdn.net/F/8/E/1_u011413061.jpg" class="js-avatar">
+		</a>
+		<hgroup>
+		  <h1 class="header-author"><a href="/">Jafeney Lou</a></h1>
+		</hgroup>
+		
+		<p class="header-subtitle">like programming,like life</p>
+		
+
+		<nav class="header-menu">
+			<ul>
+			
+				<li><a href="/">主页</a></li>
+	        
+				<li><a href="/tags">标签</a></li>
+	        
+				<li><a href="/archives">归档</a></li>
+	        
+				<li><a href="/categories">分类</a></li>
+	        
+			</ul>
+		</nav>
+		<nav class="header-smart-menu">
+    		
+    			
+    			<a q-on="click: openSlider(e, 'innerArchive')" href="javascript:void(0)">所有文章</a>
+    			
+            
+    			
+    			<a q-on="click: openSlider(e, 'friends')" href="javascript:void(0)">友链</a>
+    			
+            
+    			
+    			<a q-on="click: openSlider(e, 'aboutme')" href="javascript:void(0)">关于我</a>
+    			
+            
+		</nav>
+		<nav class="header-nav">
+			<div class="social">
+				
+					<a class="github" target="_blank" href="https://github.com/Jafeney" title="github"><i class="icon-github"></i></a>
+		        
+					<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/jafeney-lou/activities" title="zhihu"><i class="icon-zhihu"></i></a>
+		        
+					<a class="segmentfault" target="_blank" href="https://segmentfault.com/u/jafeney" title="segmentfault"><i class="icon-segmentfault"></i></a>
+		        
+					<a class="mail" target="_blank" href="mailto:692270687@qq.com" title="mail"><i class="icon-mail"></i></a>
+		        
+			</div>
+		</nav>
+	</header>		
+</div>
+
+    </div>
+    <div class="mid-col" q-class="show:isShow,hide:isShow|isFalse">
+      
+<nav id="mobile-nav">
+  	<div class="overlay js-overlay" style="background: #4d4d4d"></div>
+	<div class="btnctn js-mobile-btnctn">
+  		<div class="slider-trigger list" q-on="click: openSlider(e)"><i class="icon icon-sort"></i></div>
+	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img src="http://avatar.csdn.net/F/8/E/1_u011413061.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author js-header-author">Jafeney Lou</h1>
+			</hgroup>
+			
+			<p class="header-subtitle"><i class="icon icon-quo-left"></i>like programming,like life<i class="icon icon-quo-right"></i></p>
+			
+			
+			
+				
+			
+				
+			
+				
+			
+				
+			
+			
+			
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/Jafeney" title="github"><i class="icon-github"></i></a>
+			        
+						<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/jafeney-lou/activities" title="zhihu"><i class="icon-zhihu"></i></a>
+			        
+						<a class="segmentfault" target="_blank" href="https://segmentfault.com/u/jafeney" title="segmentfault"><i class="icon-segmentfault"></i></a>
+			        
+						<a class="mail" target="_blank" href="mailto:692270687@qq.com" title="mail"><i class="icon-mail"></i></a>
+			        
+				</div>
+			</nav>
+
+			<nav class="header-menu js-header-menu">
+				<ul style="width: 70%">
+				
+				
+					<li style="width: 25%"><a href="/">主页</a></li>
+		        
+					<li style="width: 25%"><a href="/tags">标签</a></li>
+		        
+					<li style="width: 25%"><a href="/archives">归档</a></li>
+		        
+					<li style="width: 25%"><a href="/categories">分类</a></li>
+		        
+				</ul>
+			</nav>
+		</header>				
+	</div>
+	<div class="mobile-mask" style="display:none" q-show="isShow"></div>
+</nav>
+
+      <div id="wrapper" class="body-wrap">
+        <div class="menu-l">
+          <div class="canvas-wrap">
+            <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
+          </div>
+          <div id="js-content" class="content-ll">
+            <article id="post-2016-07-10-webpack" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      如何十倍提高你的webpack构建效率
+    </h1>
+  
+
+        
+        <a href="/2016/07/10/2016-07-10-webpack/" class="archive-article-date">
+  	<time datetime="2016-07-10T09:28:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-07-10</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><code>webpack</code> 是个好东西，和 <code>NPM</code> 搭配起来使用管理模块实在非常方便。而 <code>Babel</code> 更是神一般的存在，让我们在这个浏览器尚未全面普及 <code>ES6</code> 语法的时代可以先一步体验到新的语法带来的便利和效率上的提升。在 <code>React</code> 项目架构中这两个东西基本成为了标配，但 <code>commonjs</code> 的模块必须在使用前经过 <code>webpack</code> 的构建(后文称为 <code>build</code>)才能在浏览器端使用，而每次修改也都需要重新构建（后文称为 <code>rebuild</code>）才能生效，如何提高 <code>webpack</code> 的构建效率成为了提高开发效率的关键之一。</p>
+<p><img src="https://www.bram.us/wordpress/wp-content/uploads/2016/04/es6-webpack-react-babel.png" alt="ES6 + Webpack + React + Babel">  </p>
+<a id="more"></a>
+<h1 id="Webpack-的构建流程"><a href="#Webpack-的构建流程" class="headerlink" title="Webpack 的构建流程"></a>Webpack 的构建流程</h1><p>在开始正式的优化之前，让我们先回顾一下 <code>Webpack</code> 的构建流程，有哪些关键步骤，只有了解了这些，我们才能分析出哪些地方有优化的可能性。</p>
+<p><img src="http://webpack.github.io/assets/what-is-webpack.png" alt="webpack is a module bundler"></p>
+<p>首先，我们来看看官方对于 <code>Webpack</code> 的理念阐释，<code>webapck</code> 把所有的静态资源都看做是一个 <code>module</code>，通过 <code>webpack</code>，将这些 <code>module</code> 组成到一个 <code>bundle</code> 中去，从而实现在页面上引入一个 <code>bundle.js</code>，来实现所有静态资源的加载。所以详细一点看，<code>webpack</code> 应该是这样的：</p>
+<p><img src="https://gw.alicdn.com/tps/TB14FSMKpXXXXcwXXXXXXXXXXXX-1320-370.png" alt="Every static asset should be able to be a module --webpack"></p>
+<p>通过 <code>loader</code>，<code>webpack</code> 可以把各种非原生 js 的静态资源转换成 <code>JavaScript</code>，所以理论上任何一种静态资源都可以成为一个 <code>module</code>。<br>当然 <code>webpack</code> 还有很多其他好玩的特性，但不是本文的重点因此不铺开进行说明了。了解了上述的过程，我们就可以根据这些过程的前后处理进行对应的优化，接下来我们会针对 build 和 rebuild 的过程给与相应的意见。</p>
+<h1 id="RESOLVE"><a href="#RESOLVE" class="headerlink" title="RESOLVE"></a>RESOLVE</h1><p>我们先从解析模块路径和分析依赖讲起，有人可能觉得这无所谓，但当项目应用依赖的模块越来越多，越来越重时，项目越来越大，文件和文件夹越来越多时，这个过程就变得越来越关乎性能。</p>
+<h2 id="减小-Webpack-覆盖的范围"><a href="#减小-Webpack-覆盖的范围" class="headerlink" title="减小 Webpack 覆盖的范围"></a>减小 Webpack 覆盖的范围</h2><blockquote>
+<p>build +, rebuild +</p>
+</blockquote>
+<p><code>webpack</code> 默认会去寻找所有 <code>resolve.root</code> 下的模块，但是有些目录我们是可以明确告知 <code>webpack</code> 不要管这里，从而减轻 <code>webpack</code> 的工作量。这时会用到 <code>module.noParse</code> 参数。</p>
+<h2 id="Resolove-root-VS-Resolove-moduledirectories"><a href="#Resolove-root-VS-Resolove-moduledirectories" class="headerlink" title="Resolove.root VS Resolove.moduledirectories"></a>Resolove.root VS Resolove.moduledirectories</h2><blockquote>
+<p>build +, rebuild +</p>
+</blockquote>
+<p><code>root</code> 和 <code>moduledirectories</code> 如果只从用法上来看，似乎是可以互相替代的。但因为 <code>moduledirectories</code> 从设计上是取相对路径，所以比起 <code>root</code> ，所以会多 <code>parse</code> 很多路径。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">resolve: &#123;  </div><div class="line">    root: path.resolve(&apos;src&apos;),</div><div class="line">    modulesDirectories: [&apos;node_modules&apos;],</div><div class="line">    extensions: [&apos;&apos;, &apos;.js&apos;, &apos;.jsx&apos;]</div><div class="line">&#125;,</div><div class="line">resolve: &#123;  </div><div class="line">    modulesDirectories: [&apos;node_modules&apos;, &apos;./src&apos;],</div><div class="line">    extensions: [&apos;&apos;, &apos;.js&apos;, &apos;.jsx&apos;]</div><div class="line">&#125;,</div></pre></td></tr></table></figure>
+<p>上面的配置，只会解析 :</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/some/src/other/folder/node_modules/a</div></pre></td></tr></table></figure>
+<p>而下面的配置会解析 :</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">/some/folder/structure/node_modules/a</div><div class="line">/some/folder/structure/src/a</div><div class="line">/some/folder/node_modules/a</div><div class="line">/some/folder/src/a</div><div class="line">/some/node_modules/a</div><div class="line">/some/src/a</div><div class="line">/node_modules/a</div><div class="line">/src/a</div></pre></td></tr></table></figure>
+<p>大部分的情况下使用 <code>root</code> 即可，只有在有很复杂的路径下，才考虑使用 <code>moduledirectories</code>，这可以明显提高 <code>webpack</code> 的构建性能。这个 <code>issue</code> 也很详细地讨论了这个问题。</p>
+<h1 id="LOADERS"><a href="#LOADERS" class="headerlink" title="LOADERS"></a>LOADERS</h1><p><code>webpack</code> 官方和社区为我们提供了各种各样 <code>loader</code> 来处理各种类型的文件，这些 <code>loader</code> 的配置也直接影响了构建的性能。</p>
+<h2 id="Babel-loader-能者少劳"><a href="#Babel-loader-能者少劳" class="headerlink" title="Babel-loader: 能者少劳"></a>Babel-loader: 能者少劳</h2><blockquote>
+<p>build ++, rebuild ++</p>
+</blockquote>
+<p>以 <code>babel-loader</code> 为例，我们在开发 <code>React</code> 项目时很可能会使用到了 ES6 或者 jsx 的语法，因此使用到 <code>babel-loader</code> 的情况很多，最简单的情况下我们可以这样配置，让所有的 <code>js/jsx</code> 通过 <code>babel-loader</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">module: &#123;  </div><div class="line">    loaders: [</div><div class="line">      &#123;</div><div class="line">          test: /\.js(x)*$/,</div><div class="line">          loader: &apos;babel-loader&apos;,</div><div class="line">          query: &#123;</div><div class="line">              presets: [&apos;react&apos;, &apos;es2015-ie&apos;, &apos;stage-1&apos;]</div><div class="line">          &#125;</div><div class="line">      &#125;</div><div class="line">    ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面这样的做法当然是 <code>ok</code> 的，但是对于很多的 <code>npm</code> 包来说，他们完全没有经过 <code>babel</code> 的必要（成熟的 <code>npm</code> 包会在发布前将自己 <code>es5</code>，甚至 <code>es3</code> 化），让这些包通过 <code>babel</code> 会带来巨大的性能负担，毕竟 <code>babel6</code> 要经过几十个插件的处理，虽然 <code>babel-loader</code> 强大，但能者多劳的这种保守的想法却使得 <code>babel-loader</code> 成为了整个构建的性能瓶颈。所以我们可以使用 <code>exclude</code>，大胆地屏蔽掉 <code>npm</code> 里的包，从而使整包的构建效率飞速提高。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">module: &#123;  </div><div class="line">    loaders: [</div><div class="line">      &#123;</div><div class="line">          test: /\.js(x)*$/,</div><div class="line">          loader: &apos;babel-loader&apos;,</div><div class="line">          exclude: function(path) &#123;</div><div class="line">              // 路径中含有 node_modules 的就不去解析。</div><div class="line">              var isNpmModule = !!path.match(node_modules/);</div><div class="line">              return isNpmModule;</div><div class="line">          &#125;,</div><div class="line">          query: &#123;</div><div class="line">              presets: [&apos;react&apos;, &apos;es2015-ie&apos;, &apos;stage-1&apos;]</div><div class="line">          &#125;</div><div class="line">      &#125;</div><div class="line">    ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>甚至，在我们十分确信的情况下，使用 <code>include</code> 来限定 <code>babel</code> 的使用范围，进一步提高效率。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">var path = require(&apos;path&apos;);  </div><div class="line">module.exports = &#123;  </div><div class="line">    module: &#123;</div><div class="line">        loaders: [</div><div class="line">          &#123;</div><div class="line">              test: /\.js(x)*$/,</div><div class="line">              loader: &apos;babel-loader&apos;,</div><div class="line">              include: [</div><div class="line">                // 只去解析运行目录下的 src 和 demo 文件夹</div><div class="line">                path.join(process.cwd(), &apos;./src&apos;),</div><div class="line">                path.join(process.cwd(), &apos;./demo&apos;)</div><div class="line">              ],</div><div class="line">              query: &#123;</div><div class="line">                  presets: [&apos;react&apos;, &apos;es2015-ie&apos;, &apos;stage-1&apos;]</div><div class="line">              &#125;</div><div class="line">          &#125;</div><div class="line">        ]</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="PLUGINS"><a href="#PLUGINS" class="headerlink" title="PLUGINS"></a>PLUGINS</h1><p><code>webpack</code> 官方和社区为我们提供了很多方便的插件，有些插件为我们开发和生产带来了很多的便利，但是不合适地使用插件也会拖慢 <code>webpack</code> 的构建效率，而有些插件虽然不会为我们的开发上直接提供便利，但使用他们却可以帮助我们提高 <code>webpack</code> 的构建效率，这也是本文会提到的。</p>
+<h2 id="SourceMaps"><a href="#SourceMaps" class="headerlink" title="SourceMaps"></a>SourceMaps</h2><blockquote>
+<p>build +</p>
+</blockquote>
+<p><code>SourceMaps</code> 是一个非常实用的功能，可以让我们在 <code>chrome debug</code> 时可以不用直接看已经 <code>bundle</code> 过的 js，而是直接在源代码上进行查看和调试，但完美的 <code>SourceMaps</code> 是很慢的，<code>webpack</code> 官方提供了七种 <code>sourceMap</code> 模式共大家选择，性能对比如下：</p>
+<table>
+<thead>
+<tr>
+<th>devtool</th>
+<th>build speed</th>
+<th>rebuild speed</th>
+<th>production supported</th>
+<th>quality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>eval</td>
+<td>+++</td>
+<td>+++</td>
+<td>no</td>
+<td>generated code</td>
+</tr>
+<tr>
+<td>cheap-eval-source-map</td>
+<td>+</td>
+<td>++</td>
+<td>no</td>
+<td>transformed code (lines only)</td>
+</tr>
+<tr>
+<td>cheap-source-map</td>
+<td>+</td>
+<td>o</td>
+<td>yes</td>
+<td>transformed code (lines only)</td>
+</tr>
+<tr>
+<td>cheap-module-eval-source-map</td>
+<td>o</td>
+<td>++</td>
+<td>no</td>
+<td>original source (lines only)</td>
+</tr>
+<tr>
+<td>cheap-module-source-map</td>
+<td>o</td>
+<td>-</td>
+<td>yes</td>
+<td>original source (lines only)</td>
+</tr>
+<tr>
+<td>eval-source-map</td>
+<td>–</td>
+<td>+</td>
+<td>no</td>
+<td>original source</td>
+</tr>
+<tr>
+<td>source-map</td>
+<td>–</td>
+<td>–</td>
+<td>yes</td>
+<td>original source</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<blockquote>
+<p>具体各自的区别请参考 <a href="https://github.com/webpack/docs/wiki/configuration#devtool" target="_blank" rel="external">https://github.com/webpack/docs/wiki/configuration#devtool</a> ，我们这里推荐使用 cheap-source-map，也就是去掉了column mapping 和 loader-sourceMap（例如 jsx to js） 的 sourceMap，虽然带上 eval 参数的可以快更多，但是这种 sourceMap 只能看，不能调试，得不偿失。</p>
+</blockquote>
+<h2 id="OPTIMIZATION"><a href="#OPTIMIZATION" class="headerlink" title="OPTIMIZATION"></a>OPTIMIZATION</h2><blockquote>
+<p>build ++，rebuild ++</p>
+</blockquote>
+<p>webpack 提供了一些可以优化浏览器端性能的优化插件，如UglifyJsPlugin，OccurrenceOrderPlugin 和 DedupePlugin，都很实用，也都在消耗构建性能（UglifyJsPlugin 非常耗性能），如果你是在开发环境下，这些插件最好都不要使用，毕竟脚本大一些，跑的慢一些这些比起每次构建要耗费更多时间来说，显然还是后者更会消磨开发者的耐心，因此，只在正产环境中使用 OPTIMIZATION。</p>
+<h2 id="CommonsChunk"><a href="#CommonsChunk" class="headerlink" title="CommonsChunk"></a>CommonsChunk</h2><blockquote>
+<p>rebuild +</p>
+</blockquote>
+<p>当你的 <code>webpack</code> 构建任务中有多个入口文件，而这些文件都 <code>require</code> 了相同的模块，如果你不做任何事情，<code>webpack</code> 会为每个入口文件引入一份相同的模块，显然这样做，会使得相同模块变化时，所有引入的 <code>entry</code> 都需要一次 <code>rebuild</code>，造成了性能的浪费，<code>CommonsChunkPlugin</code> 可以将相同的模块提取出来单独打包，进而减小 rebuild 时的性能消耗。这里有一篇很通俗易懂的使用方法：<a href="http://webpack.toobug.net/zh-cn/chapter3/common-chunks-plugin.html" target="_blank" rel="external">http://webpack.toobug.net/zh-cn/chapter3/common-chunks-plugin.html</a> ，感兴趣的朋友不妨一试。</p>
+<h2 id="DLL-amp-DllReference"><a href="#DLL-amp-DllReference" class="headerlink" title="DLL &amp; DllReference"></a>DLL &amp; DllReference</h2><blockquote>
+<p>build +++, rebuild +++</p>
+</blockquote>
+<p>除了正在开发的源代码之外，通常还会引入很多第三方 <code>NPM</code> 包，这些包我们不会进行修改，但是仍然需要在每次 <code>build</code> 的过程中消耗构建性能，那有没有什么办法可以减少这些消耗呢？<code>DLLPlugin</code> 就是一个解决方案，他通过前置这些依赖包的构建，来提高真正的 <code>build</code> 和 <code>rebuild</code> 的构建效率。 鉴于现有的资料对于这两个插件的解释都不是很清楚，笔者这里翻译了一篇日本同学的文章，通过一个简单的例子来说明一下这两个插件的用法。我们举例，把 <code>react</code> 和 <code>react-dom</code> 打包成为 <code>dll bundle</code>。 首先，我们来写一个 <code>DLLPlugin</code> 的 <code>config</code> 文件。</p>
+<blockquote>
+<p>webpack.dll.config.js</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">const path = require(&apos;path&apos;);  </div><div class="line">const webpack = require(&apos;webpack&apos;);</div><div class="line"></div><div class="line">module.exports = &#123;  </div><div class="line">  entry: &#123;</div><div class="line">    vendor: [&apos;react&apos;, &apos;react-dom&apos;]</div><div class="line">  &#125;,</div><div class="line">  output: &#123;</div><div class="line">    path: path.join(__dirname, &apos;dist&apos;),</div><div class="line">    filename: &apos;[name].dll.js&apos;,</div><div class="line">    /**</div><div class="line">     * output.library</div><div class="line">     * 将会定义为 window.$&#123;output.library&#125;</div><div class="line">     * 在这次的例子中，将会定义为`window.vendor_library`</div><div class="line">     */</div><div class="line">    library: &apos;[name]_library&apos;</div><div class="line">  &#125;,</div><div class="line">  plugins: [</div><div class="line">    new webpack.DllPlugin(&#123;</div><div class="line">      /**</div><div class="line">       * path</div><div class="line">       * 定义 manifest 文件生成的位置</div><div class="line">       * [name]的部分由entry的名字替换</div><div class="line">       */</div><div class="line">      path: path.join(__dirname, &apos;dist&apos;, &apos;[name]-manifest.json&apos;),</div><div class="line">      /**</div><div class="line">       * name</div><div class="line">       * dll bundle 输出到那个全局变量上</div><div class="line">       * 和 output.library 一样即可。</div><div class="line">       */</div><div class="line">      name: &apos;[name]_library&apos;</div><div class="line">    &#125;)</div><div class="line">  ]</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>执行 <code>webpack</code> 后，就会在 <code>dist</code> 目录下生成 <code>dll bundle</code> 和对应的 <code>manifest</code> 文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ ./node_modules/.bin/webpack --config webpack.dll.config.js</div><div class="line">Hash: 36187493b1d9a06b228d  </div><div class="line">Version: webpack 1.13.1  </div><div class="line">Time: 860ms  </div><div class="line">        Asset    Size  Chunks             Chunk Names</div><div class="line">vendor.dll.js  699 kB       0  [emitted]  vendor  </div><div class="line">   [0] dll vendor 12 bytes &#123;0&#125; [built]</div><div class="line">    + 167 hidden modules</div><div class="line"></div><div class="line">$ ls dist</div><div class="line">./                    vendor-manifest.json</div><div class="line">../                   vendor.dll.js</div></pre></td></tr></table></figure>
+<p><code>manifest</code> 文件的格式大致如下，由包含的 <code>module</code> 和对应的 <code>id</code> 的键值对构成。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">cat dist/vendor-manifest.json  </div><div class="line">&#123;</div><div class="line">  &quot;name&quot;: &quot;vendor_library&quot;,</div><div class="line">  &quot;content&quot;: &#123;</div><div class="line">    &quot;./node_modules/react/react.js&quot;: 1,</div><div class="line">    &quot;./node_modules/react/lib/React.js&quot;: 2,</div><div class="line">    &quot;./node_modules/process/browser.js&quot;: 3,</div><div class="line">    &quot;./node_modules/object-assign/index.js&quot;: 4,</div><div class="line">    &quot;./node_modules/react/lib/ReactChildren.js&quot;: 5,</div><div class="line">    &quot;./node_modules/react/lib/PooledClass.js&quot;: 6,</div><div class="line">    &quot;./node_modules/fbjs/lib/invariant.js&quot;: 7,</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>好，接下来我们通过 <code>DLLReferencePlugin</code> 来使用刚才生成的 <code>DLL Bundle</code>。</p>
+<p>首先我们写一个只去 <code>require react</code>，并通过 <code>console.log</code> 吐出的 <code>index.js</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">var React = require(&apos;react&apos;);  </div><div class="line">var ReactDOM = require(&apos;react-dom&apos;);  </div><div class="line">console.log(&quot;dll&apos;s React:&quot;, React);  </div><div class="line">console.log(&quot;dll&apos;s ReactDOM:&quot;, ReactDOM);</div></pre></td></tr></table></figure>
+<p>再写一个不参考 <code>Dll Bundle</code> 的普通 <code>webpack config</code> 文件。</p>
+<blockquote>
+<p>webpack.conf.js</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">const path = require(&apos;path&apos;);  </div><div class="line">const webpack = require(&apos;webpack&apos;);</div><div class="line"></div><div class="line">module.exports = &#123;  </div><div class="line">  entry: &#123;</div><div class="line">    &apos;dll-user&apos;: [&apos;./index.js&apos;]</div><div class="line">  &#125;,</div><div class="line">  output: &#123;</div><div class="line">    path: path.join(__dirname, &apos;dist&apos;),</div><div class="line">    filename: &apos;[name].bundle.js&apos;</div><div class="line">  &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>执行 <code>webpack</code>，会在 <code>dist</code> 下生成 <code>dll-user.bundle.js</code>，约 700K，耗时 801ms。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ ./node_modules/.bin/webpack</div><div class="line">Hash: d8cab39e58c13b9713a6  </div><div class="line">Version: webpack 1.13.1  </div><div class="line">Time: 801ms  </div><div class="line">             Asset    Size  Chunks             Chunk Names</div><div class="line">dll-user.bundle.js  700 kB       0  [emitted]  dll-user  </div><div class="line">   [0] multi dll-user 28 bytes &#123;0&#125; [built]</div><div class="line">   [1] ./index.js 145 bytes &#123;0&#125; [built]</div><div class="line">    + 167 hidden modules</div></pre></td></tr></table></figure>
+<p>接下来，我们加入 <code>DLLReferencePlugin</code></p>
+<blockquote>
+<p>webpack.conf.js</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">const path = require(&apos;path&apos;);  </div><div class="line">const webpack = require(&apos;webpack&apos;);</div><div class="line"></div><div class="line">module.exports = &#123;  </div><div class="line">  entry: &#123;</div><div class="line">    &apos;dll-user&apos;: [&apos;./index.js&apos;]</div><div class="line">  &#125;,</div><div class="line">  output: &#123;</div><div class="line">    path: path.join(__dirname, &apos;dist&apos;),</div><div class="line">    filename: &apos;[name].bundle.js&apos;</div><div class="line">  &#125;,</div><div class="line">  // ----在这里追加----</div><div class="line">  plugins: [</div><div class="line">    new webpack.DllReferencePlugin(&#123;</div><div class="line">      context: __dirname,</div><div class="line">      /**</div><div class="line">       * 在这里引入 manifest 文件</div><div class="line">       */</div><div class="line">      manifest: require(&apos;./dist/vendor-manifest.json&apos;)</div><div class="line">    &#125;)</div><div class="line">  ]</div><div class="line">  // ----在这里追加----</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">./node_modules/.bin/webpack</div><div class="line">Hash: 3bc7bf760779b4ca8523  </div><div class="line">Version: webpack 1.13.1  </div><div class="line">Time: 70ms  </div><div class="line">             Asset     Size  Chunks             Chunk Names</div><div class="line">dll-user.bundle.js  2.01 kB       0  [emitted]  dll-user  </div><div class="line">   [0] multi dll-user 28 bytes &#123;0&#125; [built]</div><div class="line">   [1] ./index.js 145 bytes &#123;0&#125; [built]</div><div class="line">    + 3 hidden modules</div></pre></td></tr></table></figure>
+<p>结果是非常惊人的，只有2.01K，耗时 70 ms，无疑大大提高了 <code>build</code> 和 <code>rebuild</code> 的效率。实际放到页面上看下是否可行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;body&gt;  </div><div class="line">  &lt;script src=&quot;dist/vendor.dll.js&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;script src=&quot;dist/dll-user.bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div></pre></td></tr></table></figure>
+<p>因为 <code>Dll bundle</code> 在依赖安装完毕后就可以进行了，我们可以在第一次执行 <code>dev server</code> 前执行一次 <code>dll bundle</code> 的 <code>webapck</code> 任务。</p>
+<h2 id="和-external-的比较"><a href="#和-external-的比较" class="headerlink" title="和 external 的比较"></a>和 external 的比较</h2><p>有人会说，这个和 用 <code>webpack</code> 的 <code>externals</code> 配置把 <code>require</code> 的 <code>module</code> 指向全局变量有点像啊。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">const path = require(&apos;path&apos;);  </div><div class="line">const webpack = require(&apos;webpack&apos;);</div><div class="line"></div><div class="line">module.exports = &#123;  </div><div class="line">  entry: &#123;</div><div class="line">    &apos;ex&apos;: [&apos;./index.js&apos;]</div><div class="line">  &#125;,</div><div class="line">  output: &#123;</div><div class="line">    path: path.join(__dirname, &apos;dist&apos;),</div><div class="line">    filename: &apos;[name].bundle.js&apos;</div><div class="line">  &#125;,</div><div class="line">  externals: &#123;</div><div class="line">    // require(&apos;react&apos;)はwindow.Reactを使う</div><div class="line">    &apos;react&apos;: &apos;React&apos;,</div><div class="line">    // require(&apos;react-dom&apos;)はwindow.ReactDOMを使う</div><div class="line">    &apos;react-dom&apos;: &apos;ReactDOM&apos;</div><div class="line">  &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;body&gt;  </div><div class="line">  &lt;script src=&quot;dist/react.min.js&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;script src=&quot;dist/react-dom.min.js&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;script src=&quot;dist/ex.bundle.js&quot;&gt;&lt;/script&gt;</div><div class="line">&lt;/body&gt;</div></pre></td></tr></table></figure>
+<p>这里有两个主要的区别：</p>
+<blockquote>
+<ol>
+<li>像是 <code>react</code> 这种已经打好了生产包的使用 <code>externals</code> 很方便，但是也有很多 <code>npm</code> 包是没有提供的，这种情况下 <code>DLLBundle</code> 仍可以使用。</li>
+<li>如果只是引入 <code>npm</code> 包一部分的功能，比如 <code>require(&#39;react/lib/React&#39;)</code> 或者 <code>require(&#39;lodash/fp/extend&#39;)</code> ，这种情况下 <code>DLLBundle</code> 仍可以使用。</li>
+<li>当然如果只是引用了 <code>react</code> 这类的话，<code>externals</code> 因为配置简单所以也推荐使用。</li>
+</ol>
+</blockquote>
+<h2 id="HappyPack"><a href="#HappyPack" class="headerlink" title="HappyPack"></a>HappyPack</h2><blockquote>
+<p>build +, rebuild +</p>
+</blockquote>
+<p><code>webpack</code> 的长时间构建搞的大家都很 <code>unhappy</code>。于是 <code>@amireh</code> 想到了一个点子，既然 <code>loader</code> 默认都是一个进程在跑，那是否可以让 <code>loader</code> 多进程去处理文件呢？</p>
+<p><img src="https://img.alicdn.com/tps/TB11I5VKpXXXXamXXXXXXXXXXXX-916-556.png" alt="这里写图片描述"></p>
+<p><code>happyPack</code> 的文档写的很易懂，这里就不再赘述，<code>happyPack</code> 不仅利用了多进程，同时还利用缓存来使得 <code>rebuild</code> 更快。下面是插件作者给出的性能数据：</p>
+<blockquote>
+<p>For the main repository I tested on, which had around 3067 modules, the build time went down from 39 seconds to a whopping ~10 seconds when there was yet no cache. Successive builds now take between 6 and 7 seconds.</p>
+</blockquote>
+<p>Here’s a rundown of the various states the build was performed in:</p>
+<table>
+<thead>
+<tr>
+<th>Elapsed (ms)</th>
+<th>Happy?</th>
+<th>Cache enabled?</th>
+<th>Cache present?</th>
+<th>Using DLLs?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>39851</td>
+<td>NO</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>NO</td>
+</tr>
+<tr>
+<td>37393</td>
+<td>NO</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>14605</td>
+<td>YES</td>
+<td>NO</td>
+<td>N/A</td>
+<td>NO</td>
+</tr>
+<tr>
+<td>13925</td>
+<td>YES</td>
+<td>YES</td>
+<td>NO</td>
+<td>NO</td>
+</tr>
+<tr>
+<td>11877</td>
+<td>YES</td>
+<td>YES</td>
+<td>YES</td>
+<td>NO</td>
+</tr>
+<tr>
+<td>9228</td>
+<td>YES</td>
+<td>NO</td>
+<td>N/A</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>9597</td>
+<td>YES</td>
+<td>YES</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>6975</td>
+<td>YES</td>
+<td>YES</td>
+<td>YES</td>
+<td>YES</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>The builds above were run on Linux over a machine with 12 cores.</p>
+</blockquote>
+<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><p>上面我们针对 <code>webpack</code> 的 <code>resolve</code>、<code>loader</code> 和 <code>plugin</code> 的过程给出了相应的优化意见，除了这些哪些优化点呢？其实有些优化贯穿在这个流程中，比如缓存和文件 IO。</p>
+<h2 id="Cache"><a href="#Cache" class="headerlink" title="Cache"></a>Cache</h2><p>无论在何种性能优化中，缓存总是必不可少的一部分，毕竟每次变动都只影响很小的一部分，如果能够缓存住那些没有变动的部分，直接拿来使用，自然会事半功倍，在 webpack 的整个构建过程中，有多个地方提供了缓存的机会，如果我们打开了这些缓存，会大大加速我们的构建，尤其是 rebuild 的效率。</p>
+<h3 id="webpack-cache"><a href="#webpack-cache" class="headerlink" title="webpack.cache"></a>webpack.cache</h3><blockquote>
+<p>rebuild +</p>
+</blockquote>
+<p><code>webpack</code> 自身就有 <code>cache</code> 的配置，并且在 <code>watch</code> 模式下自动开启，虽然效果不是最明显的，但却对所有的 <code>module</code> 都有效。</p>
+<h3 id="babel-loader-cacheDirectory"><a href="#babel-loader-cacheDirectory" class="headerlink" title="babel-loader.cacheDirectory"></a>babel-loader.cacheDirectory</h3><blockquote>
+<p>rebuild ++</p>
+</blockquote>
+<p><code>babel-loader</code> 可以利用系统的临时文件夹缓存经过 babel 处理好的模块，对于 <code>rebuild js</code> 有着非常大的性能提升。</p>
+<h3 id="HappyPack-cache"><a href="#HappyPack-cache" class="headerlink" title="HappyPack.cache"></a>HappyPack.cache</h3><blockquote>
+<p>build +, rebuild +</p>
+</blockquote>
+<p>上面提到的 <code>happyPack</code> 插件也同样提供了 <code>cache</code> 功能，默认是以 <code>.happypack/cache--[id].json</code> 的路径进行缓存。因为是缓存在当前目录下，所以他也可以辅助下次 <code>build</code> 时的效率。</p>
+<h2 id="FileSystem"><a href="#FileSystem" class="headerlink" title="FileSystem"></a>FileSystem</h2><p>默认的情况下，构建好的目录一定要输出到某个目录下面才能使用，但 <code>webpack</code> 提供了一种很棒的读写机制，使得我们可以直接在内存中进行读写，从而极大地提高 IO 的效率，开启的方法也很简单。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">var MemoryFS = require(&quot;memory-fs&quot;);  </div><div class="line">var webpack = require(&quot;webpack&quot;);</div><div class="line"></div><div class="line">var fs = new MemoryFS();  </div><div class="line">var compiler = webpack(&#123; ... &#125;);  </div><div class="line">compiler.outputFileSystem = fs;  </div><div class="line">compiler.run(function(err, stats) &#123;  </div><div class="line">  // ...</div><div class="line">  var fileContent = fs.readFileSync(&quot;...&quot;);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>当然，我们还可以通过 <code>webpackDevMiddleware</code> 更加无缝地就接入到 <code>dev server</code> 中，例如我们以 <code>express</code> 作为静态 <code>server</code> 的例子。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">var compiler = webpack(webpackCfg);</div><div class="line"></div><div class="line">var webpackDevMiddlewareInstance = webpackDevMiddleware(compiler, &#123;  </div><div class="line">   // webpackDevMiddleware 默认使用了 memory-fs</div><div class="line">   publicPath: &apos;/dist&apos;,</div><div class="line">   aggregateTimeout: 300, // wait so long for more changes</div><div class="line">   poll: true, // use polling instead of native watchers</div><div class="line">   stats: &#123;</div><div class="line">       chunks: false</div><div class="line">   &#125;</div><div class="line">&#125;);</div><div class="line"></div><div class="line">var app = express();  </div><div class="line">app.use(webpackDevMiddlewareInstance);  </div><div class="line">app.listen(xxxx, function(err) &#123;  </div><div class="line">   console.log(colors.info(&quot;dev server start: listening at &quot; + xxxx));</div><div class="line">   if (err) &#123;</div><div class="line">     console.error(err);</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>上面我们从 <code>webpack</code> 构建的各个部分，给出了相应的优化策略，如果你的项目中能够将其完全贯彻起来，10 倍提速不是梦想。这些优化也同样应用到了我们团队的 <code>react</code> 项目中，<a href="https://github.com/uxcore/uxcore" target="_blank" rel="external">https://github.com/uxcore/uxcore</a> ，欢迎一起来讨论 <code>webpack</code> 的效率优化方案。</p>
+<h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><ul>
+<li>webpack build performance：<a href="http://webpack.github.io/docs/build-performance.html" target="_blank" rel="external">http://webpack.github.io/docs/build-performance.html</a></li>
+<li>webpackのDLLバンドルを使ってビルドを速くする：<a href="http://qiita.com/pirosikick/items/c77db84dbed4c447a6fe#%E3%81%8A%E3%81%BE%E3%81%91cachedirectory" target="_blank" rel="external">http://qiita.com/pirosikick/items/c77db84dbed4c447a6fe#%E3%81%8A%E3%81%BE%E3%81%91cachedirectory</a></li>
+<li>How to make your Webpack builds 10x faster：<a href="http://www.slideshare.net/trueter/how-to-make-your-webpack-builds-10x-faster" target="_blank" rel="external">http://www.slideshare.net/trueter/how-to-make-your-webpack-builds-10x-faster</a></li>
+</ul>
+<p>本文作者 <code>eternalsky</code>，始发于团队微信公众号 猿猿相抱 和个人博客 空の屋敷，转载请保留作者信息。</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>海内存知己，天涯若比邻<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="http://photo.jafeney.com:9999/file/Tt5HgGiKKsq1A7oSGnqq7FQG.png">
+                      <span class="reward-type">支付宝</span>
+                    </div>
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="http://photo.jafeney.com:9999/file/K0VhpLd4WrFL7ynleExrdZLL.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">模块化</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">react</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/前端/" class="article-tag-list-link color3">前端</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://jafeney.com/2016/07/10/2016-07-10-webpack/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+  
+<nav id="article-nav">
+  
+    <a href="/2016/07/17/2016-07-17-fetch/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          fetch和XMLHttpRequest讲解
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/07/03/2016-07-03-promise/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">深入理解JavaScript的Promise</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+  
+  <div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="2016-07-10-webpack" data-title="如何十倍提高你的webpack构建效率" data-url="http://jafeney.com/2016/07/10/2016-07-10-webpack/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"true"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+  
+
+
+
+
+          </div>
+        </div>
+      </div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2017 Jafeney Lou
+        <span class="with-love">
+          浙ICP备15041893号-1
+          <i class="icon-next-heart fa fa-heart"></i>
+        </span>
+        <br />
+        Jafeney Lou - like programming, like life. 
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script>
+	var yiliaConfig = {
+		mathjax: false,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true,
+		root: "/",
+		innerArchive: true,
+		showTags: false
+	}
+</script>
+
+<script>!function(t){function n(r){if(e[r])return e[r].exports;var o=e[r]={exports:{},id:r,loaded:!1};return t[r].call(o.exports,o,o.exports,n),o.loaded=!0,o.exports}var e={};n.m=t,n.c=e,n.p="./",n(0)}([function(t,n,e){"use strict";function r(t){return t&&t.__esModule?t:{default:t}}function o(t,n){var e=/\/|index.html/g;return t.replace(e,"")===n.replace(e,"")}function i(){for(var t=document.querySelectorAll(".js-header-menu li a"),n=window.location.pathname,e=0,r=t.length;e<r;e++){var i=t[e];o(n,i.getAttribute("href"))&&(0,p.default)(i,"active")}}function u(t){for(var n=t.offsetLeft,e=t.offsetParent;null!==e;)n+=e.offsetLeft,e=e.offsetParent;return n}function c(t){for(var n=t.offsetTop,e=t.offsetParent;null!==e;)n+=e.offsetTop,e=e.offsetParent;return n}function f(t,n,e,r,o){var i=u(t),f=c(t)-n;if(f-e<=o){var a=t.$newDom;a||(a=t.cloneNode(!0),(0,v.default)(t,a),t.$newDom=a,a.style.position="fixed",a.style.top=(e||f)+"px",a.style.left=i+"px",a.style.zIndex=r||2,a.style.width="100%",a.style.color="#fff"),a.style.visibility="visible",t.style.visibility="hidden"}else{t.style.visibility="visible";var s=t.$newDom;s&&(s.style.visibility="hidden")}}function a(){var t=document.querySelector(".js-overlay"),n=document.querySelector(".js-header-menu");f(t,document.body.scrollTop,-63,2,0),f(n,document.body.scrollTop,1,3,0)}function s(){document.querySelector("#container").addEventListener("scroll",function(t){a()}),window.addEventListener("scroll",function(t){a()}),a()}var l=e(25),p=r(l),d=e(26),y=(r(d),e(96)),v=r(y),h=e(97),b=r(h),x=e(98),m=r(x),g=e(27);!function(){b.default.versions.mobile&&window.screen.width<800&&(i(),s())}(),(0,g.addLoadEvent)(function(){m.default.init()}),t.exports={}},,,,,,,,,,,,,,,,,,,,,,,,,function(t,n){function e(t,n){t.classList?t.classList.add(n):t.className+=" "+n}t.exports=e},function(t,n){function e(t,n){if(t.classList)t.classList.remove(n);else{var e=new RegExp("(^|\\b)"+n.split(" ").join("|")+"(\\b|$)","gi");t.className=t.className.replace(e," ")}}t.exports=e},function(t,n,e){"use strict";var r=e(28),o=function(t){return t&&t.__esModule?t:{default:t}}(r),i=function(){function t(t,n,r){return n||r?String.fromCharCode(n||r):e[t]||t}function n(t){return r[t]}var e={"&quot;":'"',"&lt;":"<","&gt;":">","&amp;":"&","&nbsp;":" "},r={};for(var u in e)r[e[u]]=u;return e["&apos;"]="'",r["'"]="&#39;",{encode:function(t){return t?(""+t).replace(/['<> "&]/g,n).replace(/\r?\n/g,"<br/>").replace(/\s/g,"&nbsp;"):""},decode:function(n){return n?(""+n).replace(/<br\s*\/?>/gi,"\n").replace(/&quot;|&lt;|&gt;|&amp;|&nbsp;|&apos;|&#(\d+);|&#(\d+)/g,t).replace(/\u00a0/g," "):""},encodeBase16:function(t){if(!t)return t;t+="";for(var n=[],e=0,r=t.length;r>e;e++)n.push(t.charCodeAt(e).toString(16).toUpperCase());return n.join("")},encodeBase16forJSON:function(t){if(!t)return t;t=t.replace(/[\u4E00-\u9FBF]/gi,function(t){return escape(t).replace("%u","\\u")});for(var n=[],e=0,r=t.length;r>e;e++)n.push(t.charCodeAt(e).toString(16).toUpperCase());return n.join("")},decodeBase16:function(t){if(!t)return t;t+="";for(var n=[],e=0,r=t.length;r>e;e+=2)n.push(String.fromCharCode("0x"+t.slice(e,e+2)));return n.join("")},encodeObject:function(t){if(t instanceof Array)for(var n=0,e=t.length;e>n;n++)t[n]=i.encodeObject(t[n]);else if("object"==(void 0===t?"undefined":(0,o.default)(t)))for(var r in t)t[r]=i.encodeObject(t[r]);else if("string"==typeof t)return i.encode(t);return t},loadScript:function(t){var n=document.createElement("script");document.getElementsByTagName("body")[0].appendChild(n),n.setAttribute("src",t)},addLoadEvent:function(t){var n=window.onload;"function"!=typeof window.onload?window.onload=t:window.onload=function(){n(),t()}}}}();t.exports=i},function(t,n,e){"use strict";function r(t){return t&&t.__esModule?t:{default:t}}n.__esModule=!0;var o=e(29),i=r(o),u=e(80),c=r(u),f="function"==typeof c.default&&"symbol"==typeof i.default?function(t){return typeof t}:function(t){return t&&"function"==typeof c.default&&t.constructor===c.default&&t!==c.default.prototype?"symbol":typeof t};n.default="function"==typeof c.default&&"symbol"===f(i.default)?function(t){return void 0===t?"undefined":f(t)}:function(t){return t&&"function"==typeof c.default&&t.constructor===c.default&&t!==c.default.prototype?"symbol":void 0===t?"undefined":f(t)}},function(t,n,e){t.exports={default:e(30),__esModule:!0}},function(t,n,e){e(31),e(75),t.exports=e(79).f("iterator")},function(t,n,e){"use strict";var r=e(32)(!0);e(35)(String,"String",function(t){this._t=String(t),this._i=0},function(){var t,n=this._t,e=this._i;return e>=n.length?{value:void 0,done:!0}:(t=r(n,e),this._i+=t.length,{value:t,done:!1})})},function(t,n,e){var r=e(33),o=e(34);t.exports=function(t){return function(n,e){var i,u,c=String(o(n)),f=r(e),a=c.length;return f<0||f>=a?t?"":void 0:(i=c.charCodeAt(f),i<55296||i>56319||f+1===a||(u=c.charCodeAt(f+1))<56320||u>57343?t?c.charAt(f):i:t?c.slice(f,f+2):u-56320+(i-55296<<10)+65536)}}},function(t,n){var e=Math.ceil,r=Math.floor;t.exports=function(t){return isNaN(t=+t)?0:(t>0?r:e)(t)}},function(t,n){t.exports=function(t){if(void 0==t)throw TypeError("Can't call method on  "+t);return t}},function(t,n,e){"use strict";var r=e(36),o=e(37),i=e(52),u=e(42),c=e(53),f=e(54),a=e(55),s=e(71),l=e(73),p=e(72)("iterator"),d=!([].keys&&"next"in[].keys()),y=function(){return this};t.exports=function(t,n,e,v,h,b,x){a(e,n,v);var m,g,w,O=function(t){if(!d&&t in P)return P[t];switch(t){case"keys":return function(){return new e(this,t)};case"values":return function(){return new e(this,t)}}return function(){return new e(this,t)}},S=n+" Iterator",_="values"==h,j=!1,P=t.prototype,E=P[p]||P["@@iterator"]||h&&P[h],M=E||O(h),A=h?_?O("entries"):M:void 0,T="Array"==n?P.entries||E:E;if(T&&(w=l(T.call(new t)))!==Object.prototype&&(s(w,S,!0),r||c(w,p)||u(w,p,y)),_&&E&&"values"!==E.name&&(j=!0,M=function(){return E.call(this)}),r&&!x||!d&&!j&&P[p]||u(P,p,M),f[n]=M,f[S]=y,h)if(m={values:_?M:O("values"),keys:b?M:O("keys"),entries:A},x)for(g in m)g in P||i(P,g,m[g]);else o(o.P+o.F*(d||j),n,m);return m}},function(t,n){t.exports=!0},function(t,n,e){var r=e(38),o=e(39),i=e(40),u=e(42),c=function(t,n,e){var f,a,s,l=t&c.F,p=t&c.G,d=t&c.S,y=t&c.P,v=t&c.B,h=t&c.W,b=p?o:o[n]||(o[n]={}),x=b.prototype,m=p?r:d?r[n]:(r[n]||{}).prototype;p&&(e=n);for(f in e)(a=!l&&m&&void 0!==m[f])&&f in b||(s=a?m[f]:e[f],b[f]=p&&"function"!=typeof m[f]?e[f]:v&&a?i(s,r):h&&m[f]==s?function(t){var n=function(n,e,r){if(this instanceof t){switch(arguments.length){case 0:return new t;case 1:return new t(n);case 2:return new t(n,e)}return new t(n,e,r)}return t.apply(this,arguments)};return n.prototype=t.prototype,n}(s):y&&"function"==typeof s?i(Function.call,s):s,y&&((b.virtual||(b.virtual={}))[f]=s,t&c.R&&x&&!x[f]&&u(x,f,s)))};c.F=1,c.G=2,c.S=4,c.P=8,c.B=16,c.W=32,c.U=64,c.R=128,t.exports=c},function(t,n){var e=t.exports="undefined"!=typeof window&&window.Math==Math?window:"undefined"!=typeof self&&self.Math==Math?self:Function("return this")();"number"==typeof __g&&(__g=e)},function(t,n){var e=t.exports={version:"2.4.0"};"number"==typeof __e&&(__e=e)},function(t,n,e){var r=e(41);t.exports=function(t,n,e){if(r(t),void 0===n)return t;switch(e){case 1:return function(e){return t.call(n,e)};case 2:return function(e,r){return t.call(n,e,r)};case 3:return function(e,r,o){return t.call(n,e,r,o)}}return function(){return t.apply(n,arguments)}}},function(t,n){t.exports=function(t){if("function"!=typeof t)throw TypeError(t+" is not a function!");return t}},function(t,n,e){var r=e(43),o=e(51);t.exports=e(47)?function(t,n,e){return r.f(t,n,o(1,e))}:function(t,n,e){return t[n]=e,t}},function(t,n,e){var r=e(44),o=e(46),i=e(50),u=Object.defineProperty;n.f=e(47)?Object.defineProperty:function(t,n,e){if(r(t),n=i(n,!0),r(e),o)try{return u(t,n,e)}catch(t){}if("get"in e||"set"in e)throw TypeError("Accessors not supported!");return"value"in e&&(t[n]=e.value),t}},function(t,n,e){var r=e(45);t.exports=function(t){if(!r(t))throw TypeError(t+" is not an object!");return t}},function(t,n){t.exports=function(t){return"object"==typeof t?null!==t:"function"==typeof t}},function(t,n,e){t.exports=!e(47)&&!e(48)(function(){return 7!=Object.defineProperty(e(49)("div"),"a",{get:function(){return 7}}).a})},function(t,n,e){t.exports=!e(48)(function(){return 7!=Object.defineProperty({},"a",{get:function(){return 7}}).a})},function(t,n){t.exports=function(t){try{return!!t()}catch(t){return!0}}},function(t,n,e){var r=e(45),o=e(38).document,i=r(o)&&r(o.createElement);t.exports=function(t){return i?o.createElement(t):{}}},function(t,n,e){var r=e(45);t.exports=function(t,n){if(!r(t))return t;var e,o;if(n&&"function"==typeof(e=t.toString)&&!r(o=e.call(t)))return o;if("function"==typeof(e=t.valueOf)&&!r(o=e.call(t)))return o;if(!n&&"function"==typeof(e=t.toString)&&!r(o=e.call(t)))return o;throw TypeError("Can't convert object to primitive value")}},function(t,n){t.exports=function(t,n){return{enumerable:!(1&t),configurable:!(2&t),writable:!(4&t),value:n}}},function(t,n,e){t.exports=e(42)},function(t,n){var e={}.hasOwnProperty;t.exports=function(t,n){return e.call(t,n)}},function(t,n){t.exports={}},function(t,n,e){"use strict";var r=e(56),o=e(51),i=e(71),u={};e(42)(u,e(72)("iterator"),function(){return this}),t.exports=function(t,n,e){t.prototype=r(u,{next:o(1,e)}),i(t,n+" Iterator")}},function(t,n,e){var r=e(44),o=e(57),i=e(69),u=e(66)("IE_PROTO"),c=function(){},f=function(){var t,n=e(49)("iframe"),r=i.length;for(n.style.display="none",e(70).appendChild(n),n.src="javascript:",t=n.contentWindow.document,t.open(),t.write("<script>document.F=Object<\/script>"),t.close(),f=t.F;r--;)delete f.prototype[i[r]];return f()};t.exports=Object.create||function(t,n){var e;return null!==t?(c.prototype=r(t),e=new c,c.prototype=null,e[u]=t):e=f(),void 0===n?e:o(e,n)}},function(t,n,e){var r=e(43),o=e(44),i=e(58);t.exports=e(47)?Object.defineProperties:function(t,n){o(t);for(var e,u=i(n),c=u.length,f=0;c>f;)r.f(t,e=u[f++],n[e]);return t}},function(t,n,e){var r=e(59),o=e(69);t.exports=Object.keys||function(t){return r(t,o)}},function(t,n,e){var r=e(53),o=e(60),i=e(63)(!1),u=e(66)("IE_PROTO");t.exports=function(t,n){var e,c=o(t),f=0,a=[];for(e in c)e!=u&&r(c,e)&&a.push(e);for(;n.length>f;)r(c,e=n[f++])&&(~i(a,e)||a.push(e));return a}},function(t,n,e){var r=e(61),o=e(34);t.exports=function(t){return r(o(t))}},function(t,n,e){var r=e(62);t.exports=Object("z").propertyIsEnumerable(0)?Object:function(t){return"String"==r(t)?t.split(""):Object(t)}},function(t,n){var e={}.toString;t.exports=function(t){return e.call(t).slice(8,-1)}},function(t,n,e){var r=e(60),o=e(64),i=e(65);t.exports=function(t){return function(n,e,u){var c,f=r(n),a=o(f.length),s=i(u,a);if(t&&e!=e){for(;a>s;)if((c=f[s++])!=c)return!0}else for(;a>s;s++)if((t||s in f)&&f[s]===e)return t||s||0;return!t&&-1}}},function(t,n,e){var r=e(33),o=Math.min;t.exports=function(t){return t>0?o(r(t),9007199254740991):0}},function(t,n,e){var r=e(33),o=Math.max,i=Math.min;t.exports=function(t,n){return t=r(t),t<0?o(t+n,0):i(t,n)}},function(t,n,e){var r=e(67)("keys"),o=e(68);t.exports=function(t){return r[t]||(r[t]=o(t))}},function(t,n,e){var r=e(38),o=r["__core-js_shared__"]||(r["__core-js_shared__"]={});t.exports=function(t){return o[t]||(o[t]={})}},function(t,n){var e=0,r=Math.random();t.exports=function(t){return"Symbol(".concat(void 0===t?"":t,")_",(++e+r).toString(36))}},function(t,n){t.exports="constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf".split(",")},function(t,n,e){t.exports=e(38).document&&document.documentElement},function(t,n,e){var r=e(43).f,o=e(53),i=e(72)("toStringTag");t.exports=function(t,n,e){t&&!o(t=e?t:t.prototype,i)&&r(t,i,{configurable:!0,value:n})}},function(t,n,e){var r=e(67)("wks"),o=e(68),i=e(38).Symbol,u="function"==typeof i;(t.exports=function(t){return r[t]||(r[t]=u&&i[t]||(u?i:o)("Symbol."+t))}).store=r},function(t,n,e){var r=e(53),o=e(74),i=e(66)("IE_PROTO"),u=Object.prototype;t.exports=Object.getPrototypeOf||function(t){return t=o(t),r(t,i)?t[i]:"function"==typeof t.constructor&&t instanceof t.constructor?t.constructor.prototype:t instanceof Object?u:null}},function(t,n,e){var r=e(34);t.exports=function(t){return Object(r(t))}},function(t,n,e){e(76);for(var r=e(38),o=e(42),i=e(54),u=e(72)("toStringTag"),c=["NodeList","DOMTokenList","MediaList","StyleSheetList","CSSRuleList"],f=0;f<5;f++){var a=c[f],s=r[a],l=s&&s.prototype;l&&!l[u]&&o(l,u,a),i[a]=i.Array}},function(t,n,e){"use strict";var r=e(77),o=e(78),i=e(54),u=e(60);t.exports=e(35)(Array,"Array",function(t,n){this._t=u(t),this._i=0,this._k=n},function(){var t=this._t,n=this._k,e=this._i++;return!t||e>=t.length?(this._t=void 0,o(1)):"keys"==n?o(0,e):"values"==n?o(0,t[e]):o(0,[e,t[e]])},"values"),i.Arguments=i.Array,r("keys"),r("values"),r("entries")},function(t,n){t.exports=function(){}},function(t,n){t.exports=function(t,n){return{value:n,done:!!t}}},function(t,n,e){n.f=e(72)},function(t,n,e){t.exports={default:e(81),__esModule:!0}},function(t,n,e){e(82),e(93),e(94),e(95),t.exports=e(39).Symbol},function(t,n,e){"use strict";var r=e(38),o=e(53),i=e(47),u=e(37),c=e(52),f=e(83).KEY,a=e(48),s=e(67),l=e(71),p=e(68),d=e(72),y=e(79),v=e(84),h=e(85),b=e(86),x=e(89),m=e(44),g=e(60),w=e(50),O=e(51),S=e(56),_=e(90),j=e(92),P=e(43),E=e(58),M=j.f,A=P.f,T=_.f,L=r.Symbol,N=r.JSON,C=N&&N.stringify,k=d("_hidden"),F=d("toPrimitive"),q={}.propertyIsEnumerable,I=s("symbol-registry"),B=s("symbols"),D=s("op-symbols"),W=Object.prototype,H="function"==typeof L,K=r.QObject,R=!K||!K.prototype||!K.prototype.findChild,J=i&&a(function(){return 7!=S(A({},"a",{get:function(){return A(this,"a",{value:7}).a}})).a})?function(t,n,e){var r=M(W,n);r&&delete W[n],A(t,n,e),r&&t!==W&&A(W,n,r)}:A,U=function(t){var n=B[t]=S(L.prototype);return n._k=t,n},G=H&&"symbol"==typeof L.iterator?function(t){return"symbol"==typeof t}:function(t){return t instanceof L},$=function(t,n,e){return t===W&&$(D,n,e),m(t),n=w(n,!0),m(e),o(B,n)?(e.enumerable?(o(t,k)&&t[k][n]&&(t[k][n]=!1),e=S(e,{enumerable:O(0,!1)})):(o(t,k)||A(t,k,O(1,{})),t[k][n]=!0),J(t,n,e)):A(t,n,e)},z=function(t,n){m(t);for(var e,r=b(n=g(n)),o=0,i=r.length;i>o;)$(t,e=r[o++],n[e]);return t},Y=function(t,n){return void 0===n?S(t):z(S(t),n)},Q=function(t){var n=q.call(this,t=w(t,!0));return!(this===W&&o(B,t)&&!o(D,t))&&(!(n||!o(this,t)||!o(B,t)||o(this,k)&&this[k][t])||n)},X=function(t,n){if(t=g(t),n=w(n,!0),t!==W||!o(B,n)||o(D,n)){var e=M(t,n);return!e||!o(B,n)||o(t,k)&&t[k][n]||(e.enumerable=!0),e}},V=function(t){for(var n,e=T(g(t)),r=[],i=0;e.length>i;)o(B,n=e[i++])||n==k||n==f||r.push(n);return r},Z=function(t){for(var n,e=t===W,r=T(e?D:g(t)),i=[],u=0;r.length>u;)!o(B,n=r[u++])||e&&!o(W,n)||i.push(B[n]);return i};H||(L=function(){if(this instanceof L)throw TypeError("Symbol is not a constructor!");var t=p(arguments.length>0?arguments[0]:void 0),n=function(e){this===W&&n.call(D,e),o(this,k)&&o(this[k],t)&&(this[k][t]=!1),J(this,t,O(1,e))};return i&&R&&J(W,t,{configurable:!0,set:n}),U(t)},c(L.prototype,"toString",function(){return this._k}),j.f=X,P.f=$,e(91).f=_.f=V,e(88).f=Q,e(87).f=Z,i&&!e(36)&&c(W,"propertyIsEnumerable",Q,!0),y.f=function(t){return U(d(t))}),u(u.G+u.W+u.F*!H,{Symbol:L});for(var tt="hasInstance,isConcatSpreadable,iterator,match,replace,search,species,split,toPrimitive,toStringTag,unscopables".split(","),nt=0;tt.length>nt;)d(tt[nt++]);for(var tt=E(d.store),nt=0;tt.length>nt;)v(tt[nt++]);u(u.S+u.F*!H,"Symbol",{for:function(t){return o(I,t+="")?I[t]:I[t]=L(t)},keyFor:function(t){if(G(t))return h(I,t);throw TypeError(t+" is not a symbol!")},useSetter:function(){R=!0},useSimple:function(){R=!1}}),u(u.S+u.F*!H,"Object",{create:Y,defineProperty:$,defineProperties:z,getOwnPropertyDescriptor:X,getOwnPropertyNames:V,getOwnPropertySymbols:Z}),N&&u(u.S+u.F*(!H||a(function(){var t=L();return"[null]"!=C([t])||"{}"!=C({a:t})||"{}"!=C(Object(t))})),"JSON",{stringify:function(t){if(void 0!==t&&!G(t)){for(var n,e,r=[t],o=1;arguments.length>o;)r.push(arguments[o++]);return n=r[1],"function"==typeof n&&(e=n),!e&&x(n)||(n=function(t,n){if(e&&(n=e.call(this,t,n)),!G(n))return n}),r[1]=n,C.apply(N,r)}}}),L.prototype[F]||e(42)(L.prototype,F,L.prototype.valueOf),l(L,"Symbol"),l(Math,"Math",!0),l(r.JSON,"JSON",!0)},function(t,n,e){var r=e(68)("meta"),o=e(45),i=e(53),u=e(43).f,c=0,f=Object.isExtensible||function(){return!0},a=!e(48)(function(){return f(Object.preventExtensions({}))}),s=function(t){u(t,r,{value:{i:"O"+ ++c,w:{}}})},l=function(t,n){if(!o(t))return"symbol"==typeof t?t:("string"==typeof t?"S":"P")+t;if(!i(t,r)){if(!f(t))return"F";if(!n)return"E";s(t)}return t[r].i},p=function(t,n){if(!i(t,r)){if(!f(t))return!0;if(!n)return!1;s(t)}return t[r].w},d=function(t){return a&&y.NEED&&f(t)&&!i(t,r)&&s(t),t},y=t.exports={KEY:r,NEED:!1,fastKey:l,getWeak:p,onFreeze:d}},function(t,n,e){var r=e(38),o=e(39),i=e(36),u=e(79),c=e(43).f;t.exports=function(t){var n=o.Symbol||(o.Symbol=i?{}:r.Symbol||{});"_"==t.charAt(0)||t in n||c(n,t,{value:u.f(t)})}},function(t,n,e){var r=e(58),o=e(60);t.exports=function(t,n){for(var e,i=o(t),u=r(i),c=u.length,f=0;c>f;)if(i[e=u[f++]]===n)return e}},function(t,n,e){var r=e(58),o=e(87),i=e(88);t.exports=function(t){var n=r(t),e=o.f;if(e)for(var u,c=e(t),f=i.f,a=0;c.length>a;)f.call(t,u=c[a++])&&n.push(u);return n}},function(t,n){n.f=Object.getOwnPropertySymbols},function(t,n){n.f={}.propertyIsEnumerable},function(t,n,e){var r=e(62);t.exports=Array.isArray||function(t){return"Array"==r(t)}},function(t,n,e){var r=e(60),o=e(91).f,i={}.toString,u="object"==typeof window&&window&&Object.getOwnPropertyNames?Object.getOwnPropertyNames(window):[],c=function(t){try{return o(t)}catch(t){return u.slice()}};t.exports.f=function(t){return u&&"[object Window]"==i.call(t)?c(t):o(r(t))}},function(t,n,e){var r=e(59),o=e(69).concat("length","prototype");n.f=Object.getOwnPropertyNames||function(t){return r(t,o)}},function(t,n,e){var r=e(88),o=e(51),i=e(60),u=e(50),c=e(53),f=e(46),a=Object.getOwnPropertyDescriptor;n.f=e(47)?a:function(t,n){if(t=i(t),n=u(n,!0),f)try{return a(t,n)}catch(t){}if(c(t,n))return o(!r.f.call(t,n),t[n])}},function(t,n){},function(t,n,e){e(84)("asyncIterator")},function(t,n,e){e(84)("observable")},function(t,n){function e(t,n){if("string"==typeof n)return t.insertAdjacentHTML("afterend",n);var e=t.nextSibling;return e?t.parentNode.insertBefore(n,e):t.parentNode.appendChild(n)}t.exports=e},function(t,n){"use strict";var e={versions:function(){var t=window.navigator.userAgent;return{trident:t.indexOf("Trident")>-1,presto:t.indexOf("Presto")>-1,webKit:t.indexOf("AppleWebKit")>-1,gecko:t.indexOf("Gecko")>-1&&t.indexOf("KHTML")==-1,mobile:!!t.match(/AppleWebKit.*Mobile.*/),ios:!!t.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),android:t.indexOf("Android")>-1||t.indexOf("Linux")>-1,iPhone:t.indexOf("iPhone")>-1||t.indexOf("Mac")>-1,iPad:t.indexOf("iPad")>-1,webApp:t.indexOf("Safari")==-1,weixin:t.indexOf("MicroMessenger")==-1}}()};t.exports=e},function(t,n){"use strict";function e(){var t=document.querySelector("#page-nav");if(t&&!document.querySelector("#page-nav .extend.prev")&&(t.innerHTML='<a class="extend prev disabled" rel="prev">&laquo; Prev</a>'+t.innerHTML),t&&!document.querySelector("#page-nav .extend.next")&&(t.innerHTML=t.innerHTML+'<a class="extend next disabled" rel="next">Next &raquo;</a>'),yiliaConfig&&yiliaConfig.open_in_new){document.querySelectorAll(".article-entry a:not(.article-more-a)").forEach(function(t){t.setAttribute("target","_blank")})}var n=document.querySelector("#js-aboutme");n&&0!==n.length&&(n.innerHTML=n.innerText)}t.exports={init:e}}])</script><script src="/./main.b07bcf.js"></script><script>!function(){!function(e){var t=document.createElement("script");document.getElementsByTagName("body")[0].appendChild(t),t.setAttribute("src",e)}("/slider.583eaa.js")}()</script>
+
+
+    
+<div class="tools-col" q-class="show:isShow,hide:isShow|isFalse" q-on="click:stop(e)">
+  <div class="tools-nav header-menu">
+    
+    
+      
+      
+      
+    
+      
+      
+      
+    
+      
+      
+      
+    
+    
+
+    <ul style="width: 70%">
+    
+    
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'innerArchive')"><a href="javascript:void(0)" q-class="active:innerArchive">所有文章</a></li>
+      
+        
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'friends')"><a href="javascript:void(0)" q-class="active:friends">友链</a></li>
+      
+        
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'aboutme')"><a href="javascript:void(0)" q-class="active:aboutme">关于我</a></li>
+      
+        
+    </ul>
+  </div>
+  <div class="tools-wrap">
+    
+    	<section class="tools-section tools-section-all" q-show="innerArchive">
+        <div class="search-wrap">
+          <input class="search-ipt" q-model="search" type="text" placeholder="find something…">
+          <i class="icon-search icon" q-show="search|isEmptyStr"></i>
+          <i class="icon-close icon" q-show="search|isNotEmptyStr" q-on="click:clearChose(e)"></i>
+        </div>
+        <div class="widget tagcloud search-tag">
+          <p class="search-tag-wording">tag:</p>
+          <label class="search-switch">
+            <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
+          </label>
+          <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">NodeJS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Javascript</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">模块化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">jQuery</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">express</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">设计模式</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">mongoDB</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">webApp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">cookie</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">css</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">ES6</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">自动化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">react-native</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">团队建设</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Redux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">node</a>
+              </li>
+            
+            <div class="clearfix"></div>
+          </ul>
+        </div>
+        <ul class="search-ul">
+          <p q-show="jsonFail" style="padding: 20px; font-size: 12px;">
+            缺失模块。<br/>1、在博客根目录（注意不是yilia根目录）执行以下命令：<br/> npm i hexo-generator-json-content --save<br/><br/>
+            2、在根目录_config.yml里添加配置：
+<pre style="font-size: 12px;" q-show="jsonFail">
+  jsonContent:
+    meta: false
+    pages: false
+    posts:
+      title: true
+      date: true
+      path: true
+      text: true
+      raw: false
+      content: false
+      slug: false
+      updated: false
+      comments: false
+      link: false
+      permalink: false
+      excerpt: false
+      categories: false
+      tags: true
+</pre>
+          </p>
+          <li class="search-li" q-repeat="items" q-show="isShow">
+            <a q-attr="href:path|urlformat" class="search-title"><i class="icon-quo-left icon"></i><span q-text="title"></span></a>
+            <p class="search-time">
+              <i class="icon-calendar icon"></i>
+              <span q-text="date|dateformat"></span>
+            </p>
+            <p class="search-tag">
+              <i class="icon-price-tags icon"></i>
+              <span q-repeat="tags" q-on="click:choseTag(e, name)" q-text="name|tagformat"></span>
+            </p>
+          </li>
+        </ul>
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-friends" q-show="friends">
+  		
+        <ul class="search-ul">
+          
+            <li class="search-li">
+              <a href="http://blog.csdn.net/u011413061" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的csdn</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://photo.jafeney.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的图片</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://royal.jafeney.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的Royal</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://www.e2718281828459.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>老黄的leo</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://www.bysocket.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>强强的bysocket</a>
+            </li>
+          
+        </ul>
+  		
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-me" q-show="aboutme">
+  	  	
+  	  		<div class="aboutme-wrap" id="js-aboutme">Jafeney Lou，一个安静的代码客</div>
+  	  	
+    	</section>
+    
+  </div>
+  
+</div>
+    <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+  </div>
+</body>
+</html>

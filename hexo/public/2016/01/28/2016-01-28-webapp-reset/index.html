@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <link rel="dns-prefetch" href="http://jafeney.com">
+  <title>webApp重构之路——性能和用户体验细节总结 | Jafeney</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="写在前面webApp开发有一段时间了，随着自己的知识面和技能水平不断提升，一个“重构“的想法变得越来越强烈，当然，重构之前，一个确切的方案是相当关键的，也可以说是重中之重， 吸取之前草率上阵的教训，这次要充分考虑可拓展性和可维护性，把模块化、性能优化、用户体验等做到我所能达到的极致。首先，我先总结开发过程中领悟到的提升webApp性能和用户体验的一些方案。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="webApp重构之路——性能和用户体验细节总结">
+<meta property="og:url" content="http://jafeney.com/2016/01/28/2016-01-28-webapp-reset/index.html">
+<meta property="og:site_name" content="Jafeney">
+<meta property="og:description" content="写在前面webApp开发有一段时间了，随着自己的知识面和技能水平不断提升，一个“重构“的想法变得越来越强烈，当然，重构之前，一个确切的方案是相当关键的，也可以说是重中之重， 吸取之前草率上阵的教训，这次要充分考虑可拓展性和可维护性，把模块化、性能优化、用户体验等做到我所能达到的极致。首先，我先总结开发过程中领悟到的提升webApp性能和用户体验的一些方案。">
+<meta property="og:updated_time" content="2017-03-28T06:37:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="webApp重构之路——性能和用户体验细节总结">
+<meta name="twitter:description" content="写在前面webApp开发有一段时间了，随着自己的知识面和技能水平不断提升，一个“重构“的想法变得越来越强烈，当然，重构之前，一个确切的方案是相当关键的，也可以说是重中之重， 吸取之前草率上阵的教训，这次要充分考虑可拓展性和可维护性，把模块化、性能优化、用户体验等做到我所能达到的极致。首先，我先总结开发过程中领悟到的提升webApp性能和用户体验的一些方案。">
+  
+    <link rel="alternative" href="/atom.xml" title="Jafeney" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" type="text/css" href="/./main.b07bcf.css">
+  <style type="text/css">
+  
+    #container.show {
+      background: linear-gradient(200deg,#a0cfe4,#e8c37e);
+    }
+  </style>
+  
+
+  
+<script>
+var _hmt = _hmt || [];
+(function() {
+	var hm = document.createElement("script");
+	hm.src = "https://hm.baidu.com/hm.js?4c0fe03f16c08a15b32cda310c30b262";
+	var s = document.getElementsByTagName("script")[0]; 
+	s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+</head>
+
+<body>
+  <div id="container" q-class="show:isCtnShow">
+    <canvas id="anm-canvas" class="anm-canvas"></canvas>
+    <div class="left-col" q-class="show:isShow">
+      
+<div class="overlay" style="background: #4d4d4d"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			<img src="http://avatar.csdn.net/F/8/E/1_u011413061.jpg" class="js-avatar">
+		</a>
+		<hgroup>
+		  <h1 class="header-author"><a href="/">Jafeney Lou</a></h1>
+		</hgroup>
+		
+		<p class="header-subtitle">like programming,like life</p>
+		
+
+		<nav class="header-menu">
+			<ul>
+			
+				<li><a href="/">主页</a></li>
+	        
+				<li><a href="/tags">标签</a></li>
+	        
+				<li><a href="/archives">归档</a></li>
+	        
+				<li><a href="/categories">分类</a></li>
+	        
+			</ul>
+		</nav>
+		<nav class="header-smart-menu">
+    		
+    			
+    			<a q-on="click: openSlider(e, 'innerArchive')" href="javascript:void(0)">所有文章</a>
+    			
+            
+    			
+    			<a q-on="click: openSlider(e, 'friends')" href="javascript:void(0)">友链</a>
+    			
+            
+    			
+    			<a q-on="click: openSlider(e, 'aboutme')" href="javascript:void(0)">关于我</a>
+    			
+            
+		</nav>
+		<nav class="header-nav">
+			<div class="social">
+				
+					<a class="github" target="_blank" href="https://github.com/Jafeney" title="github"><i class="icon-github"></i></a>
+		        
+					<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/jafeney-lou/activities" title="zhihu"><i class="icon-zhihu"></i></a>
+		        
+					<a class="segmentfault" target="_blank" href="https://segmentfault.com/u/jafeney" title="segmentfault"><i class="icon-segmentfault"></i></a>
+		        
+					<a class="mail" target="_blank" href="mailto:692270687@qq.com" title="mail"><i class="icon-mail"></i></a>
+		        
+			</div>
+		</nav>
+	</header>		
+</div>
+
+    </div>
+    <div class="mid-col" q-class="show:isShow,hide:isShow|isFalse">
+      
+<nav id="mobile-nav">
+  	<div class="overlay js-overlay" style="background: #4d4d4d"></div>
+	<div class="btnctn js-mobile-btnctn">
+  		<div class="slider-trigger list" q-on="click: openSlider(e)"><i class="icon icon-sort"></i></div>
+	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img src="http://avatar.csdn.net/F/8/E/1_u011413061.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author js-header-author">Jafeney Lou</h1>
+			</hgroup>
+			
+			<p class="header-subtitle"><i class="icon icon-quo-left"></i>like programming,like life<i class="icon icon-quo-right"></i></p>
+			
+			
+			
+				
+			
+				
+			
+				
+			
+				
+			
+			
+			
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/Jafeney" title="github"><i class="icon-github"></i></a>
+			        
+						<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/jafeney-lou/activities" title="zhihu"><i class="icon-zhihu"></i></a>
+			        
+						<a class="segmentfault" target="_blank" href="https://segmentfault.com/u/jafeney" title="segmentfault"><i class="icon-segmentfault"></i></a>
+			        
+						<a class="mail" target="_blank" href="mailto:692270687@qq.com" title="mail"><i class="icon-mail"></i></a>
+			        
+				</div>
+			</nav>
+
+			<nav class="header-menu js-header-menu">
+				<ul style="width: 70%">
+				
+				
+					<li style="width: 25%"><a href="/">主页</a></li>
+		        
+					<li style="width: 25%"><a href="/tags">标签</a></li>
+		        
+					<li style="width: 25%"><a href="/archives">归档</a></li>
+		        
+					<li style="width: 25%"><a href="/categories">分类</a></li>
+		        
+				</ul>
+			</nav>
+		</header>				
+	</div>
+	<div class="mobile-mask" style="display:none" q-show="isShow"></div>
+</nav>
+
+      <div id="wrapper" class="body-wrap">
+        <div class="menu-l">
+          <div class="canvas-wrap">
+            <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
+          </div>
+          <div id="js-content" class="content-ll">
+            <article id="post-2016-01-28-webapp-reset" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      webApp重构之路——性能和用户体验细节总结
+    </h1>
+  
+
+        
+        <a href="/2016/01/28/2016-01-28-webapp-reset/" class="archive-article-date">
+  	<time datetime="2016-01-28T08:17:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-01-28</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>webApp开发有一段时间了，随着自己的知识面和技能水平不断提升，一个“重构“的想法变得越来越强烈，当然，重构之前，一个确切的方案是相当关键的，也可以说是重中之重， 吸取之前草率上阵的教训，这次要充分考虑可拓展性和可维护性，把模块化、性能优化、用户体验等做到我所能达到的极致。首先，我先总结开发过程中领悟到的提升webApp性能和用户体验的一些方案。</p>
+<a id="more"></a>
+<h1 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h1><p>性能优化，顾名思义是要提升webApp的响应速度并减少不必要的内存和网络开销。这个有很多方案啊，<a href="http://www.mahaixiang.cn/znseo/1056.html" target="_blank" rel="external">雅虎14条性能优化的方案</a> 这里几乎都能用上，这里不抄书了，直接结合我的实战经验谈谈具体的做法。</p>
+<h2 id="压缩-amp-合并"><a href="#压缩-amp-合并" class="headerlink" title="压缩&amp;合并"></a>压缩&amp;合并</h2><p>自从有了NodeJS的支持，前端静态资源压缩变得非常简单和快捷。这方面的技术很多，比如grunt、gulp、brower、webpack等，不同的工具API和功能也不尽相同。我用的比较熟练的是gulp，这里也抛砖引玉，具体介绍用gulp自动压缩和合并前端资源的策略：<br>&gt;<br>1、图片（压缩图片支持jpg、png、gif）<br>2、样式 （支持sass 同时支持合并、压缩、重命名）<br>3、javascript （检查、合并、压缩、重命名）<br>4、html （压缩）<br>5、客户端同步刷新显示修改<br>6、构建项目前清除发布环境下的文件（保持发布环境的清洁）</p>
+<h3 id="选择gulp组件"><a href="#选择gulp组件" class="headerlink" title="选择gulp组件"></a>选择gulp组件</h3><p>通过gulp plugins，寻找对于的gulp组件<br>&gt;<br>gulp-imagemin: 压缩图片<br>gulp-ruby-sass: 支持sass<br>gulp-minify-css: 压缩css<br>gulp-jshint: 检查js<br>gulp-uglify: 压缩js<br>gulp-concat: 合并文件<br>gulp-rename: 重命名文件<br>gulp-htmlmin: 压缩html<br>gulp-clean: 清空文件夹<br>gulp-livereload: 服务器控制客户端同步刷新（需配合chrome插件LiveReload及tiny-lr）</p>
+<h3 id="安装Gulp组件"><a href="#安装Gulp组件" class="headerlink" title="安装Gulp组件"></a>安装Gulp组件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install gulp-util gulp-imagemin gulp-ruby-sass gulp-minify-css gulp-jshint gulp-uglify gulp-rename gulp-concat gulp-clean gulp-livereload tiny-lr --save-dev</div></pre></td></tr></table></figure>
+<h3 id="项目目录结构"><a href="#项目目录结构" class="headerlink" title="项目目录结构"></a>项目目录结构</h3><p>project(项目名称)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">|–.git 通过git管理项目会生成这个文件夹</div><div class="line">|–node_modules 组件目录</div><div class="line">|–dist 发布环境</div><div class="line">    |–css 样式文件(style.css style.min.css)</div><div class="line">    |–images 图片文件(压缩图片)</div><div class="line">    |–js js文件(main.js main.min.js)</div><div class="line">    |–index.html 静态文件(压缩html)</div><div class="line">|–src 生产环境</div><div class="line">    |–sass sass文件</div><div class="line">    |–images 图片文件</div><div class="line">    |–js js文件</div><div class="line">    |–index.html 静态文件</div><div class="line">|–.jshintrc jshint配置文件</div><div class="line">|–gulpfile.js gulp任务文件</div></pre></td></tr></table></figure></p>
+<h3 id="gulp基础语法"><a href="#gulp基础语法" class="headerlink" title="gulp基础语法"></a>gulp基础语法</h3><p>gulp的语法相当简单，通过gulpfile文件来完成相关任务，因此项目中必须包含gulpfile.js。<br>gulp有五个方法：src、dest、task、run、watch</p>
+<blockquote>
+<p> |-src和dest：指定源文件和处理后文件的路径<br> |- watch：用来监听文件的变化<br> |- task：指定任务<br> |- run：执行任务</p>
+</blockquote>
+<h3 id="编写gulp任务"><a href="#编写gulp任务" class="headerlink" title="编写gulp任务"></a>编写gulp任务</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 组件安装</div><div class="line"> * npm install gulp-util gulp-imagemin gulp-ruby-sass gulp-minify-css gulp-jshint gulp-uglify gulp-rename gulp-concat gulp-clean gulp-livereload tiny-lr --save-dev</div><div class="line"> */</div><div class="line"></div><div class="line">// 引入 gulp及组件</div><div class="line">var gulp    = require(&apos;gulp&apos;),                 //基础库</div><div class="line">    imagemin = require(&apos;gulp-imagemin&apos;),       //图片压缩</div><div class="line">    sass = require(&apos;gulp-ruby-sass&apos;),          //sass</div><div class="line">    minifycss = require(&apos;gulp-minify-css&apos;),    //css压缩</div><div class="line">    jshint = require(&apos;gulp-jshint&apos;),           //js检查</div><div class="line">    uglify  = require(&apos;gulp-uglify&apos;),          //js压缩</div><div class="line">    rename = require(&apos;gulp-rename&apos;),           //重命名</div><div class="line">    concat  = require(&apos;gulp-concat&apos;),          //合并文件</div><div class="line">    clean = require(&apos;gulp-clean&apos;),             //清空文件夹</div><div class="line">    tinylr = require(&apos;tiny-lr&apos;),               //livereload</div><div class="line">    server = tinylr(),</div><div class="line">    port = 35729,</div><div class="line">    livereload = require(&apos;gulp-livereload&apos;);   //livereload</div><div class="line"></div><div class="line">// HTML处理</div><div class="line">gulp.task(&apos;html&apos;, function() &#123;</div><div class="line">    var htmlSrc = &apos;./src/*.html&apos;,</div><div class="line">        htmlDst = &apos;./dist/&apos;;</div><div class="line"></div><div class="line">    gulp.src(htmlSrc)</div><div class="line">        .pipe(livereload(server))</div><div class="line">        .pipe(gulp.dest(htmlDst))</div><div class="line">&#125;);</div><div class="line"></div><div class="line">// 样式处理</div><div class="line">gulp.task(&apos;css&apos;, function () &#123;</div><div class="line">    var cssSrc = &apos;./src/scss/*.scss&apos;,</div><div class="line">        cssDst = &apos;./dist/css&apos;;</div><div class="line"></div><div class="line">    gulp.src(cssSrc)</div><div class="line">        .pipe(sass(&#123; style: &apos;expanded&apos;&#125;))</div><div class="line">        .pipe(gulp.dest(cssDst))</div><div class="line">        .pipe(rename(&#123; suffix: &apos;.min&apos; &#125;))</div><div class="line">        .pipe(minifycss())</div><div class="line">        .pipe(livereload(server))</div><div class="line">        .pipe(gulp.dest(cssDst));</div><div class="line">&#125;);</div><div class="line"></div><div class="line">// 图片处理</div><div class="line">gulp.task(&apos;images&apos;, function()&#123;</div><div class="line">    var imgSrc = &apos;./src/images/**/*&apos;,</div><div class="line">        imgDst = &apos;./dist/images&apos;;</div><div class="line">    gulp.src(imgSrc)</div><div class="line">        .pipe(imagemin())</div><div class="line">        .pipe(livereload(server))</div><div class="line">        .pipe(gulp.dest(imgDst));</div><div class="line">&#125;);</div><div class="line"></div><div class="line">// js处理</div><div class="line">gulp.task(&apos;js&apos;, function () &#123;</div><div class="line">    var jsSrc = &apos;./src/js/*.js&apos;,</div><div class="line">        jsDst =&apos;./dist/js&apos;;</div><div class="line"></div><div class="line">    gulp.src(jsSrc)</div><div class="line">        .pipe(jshint(&apos;.jshintrc&apos;))</div><div class="line">        .pipe(jshint.reporter(&apos;default&apos;))</div><div class="line">        .pipe(concat(&apos;main.js&apos;))</div><div class="line">        .pipe(gulp.dest(jsDst))</div><div class="line">        .pipe(rename(&#123; suffix: &apos;.min&apos; &#125;))</div><div class="line">        .pipe(uglify())</div><div class="line">        .pipe(livereload(server))</div><div class="line">        .pipe(gulp.dest(jsDst));</div><div class="line">&#125;);</div><div class="line"></div><div class="line">// 清空图片、样式、js</div><div class="line">gulp.task(&apos;clean&apos;, function() &#123;</div><div class="line">    gulp.src([&apos;./dist/css&apos;, &apos;./dist/js&apos;, &apos;./dist/images&apos;], &#123;read: false&#125;)</div><div class="line">        .pipe(clean());</div><div class="line">&#125;);</div><div class="line"></div><div class="line">// 默认任务 清空图片、样式、js并重建 运行语句 gulp</div><div class="line">gulp.task(&apos;default&apos;, [&apos;clean&apos;], function()&#123;</div><div class="line">    gulp.start(&apos;html&apos;,&apos;css&apos;,&apos;images&apos;,&apos;js&apos;);</div><div class="line">&#125;);</div><div class="line"></div><div class="line">// 监听任务 运行语句 gulp watch</div><div class="line">gulp.task(&apos;watch&apos;,function()&#123;</div><div class="line"></div><div class="line">    server.listen(port, function(err)&#123;</div><div class="line">        if (err) &#123;</div><div class="line">            return console.log(err);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        // 监听html</div><div class="line">        gulp.watch(&apos;./src/*.html&apos;, function(event)&#123;</div><div class="line">            gulp.run(&apos;html&apos;);</div><div class="line">        &#125;)</div><div class="line"></div><div class="line">        // 监听css</div><div class="line">        gulp.watch(&apos;./src/scss/*.scss&apos;, function()&#123;</div><div class="line">            gulp.run(&apos;css&apos;);</div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        // 监听images</div><div class="line">        gulp.watch(&apos;./src/images/**/*&apos;, function()&#123;</div><div class="line">            gulp.run(&apos;images&apos;);</div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        // 监听js</div><div class="line">        gulp.watch(&apos;./src/js/*.js&apos;, function()&#123;</div><div class="line">            gulp.run(&apos;js&apos;);</div><div class="line">        &#125;);</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h3 id="LiveReload配置"><a href="#LiveReload配置" class="headerlink" title="LiveReload配置"></a>LiveReload配置</h3><p>1、安装Chrome LiveReload<br>2、通过npm安装http-server ，快速建立http服务<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install http-server -g</div></pre></td></tr></table></figure></p>
+<p>3、通过cd找到发布环境目录dist<br>4、运行http-server，默认端口是8080<br>5、访问路径localhost:8080<br>6、再打开一个cmd，通过cd找到项目路径执行gulp，清空发布环境并初始化<br>7、执行监控 gulp<br>8、点击chrome上的LiveReload插件，空心变成实心即关联上，你可以修改css、js、html即时会显示到页面中</p>
+<h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><p>在Web应用程序中，系统的瓶颈常在于系统的响应速度。如果系统响应速度过慢，用户就会出现埋怨情绪，系统的价值也因此会大打折扣。因此，提高系统响应速度，是非常重要的。缓存方案有2种，一种布在服务端，用于加快客户端请求的响应速度，比如 MemCache、Redis等；另一种是应用在客户端，目的是减少http请求，降低服务器压力，加快页面渲染速度。</p>
+<h3 id="服务端缓存"><a href="#服务端缓存" class="headerlink" title="服务端缓存"></a>服务端缓存</h3><h4 id="MemCache"><a href="#MemCache" class="headerlink" title="MemCache"></a><strong>MemCache</strong></h4><p>memcache是一套分布式的高速缓存系统，由LiveJournal的Brad Fitzpatrick开发，但目前被许多网站使用以提升网站的访问速度，尤其对于一些大型的、需要频繁访问数据库的网站访问速度提升效果十分显著[1]  。这是一套开放源代码软件，以BSD license授权发布。</p>
+<p>MemCache的工作流程如下：先检查客户端的请求数据是否在memcached中，如有，直接把请求数据返回，不再对数据库进行任何操作；如果请求的数据不在memcached中，就去查数据库，把从数据库中获取的数据返回给客户端，同时把数据缓存一份到memcached中（memcached客户端不负责，需要程序明确实现）；每次更新数据库的同时更新memcached中的数据，保证一致性；当分配给memcached内存空间用完之后，会使用LRU（Least Recently Used，最近最少使用）策略加上到期失效策略，失效数据首先被替换，然后再替换掉最近未使用的数据。</p>
+<p>Memcache是一个高性能的分布式的内存对象缓存系统，通过在内存里维护一个统一的巨大的hash表，它能够用来存储各种格式的数据，包括图像、视频、文件以及数据库检索的结果等。简单的说就是将数据调用到内存中，然后从内存中读取，从而大大提高读取速度。</p>
+<p>Memcache是danga的一个项目，最早是LiveJournal 服务的，最初为了加速 LiveJournal 访问速度而开发的，后来被很多大型的网站采用。Memcached是以守护程序(监听)方式运行于一个或多个服务器中，随时会接收客户端的连接和操作。</p>
+<h4 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a><strong>Redis</strong></h4><p>redis是一个key-value存储系统。和Memcached类似，它支持存储的value类型相对更多，包括string(字符串)、list(链表)、set(集合)、zset(sorted set –有序集合)和hash（哈希类型）。这些数据类型都支持push/pop、add/remove及取交集并集和差集及更丰富的操作，而且这些操作都是原子性的。在此基础上，redis支持各种不同方式的排序。与memcached一样，为了保证效率，数据都是缓存在内存中。区别的是redis会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件，并且在此基础上实现了master-slave(主从)同步。</p>
+<p>Redis 是一个高性能的key-value数据库。 redis的出现，很大程度补偿了memcached这类key/value存储的不足，在部 分场合可以对关系数据库起到很好的补充作用。它提供了Java，C/C++，C#，PHP，JavaScript，Perl，Object-C，Python，Ruby，Erlang等客户端，使用很方便。</p>
+<p>Redis支持主从同步。数据可以从主服务器向任意数量的从服务器上同步，从服务器可以是关联其他从服务器的主服务器。这使得Redis可执行单层树复制。存盘可以有意无意的对数据进行写操作。由于完全实现了发布/订阅机制，使得从数据库在任何地方同步树时，可订阅一个频道并接收主服务器完整的消息发布记录。同步对读取操作的可扩展性和数据冗余很有帮助。</p>
+<h3 id="客户端缓存"><a href="#客户端缓存" class="headerlink" title="客户端缓存"></a>客户端缓存</h3><p>客户端缓存的方案常用的是 ajax缓存、资源离线存储、Storage缓存等。</p>
+<h4 id="Ajax缓存"><a href="#Ajax缓存" class="headerlink" title="Ajax缓存"></a><strong>Ajax缓存</strong></h4><p>Ajax异步请求数据虽然不影响页面的同步加载，但是过多的ajax请求也会给服务器带来压力，因此我们的策略是缓存不必要或者相同的请求，把请求返回的数据用变量存在本地，然后给事件触发点设置 缓存标志，只要是相同的ajax请求就从本地取数据，或者直接<code>return</code>。另外再掺插一个用户体验的优化建议，就是ajax加载时的缓冲动画，动画可以用gif图片替代。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line">* [开启缓冲动画]</div><div class="line">* @return &#123;[type]&#125; [void]</div><div class="line">*/</div><div class="line">showLoadAnimate:function()&#123;</div><div class="line">	var self=this;</div><div class="line">	_loadAnimate.show();</div><div class="line">	_timer=window.setTimeout(function()&#123;</div><div class="line">		self.closeLoadAnimate();</div><div class="line">		self.myalert(&apos;加载失败了&apos;)</div><div class="line">	&#125;,2000);</div><div class="line">&#125;,</div><div class="line">/**</div><div class="line">* [关闭缓冲动画]</div><div class="line">* @return &#123;[type]&#125; [void]</div><div class="line">*/</div><div class="line">closeLoadAnimate:function()&#123;</div><div class="line">	clearTimeout(_timer);</div><div class="line">	_loadAnimate.fadeOut(&apos;fast&apos;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">/*触发ajax*/</div><div class="line">$(&apos;#btn&apos;).on(&apos;click&apos;,function()&#123;</div><div class="line">	if(!$(&apos;#find-shareBody&apos;).hasClass(&apos;isCahed&apos;))&#123;</div><div class="line">		loadData();</div><div class="line">		$(&apos;#find-shareBody&apos;).addClass(&apos;isCahed&apos;);</div><div class="line">	&#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">/*数据加载函数*/</div><div class="line">function loadData()&#123;</div><div class="line">	_util.showLoadAnimate(); //加载缓冲动画</div><div class="line">	$.ajax(&#123;</div><div class="line">		url: _self.APIURL+&apos;/product/productTypes.json&apos;,</div><div class="line">		type: &apos;GET&apos;,</div><div class="line">		dataType: &apos;json&apos;,</div><div class="line">		data: &#123;pId: _tId&#125;,</div><div class="line">		success:function(res)&#123;</div><div class="line">			var types=res.types,subTypes=res.subTypes;</div><div class="line">			var tempStr=&quot;&quot;,len1=types.length,len2=subTypes.length;</div><div class="line">			/*加载一级分类*/</div><div class="line">			for(i=0;i&lt;len1;i++)&#123;</div><div class="line">				if(i===0)&#123;</div><div class="line">					tempStr+=&quot;&lt;li class=&apos;category-item active&apos; data-id=&quot;+types[i].id+&quot;&gt;&quot;+types[i].typeName+&quot;&lt;/li&gt;&quot;;</div><div class="line">				&#125;else&#123;</div><div class="line">					tempStr+=&quot;&lt;li class=&apos;category-item&apos; data-id=&quot;+types[i].id+&quot;&gt;&quot;+types[i].typeName+&quot;&lt;/li&gt;&quot;;</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">			_categoryWrap.html(tempStr);</div><div class="line">			/*加载二级分类*/</div><div class="line">			tempStr=&quot;&quot;;</div><div class="line">			for(i=0;i&lt;len2;i++)&#123;</div><div class="line">				tempStr+=&quot;&lt;li class=&apos;sub-category-item&apos; data-id=&quot;+subTypes[i].id+&quot;&gt;&lt;img alt=&apos;&quot;+subTypes[i].typeName+&quot;&apos; src=&quot;+subTypes[i].thumb+&quot;_100 /&gt;&lt;p&gt;&quot;+subTypes[i].typeName+&quot;&lt;/p&gt;&lt;/li&gt;&quot;;</div><div class="line">			&#125;</div><div class="line">			_subCategoryWrap.html(tempStr);</div><div class="line">			_util.closeLoadAnimate(); //关闭缓冲动画</div><div class="line">		&#125;</div><div class="line">	&#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="AppCache"><a href="#AppCache" class="headerlink" title="AppCache"></a><strong>AppCache</strong></h4><p>如果你的Web应用中有一部分功能（或者整个应用）需要在脱离服务器的情况下使用，那么就可以通过AppCache来让你的用户在离线状态下也能使用。你所需要做的就是创建一个配置文件，在其中指定哪些资源需要被缓存，哪些不需要。此外，还能在其中指定某些联机资源在脱机条件下的替代资源。</p>
+<p>AppCache的配置文件通常是一个以.appcache结尾的文本文件（推荐写法）。文件以CACHE MANIFEST开头，包含下列三部分内容：<br>&gt;</p>
+<ul>
+<li>CACHE – 指定了哪些资源在用户第一次访问站点的时候需要被下载并缓存</li>
+<li>NETWORK – 指定了哪些资源需要在联机条件下才能访问，这些资源从不被缓存</li>
+<li>FALLBACK – 指定了上述资源在脱机条件下的替代资源</li>
+</ul>
+<p><strong>举个例子</strong><br>首先，你需要在页面上指定AppCache的配置文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html manifest=&quot;manifest.appcache&quot;&gt;</div><div class="line">...</div><div class="line">&lt;/html&gt;</div></pre></td></tr></table></figure>
+<p>在这里千万记得在服务器端发布上述配置文件的时候，需要将MIME类型设置为text/cache-manifest，否则浏览器无法正常解析。</p>
+<p>接下来是创建之前定义好的各种资源。我们假定在这个示例中，你开发的是一个交互类站点，用户可以在上面联系别人并且发表评论。用户在离线的状态下依然可以访问网站的静态部分，而联系以及发表评论的页面则会被其它页面替代，无法访问。</p>
+<p>好的，我们这就着手定义那些静态资源：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">CACHE MANIFEST</div><div class="line"></div><div class="line">CACHE:</div><div class="line">/about.html</div><div class="line">/portfolio.html</div><div class="line">/portfolio_gallery/image_1.jpg</div><div class="line">/portfolio_gallery/image_2.jpg</div><div class="line">/info.html</div><div class="line">/style.css</div><div class="line">/main.js</div><div class="line">/jquery.min.js</div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：配置文件写起来有一点很不方便。举例来说，如果你想缓存整个目录，你不能直接在CACHE部分使用通配符（*），而是只能在NETWORK部分使用通配符把所有不应该被缓存的资源写出来。</p>
+</blockquote>
+<p>你不需要显式地缓存包含配置文件的页面，因为这个页面会自动被缓存。接下来我们为联系和评论的页面定义FALLBACK部分：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">FALLBACK:</div><div class="line">/contact.html /offline.html</div><div class="line">/comments.html /offline.html</div></pre></td></tr></table></figure>
+<p>最后我们用一个通配符来阻止其余的资源被缓存：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">NETWORK:</div><div class="line">*</div></pre></td></tr></table></figure>
+<p>最后的结果就是下面这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">CACHE MANIFEST</div><div class="line"></div><div class="line">CACHE:</div><div class="line">/about.html</div><div class="line">/portfolio.html</div><div class="line">/portfolio_gallery/image_1.jpg</div><div class="line">/portfolio_gallery/image_2.jpg</div><div class="line">/info.html</div><div class="line">/style.css</div><div class="line">/main.js</div><div class="line">/jquery.min.js</div><div class="line"></div><div class="line">FALLBACK:</div><div class="line">/contact.html /offline.html</div><div class="line">/comments.html /offline.html</div><div class="line"></div><div class="line">NETWORK:</div><div class="line">*</div></pre></td></tr></table></figure>
+<p>还有一件很重要的事情要记得：你的资源只会被缓存一次！也就是说，如果资源更新了，它们不会自动更新，除非你修改了配置文件。所以有一个最佳实践是，在配置文件中增加一项版本号，每次更新资源的时候顺带更新版本号：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">CACHE MANIFEST</div><div class="line"></div><div class="line"># version 1</div><div class="line"></div><div class="line">CACHE:</div><div class="line">...</div></pre></td></tr></table></figure>
+<h4 id="Storage存储"><a href="#Storage存储" class="headerlink" title="Storage存储"></a><strong>Storage存储</strong></h4><p>如果你想在Javascript代码里面保存些数据，那么这两个东西就派上用场了。前一个可以保存数据，永远不会过期（expire）。只要是相同的域和端口，所有的页面中都能访问到通过LocalStorage保存的数据。举个简单的例子，你可以用它来保存用户设置，用户可以把他的个人喜好保存在当前使用的电脑上，以后打开应用的时候能够直接加载。后者也能保存数据，但是一旦关闭浏览器窗口（译者注：浏览器窗口，window，如果是多tab浏览器，则此处指代tab）就失效了。而且这些数据不能在不同的浏览器窗口之间共享，即使是在不同的窗口中访问同一个Web应用的其它页面。</p>
+<blockquote>
+<p>注意：有一点需要提醒的是，LocalStorage和SessionStorage里面只能保存基本类型的数据，也就是字符串和数字类型。其它所有的数据可以通过各自的toString()方法转化后保存。如果你想保存一个对象，则需要使用JSON.stringfy方法。（如果这个对象是一个类，你可以复写它默认的toString()方法，这个方法会自动被调用）。</p>
+</blockquote>
+<p><strong>举个例子</strong><br>我们不妨来看看之前的例子。在联系人和评论的部分，我们可以随时保存用户输入的东西。这样一来，即使用户不小心关闭了浏览器，之前输入的东西也不会丢失。对于jQuery来说，这个功能是小菜一碟。（注意：表单中每个输入字段都有id，在这里我们就用id来指代具体的字段）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$(&apos;#comments-input, .contact-field&apos;).on(&apos;keyup&apos;, function () &#123;</div><div class="line"></div><div class="line">// let&apos;s check if localStorage is supported</div><div class="line">   if (window.localStorage) &#123;</div><div class="line">      localStorage.setItem($(this).attr(&apos;id&apos;), $(this).val());</div><div class="line">   &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>每次提交联系人和评论的表单，我们需要清空缓存的值，我们可以这样处理提交（submit）事件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$(&apos;#comments-form, #contact-form&apos;).on(&apos;submit&apos;, function () &#123;</div><div class="line"></div><div class="line">// get all of the fields we saved</div><div class="line">   $(&apos;#comments-input, .contact-field&apos;).each(function () &#123;</div><div class="line"></div><div class="line">// get field&apos;s id and remove it from local storage</div><div class="line">      localStorage.removeItem($(this).attr(&apos;id&apos;));</div><div class="line">   &#125;);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>最后，每次加载页面的时候，把缓存的值填充到表单上即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">// get all of the fields we saved</div><div class="line">$(&apos;#comments-input, .contact-field&apos;).each(function () &#123;</div><div class="line"></div><div class="line">// get field&apos;s id and get it&apos;s value from local storage</div><div class="line">   var val = localStorage.getItem($(this).attr(&apos;id&apos;));</div><div class="line"></div><div class="line">// if the value exists, set it</div><div class="line">   if (val) &#123;</div><div class="line">      $(this).val(val);</div><div class="line">   &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h4 id="IndexedDB"><a href="#IndexedDB" class="headerlink" title="IndexedDB"></a><strong>IndexedDB</strong></h4><p>在我个人看来，这是最有意思的一种技术。它可以保存大量经过索引（indexed）的数据在浏览器端。这样一来，就能在客户端保存复杂对象，大文档等等数据。而且用户可以在离线情况下访问它们。这一特性几乎适用于所有类型的Web应用：如果你写的是邮件客户端，你可以缓存用户的邮件，以供稍后再看；如果你写的是相册类应用，你可以离线保存用户的照片；如果你写的是GPS导航，你可以缓存用户的路线……不胜枚举。</p>
+<p>IndexedDB是一个面向对象的数据库。这就意味着在IndexedDB中既不存在表的概念，也没有SQL，数据是以键值对的形式保存的。其中的键既可以是字符串和数字等基础类型，也可以是日期和数组等复杂类型。这个数据库本身构建于存储（store，一个store类似于关系型数据中表的概念）的基础上。数据库中每个值都必须要有对应的键。每个键既可以自动生成，也可以在插入值的时候指定，也可以取自于值中的某个字段。如果你决定使用值中的字段，那么只能向其中添加Javascript对象，因为基础数据类型不像Javascript对象那样有自定义属性。</p>
+<p><strong>举个例子</strong><br>在这个例子中，我们用一个音乐专辑应用作为示范。不过我并不打算在这里从头到尾展示整个应用，而是把涉及IndexedDB的部分挑出来解释。如果大家对这个Web应用感兴趣的话，文章的后面也提供了源代码的下载。首先，让我们来打开数据库并创建store：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line">// check if the indexedDB is supported</div><div class="line">if (!window.indexedDB) &#123;</div><div class="line">    throw &apos;IndexedDB is not supported!&apos;;</div><div class="line">// of course replace that with some user-friendly notification</div><div class="line">&#125;</div><div class="line"></div><div class="line">// variable which will hold the database connection</div><div class="line">var db;</div><div class="line"></div><div class="line">// open the database</div><div class="line">// first argument is database&apos;s name, second is it&apos;s version (I will talk about versions in a while)</div><div class="line">var request = indexedDB.open(&apos;album&apos;, 1);</div><div class="line"></div><div class="line">request.onerror = function (e) &#123;</div><div class="line">    console.log(e);</div><div class="line">&#125;;</div><div class="line"></div><div class="line">// this will fire when the version of the database changes</div><div class="line">request.onupgradeneeded = function (e) &#123;</div><div class="line"></div><div class="line">// e.target.result holds the connection to database</div><div class="line">    db = e.target.result;</div><div class="line"></div><div class="line"></div><div class="line">// create a store to hold the data</div><div class="line"></div><div class="line">// first argument is the store&apos;s name, second is for options</div><div class="line"></div><div class="line">// here we specify the field that will serve as the key and also enable the automatic generation of keys with autoIncrement</div><div class="line">    var objectStore = db.createObjectStore(&apos;cds&apos;, &#123; keyPath: &apos;id&apos;, autoIncrement: true &#125;);</div><div class="line"></div><div class="line">    // create an index to search cds by title</div><div class="line">    // first argument is the index&apos;s name, second is the field in the value</div><div class="line"></div><div class="line">// in the last argument we specify other options, here we only state that the index is unique, because there can be only one album with specific title</div><div class="line">    objectStore.createIndex(&apos;title&apos;, &apos;title&apos;, &#123; unique: true &#125;);</div><div class="line"></div><div class="line"></div><div class="line">// create an index to search cds by band</div><div class="line"></div><div class="line">// this one is not unique, since one band can have several albums</div><div class="line">    objectStore.createIndex(&apos;band&apos;, &apos;band&apos;, &#123; unique: false &#125;);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>相信上面的代码还是相当通俗易懂的。估计你也注意到上述代码中打开数据库时会传入一个版本号，还用到了onupgradeneeded事件。当你以较新的版本打开数据库时就会触发这个事件。如果相应版本的数据库尚不存在，则会触发事件，随后我们就会创建所需的store。接下来我们还创建了两个索引，一个用于标题搜索，一个用于乐队搜索。现在让我们再来看看如何增加和删除专辑：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">// adding</div><div class="line">$(&apos;#add-album&apos;).on(&apos;click&apos;, function () &#123;</div><div class="line"></div><div class="line">// create the transaction</div><div class="line"></div><div class="line">// first argument is a list of stores that will be used, second specifies the flag</div><div class="line"></div><div class="line">// since we want to add something we need write access, so we use readwrite flag</div><div class="line">    var transaction = db.transaction([ &apos;cds&apos; ], &apos;readwrite&apos;);</div><div class="line">    transaction.onerror = function (e) &#123;</div><div class="line">        console.log(e);</div><div class="line">    &#125;;</div><div class="line">    var value = &#123; ... &#125;;</div><div class="line">// read from DOM</div><div class="line"></div><div class="line">// add the album to the store</div><div class="line">    var request = transaction.objectStore(&apos;cds&apos;).add(value);</div><div class="line">    request.onsuccess = function (e) &#123;</div><div class="line"></div><div class="line">// add the album to the UI, e.target.result is a key of the item that was added</div><div class="line">    &#125;;</div><div class="line">&#125;);</div><div class="line"></div><div class="line">// removing</div><div class="line">$(&apos;.remove-album&apos;).on(&apos;click&apos;, function () &#123;</div><div class="line">    var transaction = db.transaction([ &apos;cds&apos; ], &apos;readwrite&apos;);</div><div class="line">    var request = transaction.objectStore(&apos;cds&apos;).delete(</div><div class="line">/* some id got from DOM, converted to integer */</div><div class="line">);</div><div class="line">    request.onsuccess = function () &#123;</div><div class="line"></div><div class="line">// remove the album from UI</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>是不是看起来直接明了？这里对数据库所有的操作都基于事务的，只有这样才能保证数据的一致性。现在最后要做的就是展示音乐专辑：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">request.onsuccess = function (e) &#123;</div><div class="line">    if (!db) db = e.target.result;</div><div class="line"></div><div class="line">    var transaction = db.transaction([ &apos;cds&apos; ]);</div><div class="line">// no flag since we are only reading</div><div class="line">    var store = transaction.objectStore(&apos;cds&apos;);</div><div class="line"></div><div class="line">// open a cursor, which will get all the items from database</div><div class="line">    store.openCursor().onsuccess = function (e) &#123;</div><div class="line">        var cursor = e.target.result;</div><div class="line">        if (cursor) &#123;</div><div class="line">            var value = cursor.value;</div><div class="line">            $(&apos;#albums-list tbody&apos;).append(&apos;</div><div class="line">&apos;+ value.title +&apos;&apos;+ value.band +&apos;&apos;+ value.genre +&apos;&apos;+ value.year +&apos;</div><div class="line">&apos;); // move to the next item in the cursor</div><div class="line">			cursor.continue();</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这也不是十分复杂。可以看见，通过使用IndexedDB，可以很轻松的保存复杂对象，也可以通过索引来检索想要的内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">function getAlbumByBand(band) &#123;</div><div class="line">    var transaction = db.transaction([ &apos;cds&apos; ]);</div><div class="line">    var store = transaction.objectStore(&apos;cds&apos;);</div><div class="line">    var index = store.index(&apos;band&apos;);</div><div class="line"></div><div class="line">// open a cursor to get only albums with specified band</div><div class="line"></div><div class="line">// notice the argument passed to openCursor()</div><div class="line">    index.openCursor(IDBKeyRange.only(band)).onsuccess = function (e) &#123;</div><div class="line">        var cursor = e.target.result;</div><div class="line">        if (cursor) &#123;</div><div class="line"></div><div class="line">// render the album</div><div class="line"></div><div class="line">// move to the next item in the cursor</div><div class="line">            cursor.continue();</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>使用索引的时候和使用store一样，也能通过游标（cursor）来遍历。由于同一个索引值名下可能有好几条数据（如果索引不是unique的话），所以这里我们需要用到IDBKeyRange。它能根据指定的函数对结果集进行过滤。这里，我们只想根据指定的乐队进行检索，所以我们用到了only()函数。也能使用其它类似于lowerBound()，upperBound()和bound()等函数，它们的功能也是不言自明的。</p>
+<h2 id="CDN"><a href="#CDN" class="headerlink" title="CDN"></a>CDN</h2><p>CDN的全称是Content Delivery Network，即内容分发网络。其基本思路是尽可能避开互联网上有可能影响数据传输速度和稳定性的瓶颈和环节，使内容传输的更快、更稳定。通过在网络各处放置节点服务器所构成的在现有的互联网基础之上的一层智能虚拟网络，CDN系统能够实时地根据网络流量和各节点的连接、负载状况以及到用户的距离和响应时间等综合信息将用户的请求重新导向离用户最近的服务节点上。其目的是使用户可就近取得所需内容，解决 Internet网络拥挤的状况，提高用户访问网站的响应速度。</p>
+<p>提供cdn的服务商很多，我所熟悉的是 <a href="https://console.upyun.com/#/login/" target="_blank" rel="external">又拍云</a>，它不仅提供cdn加速服务，还有云处理的能力，比如 图片压缩、打水印、锐化等 ，个人比较推荐使用这个。你可以把 项目发布的静态资源（图片、样式、脚本）托管到又拍云上，图片还可以添加云处理如打水印等，相当方便。</p>
+<h2 id="懒加载"><a href="#懒加载" class="headerlink" title="懒加载"></a>懒加载</h2><p>懒加载是一种资源加载方案，符合人脑认识事物的规则，用户滚动页面的时候自动获取更多的数据,而新得到的数据不会影响原有数据的显示,同时最大程度上减少服务器端的资源耗用。Web应用程序做的最多就是和后台数据库交互，而查询数据库是种非常耗时的过程。当数据库里记录过多时，查询优化更显得尤为重要。为了解决这种问题，有人提出了缓存的概念。缓存就是将用户频繁使用的数据放在内存中以便快速访问。在用户执行一次查询操作后，查询的记录会放在缓存中。当用户再次查询时，系统会首先从缓存中读取，如果缓存中没有，再查询数据库。缓存技术在一定程度上提升了系统性能，但是当数据量过大时，缓存就不太合适了。因为内存容量有限，把过多的数据放在内存中，会影响电脑性能。而另一种技术，懒加载可以解决这种问题。</p>
+<h3 id="图片懒加载"><a href="#图片懒加载" class="headerlink" title="图片懒加载"></a>图片懒加载</h3><p>图片懒加载的实现思路很简单，一般是针对首页面内容比较长的页面，根据鼠标的滚动逐渐显示当屏的所有图片。你可能觉得这和 “瀑布流” 有点相似，但其实两者有本质差异。瀑布流是为了替代短分页，每次执行瀑布流会执行ajax操作。但是懒加载不一样，大家应该知道影响页面加载速度罪魁祸首就是图片，加载图片需要从服务端把图片download到浏览器然后渲染出来，这个过程非常耗时。但是 从服务端 下载图片的 url然后存储在DOM节点里是相当快速的。</p>
+<p>上面说的比较拗口，还是来个例子演示一下。先<a href="http://baaistatic.b0.upaiyun.com/Static/HK/lazyload.jquery.min.js" target="_blank" rel="external">下载 jQuery的 lazyload插件</a>，我们把图片真正的url存在img标签的<code>data-original</code> 里，<code>src</code>属性 可以放一个 加载动画的gif图片的url，这样可以优化用户体验。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;div class=&quot;new-img-box&quot;&gt;</div><div class="line">	&lt;img data-original=&quot;&#123;&#123;item.picture&#125;&#125;&quot; class=&quot;lazyload&quot; src=&quot;http://baaistatic.b0.upaiyun.com/Static/HK/load.gif_400&quot; alt=&quot;&quot; /&gt;</div><div class="line">&lt;/div&gt;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">/*执行图片加载缓冲*/</div><div class="line">$(&apos;.lazyload&apos;).lazyload(&#123;effect : &quot;fadeIn&quot;&#125;);</div></pre></td></tr></table></figure>
+<p>这样，随着鼠标滚动栏滚动，进入当屏焦点的图片就会被 <code>渐变加载</code>。</p>
+<h1 id="用户体验"><a href="#用户体验" class="headerlink" title="用户体验"></a>用户体验</h1><p>用户体验优化，又叫交互优化，目的是让webApp更好用。主要是通过替换方案改变 用户感知到的响应速度，结合移动设备特点提供更有针对性、更好用的体验。</p>
+<h2 id="点击"><a href="#点击" class="headerlink" title="点击"></a>点击</h2><p>这个问题在我之前的文章里有详细介绍，感兴趣的同学可以 <a href="http://blog.csdn.net/u011413061/article/details/50071047" target="_blank" rel="external">戳这里</a> 。当然这里不做长篇大论复述，只说下原理和方案。</p>
+<h3 id="300ms延迟存在的理由"><a href="#300ms延迟存在的理由" class="headerlink" title="300ms延迟存在的理由"></a>300ms延迟存在的理由</h3><p>就目前而言，还有很多的站点没有做移动端分辨率兼容，因此部分区域需要放大、缩小来浏览。而移动端常用放大缩小的方案就是通过 “双击” ，然后在指定区域放大或缩小显示。那么问题来了，怎样区分用户是单击还是双击呢？PC端我们是通过鼠标连续两次点击的时间差来确定这个事件的触发，同样的道理，移动端我们也需要用户手指连续两次点击的这个时间差，也就是300ms延迟。</p>
+<h3 id="tap事件的原理"><a href="#tap事件的原理" class="headerlink" title="tap事件的原理"></a>tap事件的原理</h3><p>解决300ms延迟，最简单的办法是引入移动端的框架如zepto，用它提供的tap事件替代click事件。当然我并不强制要求你用zepto框架来做webApp开发，这里我重点是想说 tap事件的原理。</p>
+<p>首先我们要明确，tap事件不是移动端浏览器原生支持的事件，而是通过 touchstart －&gt; touchmove －&gt; touchend 这三个事件模拟出来的。基本条件有2个：</p>
+<blockquote>
+<p>1）从接触到离开时间间隔短<br>    2）从起点到终点的距离小</p>
+</blockquote>
+<p>只要能监听3个事件满足上面2个条件，你可以自己模拟出一个 tap 事件。比如我之前说的 <a href="%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90FastClick%E8%A7%A3%E5%86%B3%E5%BB%B6%E8%BF%9F%E7%82%B9%E5%87%BB">fastClick</a>。除此之外，如果你使用的是其他框架，有一个一劳永逸的方法就是拓展  <code>on</code> 方法，比如针对 jQuery：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">   /**</div><div class="line"> * [针对移动端的click事件优化]</div><div class="line"> * @type &#123;Boolean&#125;</div><div class="line"> */</div><div class="line">var isTouch = (&apos;ontouchstart&apos; in document.documentElement) ? &apos;touchstart&apos; : &apos;click&apos;, _on = $.fn.on;</div><div class="line">if(!$.fn.quickOn)&#123;</div><div class="line">       $.fn.quickOn= function()&#123;</div><div class="line">           arguments[0] = (arguments[0] === &apos;click&apos;) ? isTouch: arguments[0];</div><div class="line">           return $.fn.on.apply(this, arguments);    </div><div class="line">       &#125;;</div><div class="line">   &#125;</div><div class="line"></div><div class="line">/*注意：iOS设备quickOn会有默认事件，因此用quickOn绑定的click事件需要阻止鼠标的默认事件*/</div><div class="line">$(&apos;#btn&apos;).quickOn(&apos;click&apos;,function(e)&#123;</div><div class="line">	e.preventDefault();</div><div class="line">	//....</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h3 id="点击态"><a href="#点击态" class="headerlink" title="点击态"></a>点击态</h3><p>什么是点击态？就是 <strong>给用户明确的点击反馈，提升用户体验</strong>。用两种常见的方案：</p>
+<p>1）使用<code>:active</code>伪类 提供一个点击态样式。这个是通过CSS这门语言本身的特性来解决的问题，最容易让人接受，但是它有一个致命的缺点——页面滚动的时候也会触发这个伪类的样式。</p>
+<p>2）通过添加一个class类如 <code>.active</code> ，tap触发的时候添加这个样式，tap结束后通过 Javascript的<code>setTimeout</code> 延迟150ms后移除这个样式。比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$(&apos;#btn&apos;).on(&apos;tap&apos;,function(e)&#123;</div><div class="line">	var _target=$(e.target);</div><div class="line">	_target.addClass(&apos;active&apos;);</div><div class="line"></div><div class="line">	setTimeout(function()&#123;</div><div class="line">		_target.removeClass(&apos;active&apos;);</div><div class="line">	&#125;,150);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h2 id="滚动"><a href="#滚动" class="headerlink" title="滚动"></a>滚动</h2><p> <strong>全局滚动</strong>，滚动条在body节点或更顶层。<br><strong>局部滚动</strong>，滚动条在body下的某一个DOM节点上。</p>
+<h3 id="弹性滚动"><a href="#弹性滚动" class="headerlink" title="弹性滚动"></a>弹性滚动</h3><h4 id="针对IOS设备"><a href="#针对IOS设备" class="headerlink" title="针对IOS设备"></a>针对IOS设备</h4><p>IOS设备 <strong>全局滚动</strong> 默认支持 弹性滚动，局部滚动默认不支持 弹性滚动，所以需要通过css设置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">body&#123;</div><div class="line">	-webkit-overflow-scrolling:touch;</div><div class="line">&#125;</div><div class="line"></div><div class="line">/*局部滚动的dom节点*/</div><div class="line">.scroll-el&#123;</div><div class="line">	overflow:auto;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个属性建议挂在body上，这样子节点可以继承这个属性，可以避免不必要的bug。</p>
+<h4 id="针对Andriod设备"><a href="#针对Andriod设备" class="headerlink" title="针对Andriod设备"></a>针对Andriod设备</h4><p>定制版本较多，表现各异，虽然默认没有弹性滚动的效果，但很多版本支持 力度滚动，而且也没有IOS上默认生硬的滚动效果效果。 <code>-webkit-overflow-scrolling</code> 默认浏览器是不支持的，所以不会起效果。</p>
+<h3 id="IOS出界困扰"><a href="#IOS出界困扰" class="headerlink" title="IOS出界困扰"></a>IOS出界困扰</h3><p>什么时候会触发出界呢？<br><strong>全局滚动：</strong>滚动到页面顶部（或底部）时继续向下（向上）滚动，就会出现。<br><strong>局部滚动：</strong>滚动到页面顶部（或底部）时，手指离开停下，再继续向下（向上）滑动，就会出现。</p>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><p><strong>局部滚动：</strong>使用 scrollFix<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">if(startTopScroll&lt;=0)&#123;</div><div class="line">	elem.scrollTop=1;</div><div class="line">&#125;</div><div class="line">if(startTopScroll+elem.offsetHeight&gt;=elem.scrollHeight)&#123;</div><div class="line">	elem.scrollTop=elem.scrollHeight-elem.offsetHeight-1;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>除此之外，对于局部滚动页面的固定区域要禁止touchmove默认事件。</p>
+<p><strong>全局滚动：</strong> 暂时没有找到好的解决方法，可以考虑把全局滚动改成局部滚动。不过从iOS8开始Safari的出界部分的背景色和body的背景色保持一致。</p>
+<h3 id="Android-蛋疼的局部滚动"><a href="#Android-蛋疼的局部滚动" class="headerlink" title="Android 蛋疼的局部滚动"></a>Android 蛋疼的局部滚动</h3><p>andriod下使用局部滚动，会导致滚动条显示异常，且滚动不流畅。因此建议只使用全局滚动，固定元素可以通过定位在顶部或底部，然后给body添加内上边距或内下边距 模拟局部滚动的效果。</p>
+<h3 id="流畅滚动的N条军规"><a href="#流畅滚动的N条军规" class="headerlink" title="流畅滚动的N条军规"></a>流畅滚动的N条军规</h3><p>1）body上加上 <code>-webkit-overflow-scrolling:touch</code><br>2）iOS尽量使用局部滚动<br>3）iOS引进scrollFix避免出界<br>4）andriod下尽量使用全局滚动：尽量不用<code>overflow:auto</code> ,使用 <code>min-height:100%</code>代替 <code>height:100%</code>。<br>5）iOS下带有滚动条且<code>position:absolute</code>的节点不要设置背景色。</p>
+<h2 id="键盘定制"><a href="#键盘定制" class="headerlink" title="键盘定制"></a>键盘定制</h2><h3 id="定制软键盘样式"><a href="#定制软键盘样式" class="headerlink" title="定制软键盘样式"></a>定制软键盘样式</h3><p>可以通过设置<code>input</code>的 <code>type</code> 属性：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&lt;form&gt;</div><div class="line">	&lt;input type=&quot;email&quot; /&gt;</div><div class="line">	&lt;input type=&quot;url&quot; /&gt;</div><div class="line">	&lt;input type=&quot;tel&quot; /&gt;</div><div class="line">	&lt;input type=&quot;number&quot; /&gt;</div><div class="line">	&lt;input type=&quot;search&quot; /&gt;</div><div class="line">&lt;/form&gt;</div></pre></td></tr></table></figure>
+<p>这里要注意一点，需要给form设置阻止默认onsubmit事件。</p>
+<p>另外还有个纯数字键盘的方案，注意pattern的属性值只能是 <code>[0-9]*</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;form&gt;</div><div class="line">	&lt;input type=&quot;text&quot; pattern=&quot;[0-9]*&quot; /&gt;</div><div class="line">&lt;/form&gt;</div></pre></td></tr></table></figure></p>
+<h3 id="定制软键盘行为"><a href="#定制软键盘行为" class="headerlink" title="定制软键盘行为"></a>定制软键盘行为</h3><p>可以通过配置<code>input</code>节点的 <code>autocapitalize</code>、<code>autocorrect</code> 属性。</p>
+<p>1）输入英文用户名首字母自动大写的别扭。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;input type=&quot;text&quot; autocapitalize=&quot;off&quot; /&gt;</div></pre></td></tr></table></figure></p>
+<p>2）自动纠错<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;input type=&quot;text&quot; autocorrect=&quot;on&quot; /&gt;</div></pre></td></tr></table></figure></p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>海内存知己，天涯若比邻<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="http://photo.jafeney.com:9999/file/Tt5HgGiKKsq1A7oSGnqq7FQG.png">
+                      <span class="reward-type">支付宝</span>
+                    </div>
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="http://photo.jafeney.com:9999/file/K0VhpLd4WrFL7ynleExrdZLL.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">webApp</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/移动开发/" class="article-tag-list-link color5">移动开发</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://jafeney.com/2016/01/28/2016-01-28-webapp-reset/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+  
+<nav id="article-nav">
+  
+    <a href="/2016/02/02/2016-02-02-webpack/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          基于webpack的模块化构建
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/01/21/2016-01-20-cookie/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Node爬坑记——伪造cookie</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+  
+  <div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="2016-01-28-webapp-reset" data-title="webApp重构之路——性能和用户体验细节总结" data-url="http://jafeney.com/2016/01/28/2016-01-28-webapp-reset/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"true"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+  
+
+
+
+
+          </div>
+        </div>
+      </div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2017 Jafeney Lou
+        <span class="with-love">
+          浙ICP备15041893号-1
+          <i class="icon-next-heart fa fa-heart"></i>
+        </span>
+        <br />
+        Jafeney Lou - like programming, like life. 
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script>
+	var yiliaConfig = {
+		mathjax: false,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true,
+		root: "/",
+		innerArchive: true,
+		showTags: false
+	}
+</script>
+
+<script>!function(t){function n(r){if(e[r])return e[r].exports;var o=e[r]={exports:{},id:r,loaded:!1};return t[r].call(o.exports,o,o.exports,n),o.loaded=!0,o.exports}var e={};n.m=t,n.c=e,n.p="./",n(0)}([function(t,n,e){"use strict";function r(t){return t&&t.__esModule?t:{default:t}}function o(t,n){var e=/\/|index.html/g;return t.replace(e,"")===n.replace(e,"")}function i(){for(var t=document.querySelectorAll(".js-header-menu li a"),n=window.location.pathname,e=0,r=t.length;e<r;e++){var i=t[e];o(n,i.getAttribute("href"))&&(0,p.default)(i,"active")}}function u(t){for(var n=t.offsetLeft,e=t.offsetParent;null!==e;)n+=e.offsetLeft,e=e.offsetParent;return n}function c(t){for(var n=t.offsetTop,e=t.offsetParent;null!==e;)n+=e.offsetTop,e=e.offsetParent;return n}function f(t,n,e,r,o){var i=u(t),f=c(t)-n;if(f-e<=o){var a=t.$newDom;a||(a=t.cloneNode(!0),(0,v.default)(t,a),t.$newDom=a,a.style.position="fixed",a.style.top=(e||f)+"px",a.style.left=i+"px",a.style.zIndex=r||2,a.style.width="100%",a.style.color="#fff"),a.style.visibility="visible",t.style.visibility="hidden"}else{t.style.visibility="visible";var s=t.$newDom;s&&(s.style.visibility="hidden")}}function a(){var t=document.querySelector(".js-overlay"),n=document.querySelector(".js-header-menu");f(t,document.body.scrollTop,-63,2,0),f(n,document.body.scrollTop,1,3,0)}function s(){document.querySelector("#container").addEventListener("scroll",function(t){a()}),window.addEventListener("scroll",function(t){a()}),a()}var l=e(25),p=r(l),d=e(26),y=(r(d),e(96)),v=r(y),h=e(97),b=r(h),x=e(98),m=r(x),g=e(27);!function(){b.default.versions.mobile&&window.screen.width<800&&(i(),s())}(),(0,g.addLoadEvent)(function(){m.default.init()}),t.exports={}},,,,,,,,,,,,,,,,,,,,,,,,,function(t,n){function e(t,n){t.classList?t.classList.add(n):t.className+=" "+n}t.exports=e},function(t,n){function e(t,n){if(t.classList)t.classList.remove(n);else{var e=new RegExp("(^|\\b)"+n.split(" ").join("|")+"(\\b|$)","gi");t.className=t.className.replace(e," ")}}t.exports=e},function(t,n,e){"use strict";var r=e(28),o=function(t){return t&&t.__esModule?t:{default:t}}(r),i=function(){function t(t,n,r){return n||r?String.fromCharCode(n||r):e[t]||t}function n(t){return r[t]}var e={"&quot;":'"',"&lt;":"<","&gt;":">","&amp;":"&","&nbsp;":" "},r={};for(var u in e)r[e[u]]=u;return e["&apos;"]="'",r["'"]="&#39;",{encode:function(t){return t?(""+t).replace(/['<> "&]/g,n).replace(/\r?\n/g,"<br/>").replace(/\s/g,"&nbsp;"):""},decode:function(n){return n?(""+n).replace(/<br\s*\/?>/gi,"\n").replace(/&quot;|&lt;|&gt;|&amp;|&nbsp;|&apos;|&#(\d+);|&#(\d+)/g,t).replace(/\u00a0/g," "):""},encodeBase16:function(t){if(!t)return t;t+="";for(var n=[],e=0,r=t.length;r>e;e++)n.push(t.charCodeAt(e).toString(16).toUpperCase());return n.join("")},encodeBase16forJSON:function(t){if(!t)return t;t=t.replace(/[\u4E00-\u9FBF]/gi,function(t){return escape(t).replace("%u","\\u")});for(var n=[],e=0,r=t.length;r>e;e++)n.push(t.charCodeAt(e).toString(16).toUpperCase());return n.join("")},decodeBase16:function(t){if(!t)return t;t+="";for(var n=[],e=0,r=t.length;r>e;e+=2)n.push(String.fromCharCode("0x"+t.slice(e,e+2)));return n.join("")},encodeObject:function(t){if(t instanceof Array)for(var n=0,e=t.length;e>n;n++)t[n]=i.encodeObject(t[n]);else if("object"==(void 0===t?"undefined":(0,o.default)(t)))for(var r in t)t[r]=i.encodeObject(t[r]);else if("string"==typeof t)return i.encode(t);return t},loadScript:function(t){var n=document.createElement("script");document.getElementsByTagName("body")[0].appendChild(n),n.setAttribute("src",t)},addLoadEvent:function(t){var n=window.onload;"function"!=typeof window.onload?window.onload=t:window.onload=function(){n(),t()}}}}();t.exports=i},function(t,n,e){"use strict";function r(t){return t&&t.__esModule?t:{default:t}}n.__esModule=!0;var o=e(29),i=r(o),u=e(80),c=r(u),f="function"==typeof c.default&&"symbol"==typeof i.default?function(t){return typeof t}:function(t){return t&&"function"==typeof c.default&&t.constructor===c.default&&t!==c.default.prototype?"symbol":typeof t};n.default="function"==typeof c.default&&"symbol"===f(i.default)?function(t){return void 0===t?"undefined":f(t)}:function(t){return t&&"function"==typeof c.default&&t.constructor===c.default&&t!==c.default.prototype?"symbol":void 0===t?"undefined":f(t)}},function(t,n,e){t.exports={default:e(30),__esModule:!0}},function(t,n,e){e(31),e(75),t.exports=e(79).f("iterator")},function(t,n,e){"use strict";var r=e(32)(!0);e(35)(String,"String",function(t){this._t=String(t),this._i=0},function(){var t,n=this._t,e=this._i;return e>=n.length?{value:void 0,done:!0}:(t=r(n,e),this._i+=t.length,{value:t,done:!1})})},function(t,n,e){var r=e(33),o=e(34);t.exports=function(t){return function(n,e){var i,u,c=String(o(n)),f=r(e),a=c.length;return f<0||f>=a?t?"":void 0:(i=c.charCodeAt(f),i<55296||i>56319||f+1===a||(u=c.charCodeAt(f+1))<56320||u>57343?t?c.charAt(f):i:t?c.slice(f,f+2):u-56320+(i-55296<<10)+65536)}}},function(t,n){var e=Math.ceil,r=Math.floor;t.exports=function(t){return isNaN(t=+t)?0:(t>0?r:e)(t)}},function(t,n){t.exports=function(t){if(void 0==t)throw TypeError("Can't call method on  "+t);return t}},function(t,n,e){"use strict";var r=e(36),o=e(37),i=e(52),u=e(42),c=e(53),f=e(54),a=e(55),s=e(71),l=e(73),p=e(72)("iterator"),d=!([].keys&&"next"in[].keys()),y=function(){return this};t.exports=function(t,n,e,v,h,b,x){a(e,n,v);var m,g,w,O=function(t){if(!d&&t in P)return P[t];switch(t){case"keys":return function(){return new e(this,t)};case"values":return function(){return new e(this,t)}}return function(){return new e(this,t)}},S=n+" Iterator",_="values"==h,j=!1,P=t.prototype,E=P[p]||P["@@iterator"]||h&&P[h],M=E||O(h),A=h?_?O("entries"):M:void 0,T="Array"==n?P.entries||E:E;if(T&&(w=l(T.call(new t)))!==Object.prototype&&(s(w,S,!0),r||c(w,p)||u(w,p,y)),_&&E&&"values"!==E.name&&(j=!0,M=function(){return E.call(this)}),r&&!x||!d&&!j&&P[p]||u(P,p,M),f[n]=M,f[S]=y,h)if(m={values:_?M:O("values"),keys:b?M:O("keys"),entries:A},x)for(g in m)g in P||i(P,g,m[g]);else o(o.P+o.F*(d||j),n,m);return m}},function(t,n){t.exports=!0},function(t,n,e){var r=e(38),o=e(39),i=e(40),u=e(42),c=function(t,n,e){var f,a,s,l=t&c.F,p=t&c.G,d=t&c.S,y=t&c.P,v=t&c.B,h=t&c.W,b=p?o:o[n]||(o[n]={}),x=b.prototype,m=p?r:d?r[n]:(r[n]||{}).prototype;p&&(e=n);for(f in e)(a=!l&&m&&void 0!==m[f])&&f in b||(s=a?m[f]:e[f],b[f]=p&&"function"!=typeof m[f]?e[f]:v&&a?i(s,r):h&&m[f]==s?function(t){var n=function(n,e,r){if(this instanceof t){switch(arguments.length){case 0:return new t;case 1:return new t(n);case 2:return new t(n,e)}return new t(n,e,r)}return t.apply(this,arguments)};return n.prototype=t.prototype,n}(s):y&&"function"==typeof s?i(Function.call,s):s,y&&((b.virtual||(b.virtual={}))[f]=s,t&c.R&&x&&!x[f]&&u(x,f,s)))};c.F=1,c.G=2,c.S=4,c.P=8,c.B=16,c.W=32,c.U=64,c.R=128,t.exports=c},function(t,n){var e=t.exports="undefined"!=typeof window&&window.Math==Math?window:"undefined"!=typeof self&&self.Math==Math?self:Function("return this")();"number"==typeof __g&&(__g=e)},function(t,n){var e=t.exports={version:"2.4.0"};"number"==typeof __e&&(__e=e)},function(t,n,e){var r=e(41);t.exports=function(t,n,e){if(r(t),void 0===n)return t;switch(e){case 1:return function(e){return t.call(n,e)};case 2:return function(e,r){return t.call(n,e,r)};case 3:return function(e,r,o){return t.call(n,e,r,o)}}return function(){return t.apply(n,arguments)}}},function(t,n){t.exports=function(t){if("function"!=typeof t)throw TypeError(t+" is not a function!");return t}},function(t,n,e){var r=e(43),o=e(51);t.exports=e(47)?function(t,n,e){return r.f(t,n,o(1,e))}:function(t,n,e){return t[n]=e,t}},function(t,n,e){var r=e(44),o=e(46),i=e(50),u=Object.defineProperty;n.f=e(47)?Object.defineProperty:function(t,n,e){if(r(t),n=i(n,!0),r(e),o)try{return u(t,n,e)}catch(t){}if("get"in e||"set"in e)throw TypeError("Accessors not supported!");return"value"in e&&(t[n]=e.value),t}},function(t,n,e){var r=e(45);t.exports=function(t){if(!r(t))throw TypeError(t+" is not an object!");return t}},function(t,n){t.exports=function(t){return"object"==typeof t?null!==t:"function"==typeof t}},function(t,n,e){t.exports=!e(47)&&!e(48)(function(){return 7!=Object.defineProperty(e(49)("div"),"a",{get:function(){return 7}}).a})},function(t,n,e){t.exports=!e(48)(function(){return 7!=Object.defineProperty({},"a",{get:function(){return 7}}).a})},function(t,n){t.exports=function(t){try{return!!t()}catch(t){return!0}}},function(t,n,e){var r=e(45),o=e(38).document,i=r(o)&&r(o.createElement);t.exports=function(t){return i?o.createElement(t):{}}},function(t,n,e){var r=e(45);t.exports=function(t,n){if(!r(t))return t;var e,o;if(n&&"function"==typeof(e=t.toString)&&!r(o=e.call(t)))return o;if("function"==typeof(e=t.valueOf)&&!r(o=e.call(t)))return o;if(!n&&"function"==typeof(e=t.toString)&&!r(o=e.call(t)))return o;throw TypeError("Can't convert object to primitive value")}},function(t,n){t.exports=function(t,n){return{enumerable:!(1&t),configurable:!(2&t),writable:!(4&t),value:n}}},function(t,n,e){t.exports=e(42)},function(t,n){var e={}.hasOwnProperty;t.exports=function(t,n){return e.call(t,n)}},function(t,n){t.exports={}},function(t,n,e){"use strict";var r=e(56),o=e(51),i=e(71),u={};e(42)(u,e(72)("iterator"),function(){return this}),t.exports=function(t,n,e){t.prototype=r(u,{next:o(1,e)}),i(t,n+" Iterator")}},function(t,n,e){var r=e(44),o=e(57),i=e(69),u=e(66)("IE_PROTO"),c=function(){},f=function(){var t,n=e(49)("iframe"),r=i.length;for(n.style.display="none",e(70).appendChild(n),n.src="javascript:",t=n.contentWindow.document,t.open(),t.write("<script>document.F=Object<\/script>"),t.close(),f=t.F;r--;)delete f.prototype[i[r]];return f()};t.exports=Object.create||function(t,n){var e;return null!==t?(c.prototype=r(t),e=new c,c.prototype=null,e[u]=t):e=f(),void 0===n?e:o(e,n)}},function(t,n,e){var r=e(43),o=e(44),i=e(58);t.exports=e(47)?Object.defineProperties:function(t,n){o(t);for(var e,u=i(n),c=u.length,f=0;c>f;)r.f(t,e=u[f++],n[e]);return t}},function(t,n,e){var r=e(59),o=e(69);t.exports=Object.keys||function(t){return r(t,o)}},function(t,n,e){var r=e(53),o=e(60),i=e(63)(!1),u=e(66)("IE_PROTO");t.exports=function(t,n){var e,c=o(t),f=0,a=[];for(e in c)e!=u&&r(c,e)&&a.push(e);for(;n.length>f;)r(c,e=n[f++])&&(~i(a,e)||a.push(e));return a}},function(t,n,e){var r=e(61),o=e(34);t.exports=function(t){return r(o(t))}},function(t,n,e){var r=e(62);t.exports=Object("z").propertyIsEnumerable(0)?Object:function(t){return"String"==r(t)?t.split(""):Object(t)}},function(t,n){var e={}.toString;t.exports=function(t){return e.call(t).slice(8,-1)}},function(t,n,e){var r=e(60),o=e(64),i=e(65);t.exports=function(t){return function(n,e,u){var c,f=r(n),a=o(f.length),s=i(u,a);if(t&&e!=e){for(;a>s;)if((c=f[s++])!=c)return!0}else for(;a>s;s++)if((t||s in f)&&f[s]===e)return t||s||0;return!t&&-1}}},function(t,n,e){var r=e(33),o=Math.min;t.exports=function(t){return t>0?o(r(t),9007199254740991):0}},function(t,n,e){var r=e(33),o=Math.max,i=Math.min;t.exports=function(t,n){return t=r(t),t<0?o(t+n,0):i(t,n)}},function(t,n,e){var r=e(67)("keys"),o=e(68);t.exports=function(t){return r[t]||(r[t]=o(t))}},function(t,n,e){var r=e(38),o=r["__core-js_shared__"]||(r["__core-js_shared__"]={});t.exports=function(t){return o[t]||(o[t]={})}},function(t,n){var e=0,r=Math.random();t.exports=function(t){return"Symbol(".concat(void 0===t?"":t,")_",(++e+r).toString(36))}},function(t,n){t.exports="constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf".split(",")},function(t,n,e){t.exports=e(38).document&&document.documentElement},function(t,n,e){var r=e(43).f,o=e(53),i=e(72)("toStringTag");t.exports=function(t,n,e){t&&!o(t=e?t:t.prototype,i)&&r(t,i,{configurable:!0,value:n})}},function(t,n,e){var r=e(67)("wks"),o=e(68),i=e(38).Symbol,u="function"==typeof i;(t.exports=function(t){return r[t]||(r[t]=u&&i[t]||(u?i:o)("Symbol."+t))}).store=r},function(t,n,e){var r=e(53),o=e(74),i=e(66)("IE_PROTO"),u=Object.prototype;t.exports=Object.getPrototypeOf||function(t){return t=o(t),r(t,i)?t[i]:"function"==typeof t.constructor&&t instanceof t.constructor?t.constructor.prototype:t instanceof Object?u:null}},function(t,n,e){var r=e(34);t.exports=function(t){return Object(r(t))}},function(t,n,e){e(76);for(var r=e(38),o=e(42),i=e(54),u=e(72)("toStringTag"),c=["NodeList","DOMTokenList","MediaList","StyleSheetList","CSSRuleList"],f=0;f<5;f++){var a=c[f],s=r[a],l=s&&s.prototype;l&&!l[u]&&o(l,u,a),i[a]=i.Array}},function(t,n,e){"use strict";var r=e(77),o=e(78),i=e(54),u=e(60);t.exports=e(35)(Array,"Array",function(t,n){this._t=u(t),this._i=0,this._k=n},function(){var t=this._t,n=this._k,e=this._i++;return!t||e>=t.length?(this._t=void 0,o(1)):"keys"==n?o(0,e):"values"==n?o(0,t[e]):o(0,[e,t[e]])},"values"),i.Arguments=i.Array,r("keys"),r("values"),r("entries")},function(t,n){t.exports=function(){}},function(t,n){t.exports=function(t,n){return{value:n,done:!!t}}},function(t,n,e){n.f=e(72)},function(t,n,e){t.exports={default:e(81),__esModule:!0}},function(t,n,e){e(82),e(93),e(94),e(95),t.exports=e(39).Symbol},function(t,n,e){"use strict";var r=e(38),o=e(53),i=e(47),u=e(37),c=e(52),f=e(83).KEY,a=e(48),s=e(67),l=e(71),p=e(68),d=e(72),y=e(79),v=e(84),h=e(85),b=e(86),x=e(89),m=e(44),g=e(60),w=e(50),O=e(51),S=e(56),_=e(90),j=e(92),P=e(43),E=e(58),M=j.f,A=P.f,T=_.f,L=r.Symbol,N=r.JSON,C=N&&N.stringify,k=d("_hidden"),F=d("toPrimitive"),q={}.propertyIsEnumerable,I=s("symbol-registry"),B=s("symbols"),D=s("op-symbols"),W=Object.prototype,H="function"==typeof L,K=r.QObject,R=!K||!K.prototype||!K.prototype.findChild,J=i&&a(function(){return 7!=S(A({},"a",{get:function(){return A(this,"a",{value:7}).a}})).a})?function(t,n,e){var r=M(W,n);r&&delete W[n],A(t,n,e),r&&t!==W&&A(W,n,r)}:A,U=function(t){var n=B[t]=S(L.prototype);return n._k=t,n},G=H&&"symbol"==typeof L.iterator?function(t){return"symbol"==typeof t}:function(t){return t instanceof L},$=function(t,n,e){return t===W&&$(D,n,e),m(t),n=w(n,!0),m(e),o(B,n)?(e.enumerable?(o(t,k)&&t[k][n]&&(t[k][n]=!1),e=S(e,{enumerable:O(0,!1)})):(o(t,k)||A(t,k,O(1,{})),t[k][n]=!0),J(t,n,e)):A(t,n,e)},z=function(t,n){m(t);for(var e,r=b(n=g(n)),o=0,i=r.length;i>o;)$(t,e=r[o++],n[e]);return t},Y=function(t,n){return void 0===n?S(t):z(S(t),n)},Q=function(t){var n=q.call(this,t=w(t,!0));return!(this===W&&o(B,t)&&!o(D,t))&&(!(n||!o(this,t)||!o(B,t)||o(this,k)&&this[k][t])||n)},X=function(t,n){if(t=g(t),n=w(n,!0),t!==W||!o(B,n)||o(D,n)){var e=M(t,n);return!e||!o(B,n)||o(t,k)&&t[k][n]||(e.enumerable=!0),e}},V=function(t){for(var n,e=T(g(t)),r=[],i=0;e.length>i;)o(B,n=e[i++])||n==k||n==f||r.push(n);return r},Z=function(t){for(var n,e=t===W,r=T(e?D:g(t)),i=[],u=0;r.length>u;)!o(B,n=r[u++])||e&&!o(W,n)||i.push(B[n]);return i};H||(L=function(){if(this instanceof L)throw TypeError("Symbol is not a constructor!");var t=p(arguments.length>0?arguments[0]:void 0),n=function(e){this===W&&n.call(D,e),o(this,k)&&o(this[k],t)&&(this[k][t]=!1),J(this,t,O(1,e))};return i&&R&&J(W,t,{configurable:!0,set:n}),U(t)},c(L.prototype,"toString",function(){return this._k}),j.f=X,P.f=$,e(91).f=_.f=V,e(88).f=Q,e(87).f=Z,i&&!e(36)&&c(W,"propertyIsEnumerable",Q,!0),y.f=function(t){return U(d(t))}),u(u.G+u.W+u.F*!H,{Symbol:L});for(var tt="hasInstance,isConcatSpreadable,iterator,match,replace,search,species,split,toPrimitive,toStringTag,unscopables".split(","),nt=0;tt.length>nt;)d(tt[nt++]);for(var tt=E(d.store),nt=0;tt.length>nt;)v(tt[nt++]);u(u.S+u.F*!H,"Symbol",{for:function(t){return o(I,t+="")?I[t]:I[t]=L(t)},keyFor:function(t){if(G(t))return h(I,t);throw TypeError(t+" is not a symbol!")},useSetter:function(){R=!0},useSimple:function(){R=!1}}),u(u.S+u.F*!H,"Object",{create:Y,defineProperty:$,defineProperties:z,getOwnPropertyDescriptor:X,getOwnPropertyNames:V,getOwnPropertySymbols:Z}),N&&u(u.S+u.F*(!H||a(function(){var t=L();return"[null]"!=C([t])||"{}"!=C({a:t})||"{}"!=C(Object(t))})),"JSON",{stringify:function(t){if(void 0!==t&&!G(t)){for(var n,e,r=[t],o=1;arguments.length>o;)r.push(arguments[o++]);return n=r[1],"function"==typeof n&&(e=n),!e&&x(n)||(n=function(t,n){if(e&&(n=e.call(this,t,n)),!G(n))return n}),r[1]=n,C.apply(N,r)}}}),L.prototype[F]||e(42)(L.prototype,F,L.prototype.valueOf),l(L,"Symbol"),l(Math,"Math",!0),l(r.JSON,"JSON",!0)},function(t,n,e){var r=e(68)("meta"),o=e(45),i=e(53),u=e(43).f,c=0,f=Object.isExtensible||function(){return!0},a=!e(48)(function(){return f(Object.preventExtensions({}))}),s=function(t){u(t,r,{value:{i:"O"+ ++c,w:{}}})},l=function(t,n){if(!o(t))return"symbol"==typeof t?t:("string"==typeof t?"S":"P")+t;if(!i(t,r)){if(!f(t))return"F";if(!n)return"E";s(t)}return t[r].i},p=function(t,n){if(!i(t,r)){if(!f(t))return!0;if(!n)return!1;s(t)}return t[r].w},d=function(t){return a&&y.NEED&&f(t)&&!i(t,r)&&s(t),t},y=t.exports={KEY:r,NEED:!1,fastKey:l,getWeak:p,onFreeze:d}},function(t,n,e){var r=e(38),o=e(39),i=e(36),u=e(79),c=e(43).f;t.exports=function(t){var n=o.Symbol||(o.Symbol=i?{}:r.Symbol||{});"_"==t.charAt(0)||t in n||c(n,t,{value:u.f(t)})}},function(t,n,e){var r=e(58),o=e(60);t.exports=function(t,n){for(var e,i=o(t),u=r(i),c=u.length,f=0;c>f;)if(i[e=u[f++]]===n)return e}},function(t,n,e){var r=e(58),o=e(87),i=e(88);t.exports=function(t){var n=r(t),e=o.f;if(e)for(var u,c=e(t),f=i.f,a=0;c.length>a;)f.call(t,u=c[a++])&&n.push(u);return n}},function(t,n){n.f=Object.getOwnPropertySymbols},function(t,n){n.f={}.propertyIsEnumerable},function(t,n,e){var r=e(62);t.exports=Array.isArray||function(t){return"Array"==r(t)}},function(t,n,e){var r=e(60),o=e(91).f,i={}.toString,u="object"==typeof window&&window&&Object.getOwnPropertyNames?Object.getOwnPropertyNames(window):[],c=function(t){try{return o(t)}catch(t){return u.slice()}};t.exports.f=function(t){return u&&"[object Window]"==i.call(t)?c(t):o(r(t))}},function(t,n,e){var r=e(59),o=e(69).concat("length","prototype");n.f=Object.getOwnPropertyNames||function(t){return r(t,o)}},function(t,n,e){var r=e(88),o=e(51),i=e(60),u=e(50),c=e(53),f=e(46),a=Object.getOwnPropertyDescriptor;n.f=e(47)?a:function(t,n){if(t=i(t),n=u(n,!0),f)try{return a(t,n)}catch(t){}if(c(t,n))return o(!r.f.call(t,n),t[n])}},function(t,n){},function(t,n,e){e(84)("asyncIterator")},function(t,n,e){e(84)("observable")},function(t,n){function e(t,n){if("string"==typeof n)return t.insertAdjacentHTML("afterend",n);var e=t.nextSibling;return e?t.parentNode.insertBefore(n,e):t.parentNode.appendChild(n)}t.exports=e},function(t,n){"use strict";var e={versions:function(){var t=window.navigator.userAgent;return{trident:t.indexOf("Trident")>-1,presto:t.indexOf("Presto")>-1,webKit:t.indexOf("AppleWebKit")>-1,gecko:t.indexOf("Gecko")>-1&&t.indexOf("KHTML")==-1,mobile:!!t.match(/AppleWebKit.*Mobile.*/),ios:!!t.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),android:t.indexOf("Android")>-1||t.indexOf("Linux")>-1,iPhone:t.indexOf("iPhone")>-1||t.indexOf("Mac")>-1,iPad:t.indexOf("iPad")>-1,webApp:t.indexOf("Safari")==-1,weixin:t.indexOf("MicroMessenger")==-1}}()};t.exports=e},function(t,n){"use strict";function e(){var t=document.querySelector("#page-nav");if(t&&!document.querySelector("#page-nav .extend.prev")&&(t.innerHTML='<a class="extend prev disabled" rel="prev">&laquo; Prev</a>'+t.innerHTML),t&&!document.querySelector("#page-nav .extend.next")&&(t.innerHTML=t.innerHTML+'<a class="extend next disabled" rel="next">Next &raquo;</a>'),yiliaConfig&&yiliaConfig.open_in_new){document.querySelectorAll(".article-entry a:not(.article-more-a)").forEach(function(t){t.setAttribute("target","_blank")})}var n=document.querySelector("#js-aboutme");n&&0!==n.length&&(n.innerHTML=n.innerText)}t.exports={init:e}}])</script><script src="/./main.b07bcf.js"></script><script>!function(){!function(e){var t=document.createElement("script");document.getElementsByTagName("body")[0].appendChild(t),t.setAttribute("src",e)}("/slider.583eaa.js")}()</script>
+
+
+    
+<div class="tools-col" q-class="show:isShow,hide:isShow|isFalse" q-on="click:stop(e)">
+  <div class="tools-nav header-menu">
+    
+    
+      
+      
+      
+    
+      
+      
+      
+    
+      
+      
+      
+    
+    
+
+    <ul style="width: 70%">
+    
+    
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'innerArchive')"><a href="javascript:void(0)" q-class="active:innerArchive">所有文章</a></li>
+      
+        
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'friends')"><a href="javascript:void(0)" q-class="active:friends">友链</a></li>
+      
+        
+      
+      <li style="width: 33.333333333333336%" q-on="click: openSlider(e, 'aboutme')"><a href="javascript:void(0)" q-class="active:aboutme">关于我</a></li>
+      
+        
+    </ul>
+  </div>
+  <div class="tools-wrap">
+    
+    	<section class="tools-section tools-section-all" q-show="innerArchive">
+        <div class="search-wrap">
+          <input class="search-ipt" q-model="search" type="text" placeholder="find something…">
+          <i class="icon-search icon" q-show="search|isEmptyStr"></i>
+          <i class="icon-close icon" q-show="search|isNotEmptyStr" q-on="click:clearChose(e)"></i>
+        </div>
+        <div class="widget tagcloud search-tag">
+          <p class="search-tag-wording">tag:</p>
+          <label class="search-switch">
+            <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
+          </label>
+          <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">NodeJS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Javascript</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">模块化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">jQuery</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">express</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">设计模式</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">mongoDB</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">webApp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">cookie</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">css</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">ES6</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">自动化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">react-native</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">团队建设</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Redux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">node</a>
+              </li>
+            
+            <div class="clearfix"></div>
+          </ul>
+        </div>
+        <ul class="search-ul">
+          <p q-show="jsonFail" style="padding: 20px; font-size: 12px;">
+            缺失模块。<br/>1、在博客根目录（注意不是yilia根目录）执行以下命令：<br/> npm i hexo-generator-json-content --save<br/><br/>
+            2、在根目录_config.yml里添加配置：
+<pre style="font-size: 12px;" q-show="jsonFail">
+  jsonContent:
+    meta: false
+    pages: false
+    posts:
+      title: true
+      date: true
+      path: true
+      text: true
+      raw: false
+      content: false
+      slug: false
+      updated: false
+      comments: false
+      link: false
+      permalink: false
+      excerpt: false
+      categories: false
+      tags: true
+</pre>
+          </p>
+          <li class="search-li" q-repeat="items" q-show="isShow">
+            <a q-attr="href:path|urlformat" class="search-title"><i class="icon-quo-left icon"></i><span q-text="title"></span></a>
+            <p class="search-time">
+              <i class="icon-calendar icon"></i>
+              <span q-text="date|dateformat"></span>
+            </p>
+            <p class="search-tag">
+              <i class="icon-price-tags icon"></i>
+              <span q-repeat="tags" q-on="click:choseTag(e, name)" q-text="name|tagformat"></span>
+            </p>
+          </li>
+        </ul>
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-friends" q-show="friends">
+  		
+        <ul class="search-ul">
+          
+            <li class="search-li">
+              <a href="http://blog.csdn.net/u011413061" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的csdn</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://photo.jafeney.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的图片</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://royal.jafeney.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>我的Royal</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://www.e2718281828459.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>老黄的leo</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://www.bysocket.com" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>强强的bysocket</a>
+            </li>
+          
+        </ul>
+  		
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-me" q-show="aboutme">
+  	  	
+  	  		<div class="aboutme-wrap" id="js-aboutme">Jafeney Lou，一个安静的代码客</div>
+  	  	
+    	</section>
+    
+  </div>
+  
+</div>
+    <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+  </div>
+</body>
+</html>
