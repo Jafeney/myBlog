@@ -1,5 +1,5 @@
 ---
-title: ReactNative项目开发常用的三方模块
+title: ReactNative开发常用的三方模块
 date: 2017-03-29 15:06:22
 tags: react-native
 categories: 移动开发
