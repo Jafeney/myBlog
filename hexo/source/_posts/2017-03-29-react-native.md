@@ -11,6 +11,8 @@ categories: 移动开发
 github地址：https://github.com/aroth/react-native-uploader
 > 评价：支持多图上传和上传进度显示，demo比较粗糙。项目已经停止更新 4个月
 
+<!--more-->
+
 ## 毛玻璃效果 `react-native-blur`
 ![这里写图片描述](https://cloud.githubusercontent.com/assets/5795227/20123354/d877dba4-a61e-11e6-8e5a-c85f76419e20.gif)
 
